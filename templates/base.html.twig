@@ -52,9 +52,10 @@
     <meta property="og:title"       content="{% block og_title %}{{ block('title') }}{% endblock %}">
     <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
     <meta property="og:url"         content="{{ canonical_url }}">
-    <meta property="og:image"       content="{% block og_image %}{{ url('marketing_home', {_locale: 'en'})|trim('/') }}/og-image.png{% endblock %}">
+    <meta property="og:image"       content="{% block og_image %}https://settlepay.pro/og-image.png{% endblock %}">
     <meta property="og:image:width"  content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt"    content="{{ 'common.app_name'|trans }} — {{ 'common.tagline'|trans }}">
     <meta property="og:locale"      content="{{ locale == 'uk' ? 'uk_UA' : (locale == 'es' ? 'es_ES' : 'en_US') }}">
     {% if seo_indexable and hreflang_urls|length > 0 %}
         {% for code in ['en', 'uk', 'es']|filter(c => c != locale) %}
