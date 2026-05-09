@@ -32,6 +32,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'email_verified_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $emailVerifiedAt = null;
 
+    /** SHA-256 hex of the plaintext token mailed to the user. */
+    #[ORM\Column(name: 'email_verification_token', length: 64, nullable: true)]
+    private ?string $emailVerificationToken = null;
+
+    #[ORM\Column(name: 'email_verification_expires_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $emailVerificationExpiresAt = null;
+
+    #[ORM\Column(name: 'password_reset_token', length: 64, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(name: 'password_reset_expires_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $passwordResetExpiresAt = null;
+
+    #[ORM\Column(name: 'last_login_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastLoginAt = null;
+
     #[ORM\Column(name: 'display_name', length: 120, nullable: true)]
     private ?string $displayName = null;
 
@@ -89,6 +105,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPasswordHash(string $h): self          { $this->passwordHash = $h; return $this; }
     public function getEmailVerifiedAt(): ?\DateTimeInterface { return $this->emailVerifiedAt; }
     public function setEmailVerifiedAt(?\DateTimeInterface $d): self { $this->emailVerifiedAt = $d; return $this; }
+    public function isEmailVerified(): bool { return $this->emailVerifiedAt !== null; }
+
+    public function getEmailVerificationToken(): ?string { return $this->emailVerificationToken; }
+    public function setEmailVerificationToken(?string $t): self { $this->emailVerificationToken = $t; return $this; }
+    public function getEmailVerificationExpiresAt(): ?\DateTimeInterface { return $this->emailVerificationExpiresAt; }
+    public function setEmailVerificationExpiresAt(?\DateTimeInterface $d): self { $this->emailVerificationExpiresAt = $d; return $this; }
+
+    public function getPasswordResetToken(): ?string { return $this->passwordResetToken; }
+    public function setPasswordResetToken(?string $t): self { $this->passwordResetToken = $t; return $this; }
+    public function getPasswordResetExpiresAt(): ?\DateTimeInterface { return $this->passwordResetExpiresAt; }
+    public function setPasswordResetExpiresAt(?\DateTimeInterface $d): self { $this->passwordResetExpiresAt = $d; return $this; }
+
+    public function getLastLoginAt(): ?\DateTimeInterface { return $this->lastLoginAt; }
+    public function setLastLoginAt(?\DateTimeInterface $d): self { $this->lastLoginAt = $d; return $this; }
     public function getDisplayName(): ?string                 { return $this->displayName; }
     public function setDisplayName(?string $n): self          { $this->displayName = $n; return $this; }
     public function getBusinessName(): ?string                { return $this->businessName; }

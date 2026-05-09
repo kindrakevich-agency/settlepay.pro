@@ -5,7 +5,10 @@ security:
             algorithm: 'auto'
 
     providers:
-        users_in_memory: { memory: null }
+        users_in_db:
+            entity:
+                class: App\Entity\User
+                property: email
 
     firewalls:
         dev:
@@ -14,16 +17,40 @@ security:
 
         main:
             lazy: true
-            provider: users_in_memory
+            provider: users_in_db
             stateless: false
 
+            form_login:
+                login_path: auth_login
+                check_path: auth_login
+                default_target_path: dashboard_home
+                username_parameter: email
+                password_parameter: password
+                csrf_parameter: _csrf_token
+                enable_csrf: true
+
+            logout:
+                path: auth_logout
+                target: marketing_home
+
+            login_throttling:
+                limiter: app.login.limiter
+
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 2592000           # 30 days
+                samesite: lax
+                secure: auto
+
     access_control:
+        - { path: ^/(en|uk|es)?/?(login|register|forgot-password|reset-password|verify-email)(/.*)?$, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/auth, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/public, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/health, roles: PUBLIC_ACCESS }
-        - { path: ^/(en|uk|es)?/?(pricing|docs|privacy|terms|pay)?, roles: PUBLIC_ACCESS }
+        - { path: ^/(en|uk|es)?/?(pricing|docs|privacy|terms|pay)(/.*)?$, roles: PUBLIC_ACCESS }
+        - { path: ^/(en|uk|es)?/?$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }
-        - { path: ^/app, roles: ROLE_USER }
+        - { path: ^/(en|uk|es)/(app|account)(/.*)?$, roles: ROLE_USER }
 
 when@test:
     security:
