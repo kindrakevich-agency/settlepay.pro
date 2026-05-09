@@ -1,0 +1,69 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          command_timeout: 10m
+          script: |
+            set -e
+            PHP=/www/server/php/83/bin/php
+            COMPOSER=/usr/local/bin/composer
+            APP_DIR=/www/wwwroot/settlepay.pro
+
+            echo "=== Pull latest code ==="
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== Strip dev-only files from production checkout ==="
+            rm -f compose.yaml docker-compose.yml docker-compose.*.yml Makefile 2>/dev/null || true
+            rm -rf docker/ 2>/dev/null || true
+
+            echo "=== Backend: composer install ==="
+            $PHP $COMPOSER install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+            echo "=== Backend: cache:clear + warmup ==="
+            rm -rf var/cache/prod
+            APP_ENV=prod $PHP bin/console cache:clear --no-warmup
+            APP_ENV=prod $PHP bin/console cache:warmup
+            chown -R www:www var/
+
+            echo "=== Backend: migrations ==="
+            APP_ENV=prod $PHP bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+
+            echo "=== Frontend: install + build assets ==="
+            corepack enable
+            corepack prepare pnpm@9.12.0 --activate
+            pnpm install --frozen-lockfile
+            pnpm build
+
+            echo "=== Permissions ==="
+            chown -R www:www public/build var/ 2>/dev/null || true
+
+            echo "=== Restart PHP-FPM (clear opcache) ==="
+            /etc/init.d/php-fpm-83 restart
+
+            echo "=== Restart messenger worker + chain listener (if installed) ==="
+            systemctl restart settle-worker@1 2>/dev/null || echo "(worker unit not yet installed)"
+            systemctl restart settle-listener 2>/dev/null || echo "(listener unit not yet installed)"
+
+            echo "=== Deploy complete ==="

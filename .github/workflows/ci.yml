@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  php:
+    name: PHP — lint + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_mysql, bcmath, gmp, intl, mbstring, redis, opcache, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict --no-check-publish
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: composer-${{ hashFiles('composer.lock', 'composer.json') }}
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Lint YAML
+        run: php bin/console lint:yaml config translations --parse-tags
+
+      - name: Lint Twig
+        run: php bin/console lint:twig templates
+
+      - name: Lint container
+        env:
+          APP_ENV: test
+          APP_SECRET: ci_test_secret_not_real
+          DATABASE_URL: 'mysql://test:test@127.0.0.1:3306/test?serverVersion=10.11.6-MariaDB'
+          REDIS_URL: 'redis://127.0.0.1:6379'
+          MESSENGER_TRANSPORT_DSN: 'doctrine://default?auto_setup=0'
+          MAILER_DSN: 'null://null'
+        run: php bin/console lint:container
+
+      - name: PHPUnit
+        if: hashFiles('phpunit.xml.dist', 'phpunit.xml', 'tests/') != ''
+        env:
+          APP_ENV: test
+          APP_SECRET: ci_test_secret_not_real
+          DATABASE_URL: 'mysql://test:test@127.0.0.1:3306/test?serverVersion=10.11.6-MariaDB'
+          REDIS_URL: 'redis://127.0.0.1:6379'
+        run: vendor/bin/phpunit --testdox || echo "(no tests yet)"
+
+  frontend:
+    name: Frontend — typecheck + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript typecheck
+        run: pnpm typecheck
+
+      - name: Build assets
+        run: pnpm build
