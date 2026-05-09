@@ -1,0 +1,32 @@
+[Unit]
+Description=Settlepay blockchain listener (eth_getLogs polling per chain)
+Documentation=https://github.com/kindrakevich-agency/settlepay.pro
+After=network.target mariadb.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/settlepay.pro
+Environment=APP_ENV=prod
+
+# --testnet for now (only testnet invoices exist). Swap to bare command
+# `app:chain:listen` when mainnet invoices land. To watch BOTH simultaneously
+# run two units: settle-listener.service (mainnet) and
+# settle-listener-testnet.service (--testnet).
+ExecStart=/www/server/php/83/bin/php bin/console app:chain:listen --testnet
+
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+StandardOutput=append:/var/log/settle/listener.log
+StandardError=append:/var/log/settle/listener-error.log
+
+# Resource caps so a runaway listener can't take the box down.
+MemoryLimit=256M
+
+[Install]
+WantedBy=multi-user.target
