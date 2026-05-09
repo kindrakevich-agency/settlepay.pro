@@ -12,8 +12,10 @@
 
 import '../styles/app.css';
 
+/// <reference types="vite/client" />
+
 import { http, createConfig } from '@wagmi/core';
-import { connect, disconnect, getAccount, getChainId, switchChain, writeContract, watchAccount, waitForTransactionReceipt } from '@wagmi/core';
+import { connect, getAccount, getChainId, switchChain, writeContract, watchAccount, waitForTransactionReceipt } from '@wagmi/core';
 import { injected, walletConnect } from '@wagmi/connectors';
 import {
     base, polygon, arbitrum, optimism,
@@ -131,10 +133,6 @@ function showStatus({ text, progressPct, txHash, tone }: { text: string; progres
     if (bar && typeof progressPct === 'number') bar.style.width = `${Math.min(100, Math.max(0, progressPct))}%`;
     const tx = $<HTMLElement>('[data-status-tx]');
     if (tx) tx.textContent = txHash ? `tx ${txHash}` : '';
-}
-
-function hideStatus() {
-    $('#settlepay-status')?.classList.add('hidden');
 }
 
 // ─── 5. Selected token + chain (driven by the radio + select inputs) ──
@@ -294,7 +292,7 @@ async function onCtaClick(data: CheckoutData) {
     // ─── Wait for the chain receipt (one confirmation), then start polling
     // our own backend until the listener marks it paid. ──────
     waitForTransactionReceipt(wagmi, { hash: txHash, chainId: sel.chainId as 8453 | 137 | 42161 | 10 | 84532 | 11155420 | 421614 })
-        .then(receipt => {
+        .then(() => {
             showStatus({ text: 'Confirmed on-chain. Finalising…', txHash, progressPct: 60, tone: 'pending' });
         })
         .catch(err => console.warn('[settlepay] waitForTransactionReceipt:', err));
