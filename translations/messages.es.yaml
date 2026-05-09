@@ -92,6 +92,48 @@ checkout_section:
     state3_title: Pago recibido
     state3_sub: Recibo enviado a client@acme.com
 
+components_section:
+    eyebrow: Librería de componentes
+    title: 'Tokens y primitivos.'
+    sub: 'Todo lo de arriba está construido con esto. Usados en Twig (marketing/pago) y React (panel).'
+    colors: Tokens de color
+    typography: Tipografía
+    buttons: Botones
+    form_fields: Campos de formulario
+    toasts: Notificaciones
+    empty_state: Estado vacío
+    status_success: Éxito
+    status_warning: Aviso
+    status_danger: Error
+    status_info: Info
+    typo_display: 'Cobra.'
+    typo_h1: Facturas recientes
+    typo_h2: Pendiente de cobro
+    typo_h3: Conectar billetera
+    typo_body: 'Un párrafo limpio y moderno que define nuestro tono — directo, sin grandes promesas de marketing.'
+    typo_small: 'Aquí vive el texto de ayuda y los pies.'
+    btn_primary: Principal
+    btn_secondary: Secundario
+    btn_ghost: Plano
+    btn_destructive: Eliminar
+    btn_loading: Enviando…
+    field_email: Correo
+    field_email_help: 'Enviaremos el enlace de la factura aquí.'
+    field_amount: Importe
+    field_wallet: Dirección de billetera
+    field_wallet_ok: 'Checksum EIP-55 válido'
+    field_password: Contraseña
+    toast_success_title: Factura enviada.
+    toast_success_body: 'acme@example.com recibirá el enlace en segundos.'
+    toast_warning_title: Cambia a Base.
+    toast_warning_body: 'Tu billetera está en Polygon — esta factura espera Base.'
+    toast_danger_title: Transacción rechazada.
+    toast_danger_body: 'Cancelaste la firma. Puedes intentarlo de nuevo.'
+    toast_info_title: Verificación de correo pendiente.
+    toast_info_body: 'Revisa tu bandeja en vitalii@settlepay.pro.'
+    empty_title: Aún no hay facturas
+    empty_sub: 'Envía tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes.'
+
 final_cta:
     title: '¿Listo para cobrar en segundos, no en semanas?'
     sub: 'Manda tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes — sin tarjeta.'

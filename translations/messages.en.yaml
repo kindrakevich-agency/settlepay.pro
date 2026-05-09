@@ -92,6 +92,48 @@ checkout_section:
     state3_title: Payment received
     state3_sub: Receipt sent to client@acme.com
 
+components_section:
+    eyebrow: Component library
+    title: 'Tokens & primitives.'
+    sub: 'Every screen above is built from these. Used in Twig (marketing/checkout) and React (dashboard).'
+    colors: Color tokens
+    typography: Typography
+    buttons: Buttons
+    form_fields: Form fields
+    toasts: Toasts & alerts
+    empty_state: Empty state
+    status_success: Success
+    status_warning: Warning
+    status_danger: Danger
+    status_info: Info
+    typo_display: 'Get paid.'
+    typo_h1: Recent invoices
+    typo_h2: Awaiting payment
+    typo_h3: Connect wallet
+    typo_body: 'A clean, modern paragraph that establishes our voice — confident, plainspoken, and never marketing-fluff.'
+    typo_small: Helper text and captions live here.
+    btn_primary: Primary
+    btn_secondary: Secondary
+    btn_ghost: Ghost
+    btn_destructive: Destructive
+    btn_loading: Sending…
+    field_email: Email
+    field_email_help: "We'll send the invoice link here."
+    field_amount: Amount
+    field_wallet: Wallet address
+    field_wallet_ok: Valid EIP-55 checksum
+    field_password: Password
+    toast_success_title: Invoice sent.
+    toast_success_body: 'acme@example.com will receive the link in a few seconds.'
+    toast_warning_title: Switch to Base.
+    toast_warning_body: 'Your wallet is on Polygon — this invoice expects Base.'
+    toast_danger_title: Transaction rejected.
+    toast_danger_body: You cancelled the wallet prompt. You can try again.
+    toast_info_title: Email verification pending.
+    toast_info_body: Check your inbox at vitalii@settlepay.pro.
+    empty_title: No invoices yet
+    empty_sub: "Send your first invoice in under a minute. It's free up to $1,000/month."
+
 final_cta:
     title: Ready to get paid in seconds, not weeks?
     sub: 'Send your first invoice in under a minute. Free up to $1,000 invoiced per month — no credit card required.'

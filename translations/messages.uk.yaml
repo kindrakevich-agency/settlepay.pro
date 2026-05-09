@@ -92,6 +92,48 @@ checkout_section:
     state3_title: Оплату отримано
     state3_sub: Квитанцію надіслано на client@acme.com
 
+components_section:
+    eyebrow: Бібліотека компонентів
+    title: 'Токени та примітиви.'
+    sub: 'З цього зібрано все вище. Використовується в Twig (маркетинг/оплата) та React (кабінет).'
+    colors: Кольорові токени
+    typography: Типографіка
+    buttons: Кнопки
+    form_fields: Поля форми
+    toasts: Сповіщення
+    empty_state: Порожній стан
+    status_success: Успіх
+    status_warning: Увага
+    status_danger: Помилка
+    status_info: Інформація
+    typo_display: 'Отримуй.'
+    typo_h1: Останні інвойси
+    typo_h2: В очікуванні оплати
+    typo_h3: Підключити гаманець
+    typo_body: 'Чистий, сучасний текст, який задає наш голос — упевнений, простий, без маркетингового пафосу.'
+    typo_small: 'Тут живе допоміжний текст і підписи.'
+    btn_primary: Основна
+    btn_secondary: Вторинна
+    btn_ghost: Прозора
+    btn_destructive: Видалити
+    btn_loading: Надсилаємо…
+    field_email: Електронна пошта
+    field_email_help: 'Ми надішлемо посилання на цей інвойс сюди.'
+    field_amount: Сума
+    field_wallet: Адреса гаманця
+    field_wallet_ok: 'Валідна контрольна сума EIP-55'
+    field_password: Пароль
+    toast_success_title: Інвойс надіслано.
+    toast_success_body: 'acme@example.com отримає посилання за кілька секунд.'
+    toast_warning_title: Перейди в Base.
+    toast_warning_body: 'Твій гаманець у Polygon — інвойс очікує Base.'
+    toast_danger_title: Транзакцію відхилено.
+    toast_danger_body: 'Ти скасував підпис у гаманці. Можеш спробувати ще раз.'
+    toast_info_title: Підтвердження пошти
+    toast_info_body: 'Перевір пошту vitalii@settlepay.pro.'
+    empty_title: Поки що немає інвойсів
+    empty_sub: 'Надішли перший інвойс менш ніж за хвилину. Безкоштовно до $1 000 на місяць.'
+
 final_cta:
     title: 'Готовий отримувати оплату за секунди, а не тижні?'
     sub: 'Надішли перший інвойс менш ніж за хвилину. Безкоштовно до $1 000 на місяць — без картки.'
