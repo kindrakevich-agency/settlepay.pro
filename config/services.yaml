@@ -7,6 +7,9 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+        bind:
+            $projectDir: '%kernel.project_dir%'
+            $appEnv: '%kernel.environment%'
 
     App\:
         resource: '../src/'
@@ -14,8 +17,3 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-
-    App\Twig\ViteExtension:
-        arguments:
-            $projectDir: '%kernel.project_dir%'
-            $appEnv: '%kernel.environment%'
