@@ -26,9 +26,10 @@ Settle is a SaaS platform that lets freelancers send professional invoices and g
 11. [Internationalization](#internationalization)
 12. [Design system](#design-system)
 13. [Security model](#security-model)
-14. [Deployment](#deployment)
-15. [Roadmap](#roadmap)
-16. [License](#license)
+14. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
+15. [Deployment](#deployment)
+16. [Roadmap](#roadmap)
+17. [License](#license)
 
 ---
 
@@ -337,6 +338,128 @@ A complete visual & token reference is in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_
 | PDF generation | All user input sanitized — no XSS via SVG |
 | CORS | Strictly configured to dashboard origin only |
 | Audit log | Every state-changing operation logged with user/IP/UA |
+
+---
+
+## Running the chain listener (daemon)
+
+The on-chain listener is **the heart of Settlepay** — it polls every supported chain every few seconds, decodes ERC-20 Transfer events, and matches them to open invoices. Without it running, no payment ever flips an invoice from `sent` → `paid`.
+
+In dev you can run it ad-hoc:
+
+```bash
+make listener                                          # foreground, --testnet
+docker compose exec php bin/console app:chain:listen --chain=base_sepolia --once
+```
+
+In production it must run **24/7** as a long-running process. We use systemd because it's already on the box, gives you auto-restart on crash, and writes to a stable log file.
+
+### The systemd unit
+
+[`deploy/systemd/settle-listener.service`](deploy/systemd/settle-listener.service) ships with the repo. Excerpt:
+
+```ini
+[Unit]
+Description=Settlepay blockchain listener (eth_getLogs polling per chain)
+After=network.target mariadb.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/settlepay.pro
+Environment=APP_ENV=prod
+ExecStart=/www/server/php/83/bin/php bin/console app:chain:listen --testnet
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+StandardOutput=append:/var/log/settle/listener.log
+StandardError=append:/var/log/settle/listener-error.log
+MemoryLimit=256M
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Notable choices: `Restart=always` so a crashed daemon comes right back; `MemoryLimit=256M` so a runaway process can't take the box down; `SIGTERM` shutdown signal because the listener handles it gracefully (finishes the current iteration, exits cleanly).
+
+### Install in 4 commands
+
+```bash
+# 1. Copy the unit file
+sudo cp deploy/systemd/settle-listener.service /etc/systemd/system/
+
+# 2. Create the log directory the unit writes to
+sudo mkdir -p /var/log/settle
+sudo chown www:www /var/log/settle
+sudo chmod 755 /var/log/settle
+
+# 3. Reload systemd so it sees the new unit, then enable + start it
+sudo systemctl daemon-reload
+sudo systemctl enable --now settle-listener.service
+
+# 4. Verify it's running
+sudo systemctl status settle-listener.service
+```
+
+You should see `Active: active (running)` plus a PID. The daemon is now polling Base / Polygon / Arbitrum / Optimism (or their Sepolia testnets if `--testnet` is in the `ExecStart`) every few seconds.
+
+### Verify the loop works end-to-end
+
+```bash
+# Tail the live log
+sudo tail -f /var/log/settle/listener.log
+
+# In a separate shell: seed an invoice that pays your own wallet
+APP_ENV=prod php bin/console app:invoice:create-sample \
+  --testnet --amount-cents=30 \
+  --recipient=YOUR_WALLET_ADDRESS
+
+# Open the URL it prints, click Connect Wallet, click Pay.
+# Within ~30 seconds you should see in the log:
+#   [base_sepolia] matched 1 new payment(s)
+# And in the DB:
+#   SELECT status FROM invoices WHERE uuid = '...';   --> paid
+```
+
+If you've never used a crypto wallet before, follow [`docs/CRYPTO_BASICS.md`](docs/CRYPTO_BASICS.md) to install MetaMask and get free testnet funds first.
+
+### Operate
+
+```bash
+# After a deploy that changed listener code:
+sudo systemctl restart settle-listener.service
+
+# Pause for maintenance (e.g. DB upgrade):
+sudo systemctl stop settle-listener.service
+
+# Inspect history of starts/stops:
+sudo journalctl -u settle-listener.service --since="1 hour ago"
+
+# Tail the structured stdout log:
+sudo tail -f /var/log/settle/listener.log
+
+# Tail errors only:
+sudo tail -f /var/log/settle/listener-error.log
+```
+
+### Mainnet vs testnet
+
+The shipped unit runs `--testnet` because that's where the development invoices live. **Before going live with real money**, edit `ExecStart=` in the unit file to drop `--testnet` (which switches the daemon to all four mainnet chains), then `systemctl daemon-reload && systemctl restart settle-listener.service`.
+
+To watch BOTH mainnet and testnet at the same time (useful while you're still testing on Sepolia after launching), copy the unit to `settle-listener-testnet.service`, keep `--testnet` on that one, drop it on the original, and enable both. Each daemon owns its own cursor row in `chain_cursors` so they don't collide.
+
+### Why systemd and not Supervisor / PM2 / cron?
+
+- **Already on the box.** Ubuntu ships with systemd; nothing to install.
+- **Auto-restart.** `Restart=always` survives crashes, OOM kills, RPC outages.
+- **Resource caps.** `MemoryLimit=256M` is enforced by the kernel cgroup, not the app.
+- **Native shutdown.** `SIGTERM` + `TimeoutStopSec=30` lets the listener finish its current iteration before dying — important so we don't double-process the same block range on the next start.
+- **Logs to flat files.** No log rotation pipeline needed; just point logrotate at `/var/log/settle/*.log`.
+
+See [`deploy/README.md`](deploy/README.md) for a one-page cheatsheet.
 
 ---
 
