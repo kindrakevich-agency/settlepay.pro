@@ -22,7 +22,11 @@ use Symfony\Component\Mime\Email;
 #[AsCommand(name: 'app:email:test', description: 'Send a test email to verify MAILER_DSN works.')]
 class SendTestEmailCommand extends Command
 {
-    public function __construct(private readonly MailerInterface $mailer) { parent::__construct(); }
+    public function __construct(
+        private readonly MailerInterface $mailer,
+        private readonly string $mailerFromAddress,
+        private readonly string $mailerFromName,
+    ) { parent::__construct(); }
 
     protected function configure(): void
     {
@@ -35,7 +39,7 @@ class SendTestEmailCommand extends Command
         $to = (string) $input->getArgument('to');
 
         $email = (new Email())
-            ->from(new Address('hello@settlepay.pro', 'Settlepay'))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($to)
             ->subject('Settlepay — mailer smoke test')
             ->text("If you're reading this, MAILER_DSN is configured correctly.\n\nSent from settlepay.pro.")

@@ -369,13 +369,11 @@ Settlepay sends transactional email at four moments: **email verification**, **p
 ssh root@settle-server
 cd /www/wwwroot/settlepay.pro
 chattr -i .env.local 2>/dev/null    # in case immutable from aaPanel
-sed -i '/^MAILER_DSN=/d; /^MAILER_SENDER=/d; /^MAILER_FROM=/d' .env.local
+sed -i '/^MAILER_DSN=/d' .env.local
 cat >> .env.local <<'ENV'
 
 # Mailer (production: Resend)
 MAILER_DSN=resend+api://re_xxxxxxxxxxxxxxxxxxx@default
-MAILER_SENDER=hello@settlepay.pro
-MAILER_FROM='Settlepay <hello@settlepay.pro>'
 ENV
 chmod 600 .env.local
 chown www:www .env.local
@@ -383,6 +381,8 @@ chown www:www .env.local
 # Reload PHP-FPM so the new env is picked up
 /etc/init.d/php-fpm-83 restart
 ```
+
+The From address is **not** in `.env.local` — it lives in the committed `.env` as `MAILER_FROM_ADDRESS` + `MAILER_FROM_NAME` since it's not a secret. Override per-environment in `.env.local` if you want a different sender on staging vs prod.
 
 **6.** Verify it works with a one-shot test:
 
@@ -396,9 +396,28 @@ Check your inbox. The first time, Gmail might spam-filter; "Mark as not spam" on
 ### How it's wired
 
 - The `symfony/resend-mailer` bridge reads the `resend+api://` DSN scheme. Composer require: `composer require symfony/resend-mailer`.
-- `config/packages/mailer.yaml` reads three env vars: `MAILER_DSN`, `MAILER_SENDER`, `MAILER_FROM`. They flow into Symfony's `MailerInterface` which all our auth/notification services depend on.
+- `config/packages/mailer.yaml` reads `MAILER_DSN`. The envelope sender uses `MAILER_FROM_ADDRESS` (must match a verified Resend domain).
+- The visible `From: Display Name <addr>` is set explicitly by `AuthMailer` and `SendTestEmailCommand` using `Symfony\Component\Mime\Address($MAILER_FROM_ADDRESS, $MAILER_FROM_NAME)` injected via DI from `.env`. Single source of truth — change in `.env`, every email follows.
 - `src/Service/Auth/AuthMailer.php` sends the verify + reset templates with `TemplatedEmail` so we get auto-rendering of the matching Twig template under `templates/emails/auth/`.
 - Email addresses and tokens are masked in monolog logs per CLAUDE.md PII rules.
+
+### Sender address — what to put in `MAILER_FROM_ADDRESS`
+
+**Don't use `noreply@`.** Three reasons:
+1. Gmail / Outlook spam filters give `noreply@` lower trust scores. Resend and Postmark both publicly recommend against it for transactional. Inbox placement drops measurably.
+2. It signals "we don't care if you reply" — bad for fintech where users WILL try to reply when something looks wrong with a payment.
+3. Modern best practice (2024+) is reply-friendly addresses, paired with auto-routing or a real support inbox.
+
+Recommended pattern for Settlepay:
+
+| Purpose | Address | Notes |
+|---|---|---|
+| **Default** (verify, welcome, reset, receipts) | `hello@settlepay.pro` | Friendly, modern, on-brand. Matches Stripe / Linear / Vercel. |
+| Password reset *(when split)* | `security@settlepay.pro` | RFC convention for security-sensitive emails. |
+| Invoice notifications *(when split)* | `billing@settlepay.pro` | Functional, clearly transactional. |
+| Display name | `Settlepay` | Inbox shows "Settlepay" not "hello". |
+
+For MVP one address (`hello@`) is sufficient. Split when volume justifies separate inboxes. Whatever you pick, set it in `.env` as `MAILER_FROM_ADDRESS=hello@settlepay.pro` and `MAILER_FROM_NAME=Settlepay`. AuthMailer + SendTestEmailCommand pick it up automatically — no code change.
 
 ### What goes out the door
 

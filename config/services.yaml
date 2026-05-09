@@ -10,6 +10,8 @@ services:
         bind:
             $projectDir: '%kernel.project_dir%'
             $appEnv: '%kernel.environment%'
+            $mailerFromAddress: '%env(MAILER_FROM_ADDRESS)%'
+            $mailerFromName: '%env(MAILER_FROM_NAME)%'
 
     App\:
         resource: '../src/'

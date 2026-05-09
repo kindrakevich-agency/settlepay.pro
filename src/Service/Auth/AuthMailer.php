@@ -19,14 +19,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  */
 final class AuthMailer
 {
-    /** Single source of truth for the From header used by every auth email. */
-    private const FROM_ADDRESS = 'hello@settlepay.pro';
-    private const FROM_NAME    = 'Settlepay';
-
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urls,
         private readonly LoggerInterface $logger,
+        private readonly string $mailerFromAddress,
+        private readonly string $mailerFromName,
     ) {}
 
     public function sendVerificationEmail(User $user, string $plainToken): void
@@ -39,7 +37,7 @@ final class AuthMailer
         $this->logger->info('Verification email queued', ['email' => $this->mask($user->getEmail()), 'url_preview' => $this->maskUrl($url)]);
 
         $email = (new TemplatedEmail())
-            ->from(new Address(self::FROM_ADDRESS, self::FROM_NAME))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($user->getEmail())
             ->subject('Confirm your Settlepay email')
             ->htmlTemplate('emails/auth/verify_email.html.twig')
@@ -58,7 +56,7 @@ final class AuthMailer
         $this->logger->info('Password-reset email queued', ['email' => $this->mask($user->getEmail()), 'url_preview' => $this->maskUrl($url)]);
 
         $email = (new TemplatedEmail())
-            ->from(new Address(self::FROM_ADDRESS, self::FROM_NAME))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($user->getEmail())
             ->subject('Reset your Settlepay password')
             ->htmlTemplate('emails/auth/reset_password.html.twig')
