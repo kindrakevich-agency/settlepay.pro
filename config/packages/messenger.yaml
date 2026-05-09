@@ -13,8 +13,7 @@ framework:
                     multiplier: 2
             failed: 'doctrine://default?queue_name=failed'
 
-        routing:
-            App\Message\SendInvoiceEmailMessage: async
-            App\Message\SendWebhookMessage: async
-            App\Message\GeneratePdfMessage: async
-            App\Message\ProcessChainBlocksMessage: async
+        # Routing is added per-message-class as they are created.
+        # Until then, messages dispatch synchronously by default.
+        # See CLAUDE.md §7 for the planned message classes.
+        routing: ~
