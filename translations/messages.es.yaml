@@ -4,7 +4,7 @@ common:
     cta_primary: Empezar — es gratis
     cta_secondary: Cómo funciona
     sign_in: Iniciar sesión
-    sign_up: Crear cuenta
+    sign_up: Empezar
     log_out: Cerrar sesión
 
 nav:
@@ -13,6 +13,49 @@ nav:
     payments: Pagos
     settings: Ajustes
     docs: Documentación
+    pricing: Precios
+    product: Producto
+
+hero:
+    badge: 'Disponible en Base · Polygon · Arbitrum · Optimism'
+    line_one: Cobra en stablecoins.
+    line_two: Sin bancos. Sin esperas.
+    sub: 'Envía facturas profesionales y recibe USDC en las L2 más baratas. Settle no custodia tus fondos: van directos del cliente a tu billetera.'
+    cta_primary: Empezar — es gratis
+    cta_secondary: Ver una página de pago
+    trust_label: Acepta
+    trust_extra: 'No custodial · comisión 0.5–1% · sin KYC para clientes'
+    invoice_card:
+        invoice_label: 'Factura #INV-2026-0042'
+        meta: 'Vence 24 de mayo · Acme Corp'
+        line_one: Identidad de marca (10h)
+        line_two: Iteraciones de logo (4h)
+        tx_label: 'Transacción · Base'
+        confirmations: 5/5 confirmaciones
+        view_receipt: Ver recibo
+        chip: Liquidado en 14 segundos
+
+features:
+    eyebrow: Hecho para freelancers
+    title: 'UX al nivel de Stripe, sobre los rieles que de verdad quieres.'
+    sub: 'Tus clientes pagan desde cualquier billetera. Tú recibes stablecoins en la tuya, en la L2 que elijas. Nosotros no tocamos el dinero.'
+    one:
+        title: No custodial por diseño
+        body: 'Los fondos van directos de la billetera del cliente a la tuya. Somos la capa de software, nunca el banco.'
+    two:
+        title: Confirmado en segundos
+        body: 'L2 baratas: pagos en 10–30 segundos, con comisiones de céntimos en lugar del 5% bancario.'
+    three:
+        title: Recibos al nivel de Stripe
+        body: 'PDFs con tu marca, páginas de factura alojadas y correos de confirmación automáticos en tres idiomas.'
+
+footer:
+    copyright: '© 2026 Settle'
+    links:
+        pricing: Precios
+        docs: Documentación
+        status: Estado
+        privacy: Privacidad
 
 invoice:
     status:

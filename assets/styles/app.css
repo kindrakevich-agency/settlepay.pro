@@ -1,5 +1,12 @@
 @import "tailwindcss";
 
+/* Tailwind 4 needs to know where to look for class names. By default it
+   only scans the assets/ tree from where this CSS lives — explicitly
+   point it at templates/ (Twig) and assets/ (TS/TSX) so utility classes
+   used there end up in the output bundle. */
+@source "../../templates";
+@source "../../assets";
+
 /* Tailwind 4 theme tokens for Settle.
    See docs/DESIGN_SYSTEM.md for the full rationale. */
 

@@ -4,7 +4,7 @@ common:
     cta_primary: Get started — it's free
     cta_secondary: How it works
     sign_in: Sign in
-    sign_up: Sign up
+    sign_up: Get started
     log_out: Log out
 
 nav:
@@ -13,6 +13,49 @@ nav:
     payments: Payments
     settings: Settings
     docs: Docs
+    pricing: Pricing
+    product: Product
+
+hero:
+    badge: 'Live on Base · Polygon · Arbitrum · Optimism'
+    line_one: Get paid in stablecoins.
+    line_two: Without banks. Without waiting.
+    sub: 'Send professional invoices, receive USDC on the cheapest L2s. Settle keeps no custody — funds go straight from your client to your wallet.'
+    cta_primary: Get started — it's free
+    cta_secondary: See a payment page
+    trust_label: Accepts
+    trust_extra: 'Non-custodial · 0.5–1% fee · No KYC for clients'
+    invoice_card:
+        invoice_label: 'Invoice #INV-2026-0042'
+        meta: 'Due May 24 · Acme Corp'
+        line_one: Brand identity (10h)
+        line_two: Logo iterations (4h)
+        tx_label: 'Transaction · Base'
+        confirmations: 5/5 confirmations
+        view_receipt: View receipt
+        chip: Settled in 14 seconds
+
+features:
+    eyebrow: Built for freelancers
+    title: 'Stripe-grade UX, on the rails you actually want.'
+    sub: 'Clients pay from any wallet. You get stablecoins in your wallet, on the L2 of your choice. We never touch the money.'
+    one:
+        title: Non-custodial by design
+        body: "Funds move directly from your client's wallet to yours. We're the software layer, never the bank."
+    two:
+        title: Confirmed in seconds
+        body: 'Cheap L2s mean payments confirm in 10–30 seconds, with fees of pennies — not 5% bank charges.'
+    three:
+        title: Receipts that look like Stripe's
+        body: 'Branded PDFs, hosted invoice pages, automatic payment confirmation emails in three languages.'
+
+footer:
+    copyright: '© 2026 Settle'
+    links:
+        pricing: Pricing
+        docs: Docs
+        status: Status
+        privacy: Privacy
 
 invoice:
     status:

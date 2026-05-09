@@ -1,7 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% set locale = app.request.locale|default('en') %}
+
 {% block body %}
-<header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur">
+{# ───────────────────────── TOP NAV ───────────────────────── #}
+<header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
         <a href="{{ path('marketing_home') }}" class="flex items-center gap-2.5">
             <span class="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
@@ -9,49 +12,190 @@
             </span>
             <span class="font-display text-lg font-semibold tracking-tight">{{ 'common.app_name'|trans }}</span>
         </a>
+
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#features">{{ 'nav.product'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#pricing">{{ 'nav.pricing'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#docs">{{ 'nav.docs'|trans }}</a>
+        </nav>
+
         <div class="flex items-center gap-2">
+            <div class="hidden sm:flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
+                {% for code in ['en', 'uk', 'es'] %}
+                    {% set active = locale == code %}
+                    <a href="{{ path('marketing_home', {_locale: code}) }}"
+                       class="rounded-md px-2 py-1 transition
+                              {{ active
+                                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
+                        {{ code|upper }}
+                    </a>
+                {% endfor %}
+            </div>
             <a href="#" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
                 {{ 'common.sign_in'|trans }}
             </a>
-            <a href="#" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition">
+            <a href="#" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
                 {{ 'common.sign_up'|trans }}
             </a>
         </div>
     </div>
 </header>
 
+{# ───────────────────────── HERO ───────────────────────── #}
 <section class="relative overflow-hidden">
+    {# Subtle decoration: dotted grid + brand mesh #}
+    <div class="absolute inset-0" aria-hidden="true"
+         style="background-image: linear-gradient(to right, rgba(15,23,42,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.05) 1px, transparent 1px); background-size: 32px 32px;"></div>
+    <div class="absolute inset-0" aria-hidden="true"
+         style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%), radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);"></div>
+    <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80" aria-hidden="true"></div>
+
     <div class="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
-        <div class="max-w-3xl">
-            <span class="inline-flex items-center gap-2 rounded-full border border-brand-200/70 dark:border-brand-800/70 bg-brand-50/60 dark:bg-brand-950/40 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
-                <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-dot"></span>
-                Live on Base · Polygon · Arbitrum · Optimism
-            </span>
+        <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-            <h1 class="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
-                {{ 'common.tagline'|trans }}
-            </h1>
+            {# Left: copy + CTA #}
+            <div class="lg:col-span-7">
+                <span class="inline-flex items-center gap-2 rounded-full border border-brand-200/70 dark:border-brand-800/70 bg-brand-50/60 dark:bg-brand-950/40 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
+                    <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+                    {{ 'hero.badge'|trans }}
+                </span>
 
-            <div class="mt-8 flex flex-wrap items-center gap-3">
-                <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
-                    {{ 'common.cta_primary'|trans }}
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </a>
-                <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition shadow-xs">
-                    {{ 'common.cta_secondary'|trans }}
-                </a>
+                <h1 class="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
+                    <span>{{ 'hero.line_one'|trans }}</span><br>
+                    <span class="text-slate-500 dark:text-slate-400">{{ 'hero.line_two'|trans }}</span>
+                </h1>
+
+                <p class="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {{ 'hero.sub'|trans }}
+                </p>
+
+                <div class="mt-8 flex flex-wrap items-center gap-3">
+                    <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
+                        {{ 'hero.cta_primary'|trans }}
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="#features" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                        {{ 'hero.cta_secondary'|trans }}
+                    </a>
+                </div>
+
+                <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-slate-500 dark:text-slate-500">
+                    <span class="font-medium text-slate-400 dark:text-slate-600">{{ 'hero.trust_label'|trans }}</span>
+                    <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> USDC</div>
+                    <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> USDT</div>
+                    <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> DAI</div>
+                    <span class="text-slate-300 dark:text-slate-700">·</span>
+                    <span>{{ 'hero.trust_extra'|trans }}</span>
+                </div>
+            </div>
+
+            {# Right: floating invoice card #}
+            <div class="lg:col-span-5 relative">
+                <div class="absolute -inset-6 rounded-3xl blur-2xl opacity-60" aria-hidden="true"
+                     style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.30) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.25) 0px, transparent 50%);"></div>
+
+                <div class="relative animate-slide-up rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-pop p-6 lg:p-7">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'hero.invoice_card.invoice_label'|trans }}</p>
+                            <p class="mt-1 font-display text-3xl font-semibold tracking-tight tabular-nums">$2,450.00</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'hero.invoice_card.meta'|trans }}</p>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 dark:bg-success-500/10 px-2.5 py-0.5 text-xs font-medium text-success-600 dark:text-success-500">
+                            <span class="h-1.5 w-1.5 rounded-full bg-success-500 animate-pulse"></span>
+                            {{ 'invoice.status.paid'|trans }}
+                        </span>
+                    </div>
+
+                    <div class="my-5 h-px bg-slate-100 dark:bg-slate-800"></div>
+
+                    <ul class="space-y-2.5 text-sm">
+                        <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">{{ 'hero.invoice_card.line_one'|trans }}</span><span class="font-medium tabular-nums">$1,800.00</span></li>
+                        <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">{{ 'hero.invoice_card.line_two'|trans }}</span><span class="font-medium tabular-nums">$650.00</span></li>
+                    </ul>
+
+                    <div class="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-medium text-slate-500 dark:text-slate-400">{{ 'hero.invoice_card.tx_label'|trans }}</span>
+                            <span class="text-success-600 dark:text-success-500 font-medium">{{ 'hero.invoice_card.confirmations'|trans }}</span>
+                        </div>
+                        <div class="mt-2 flex items-center justify-between gap-3">
+                            <code class="font-mono text-xs text-slate-700 dark:text-slate-300 truncate">0x8f3a…b2e91c</code>
+                            <button type="button" class="rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition" aria-label="Copy hash">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 flex gap-2">
+                        <button type="button" class="flex-1 rounded-xl bg-brand-600 hover:bg-brand-700 text-white py-2.5 text-sm font-medium transition">{{ 'hero.invoice_card.view_receipt'|trans }}</button>
+                        <button type="button" class="rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition" aria-label="Share">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="absolute -bottom-4 -left-4 hidden sm:flex items-center gap-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-2 text-xs font-medium shadow-pop">
+                    <svg class="h-3.5 w-3.5 text-success-400 dark:text-success-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>
+                    {{ 'hero.invoice_card.chip'|trans }}
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<footer class="border-t border-slate-200 dark:border-slate-800">
+{# ───────────────────────── FEATURES ───────────────────────── #}
+<section id="features" class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+    <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+        <div class="max-w-2xl">
+            <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">{{ 'features.eyebrow'|trans }}</p>
+            <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">{{ 'features.title'|trans }}</h2>
+            <p class="mt-4 text-slate-600 dark:text-slate-400">{{ 'features.sub'|trans }}</p>
+        </div>
+
+        <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+                <div class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4 9-4M12 11v10"/></svg>
+                </div>
+                <h3 class="mt-5 font-semibold tracking-tight">{{ 'features.one.title'|trans }}</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'features.one.body'|trans }}</p>
+            </article>
+
+            <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+                <div class="grid h-10 w-10 place-items-center rounded-xl bg-info-50 dark:bg-info-500/10 text-info-600 dark:text-info-500">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+                </div>
+                <h3 class="mt-5 font-semibold tracking-tight">{{ 'features.two.title'|trans }}</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'features.two.body'|trans }}</p>
+            </article>
+
+            <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+                <div class="grid h-10 w-10 place-items-center rounded-xl bg-success-50 dark:bg-success-500/10 text-success-600 dark:text-success-500">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+                </div>
+                <h3 class="mt-5 font-semibold tracking-tight">{{ 'features.three.title'|trans }}</h3>
+                <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'features.three.body'|trans }}</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+{# ───────────────────────── FOOTER ───────────────────────── #}
+<footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
     <div class="mx-auto max-w-7xl px-6 py-10 flex flex-wrap items-center justify-between gap-4">
-        <span class="text-sm text-slate-600 dark:text-slate-400">© 2026 {{ 'common.app_name'|trans }}</span>
-        <div class="flex items-center gap-4 text-xs">
-            <a href="{{ path('marketing_home', {_locale: 'en'}) }}" class="hover:text-brand-600">EN</a>
-            <a href="{{ path('marketing_home', {_locale: 'uk'}) }}" class="hover:text-brand-600">UK</a>
-            <a href="{{ path('marketing_home', {_locale: 'es'}) }}" class="hover:text-brand-600">ES</a>
+        <div class="flex items-center gap-2.5">
+            <span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
+                <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ 'footer.copyright'|trans }} · {{ 'common.tagline'|trans }}</span>
+        </div>
+        <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400">
+            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.pricing'|trans }}</a>
+            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.docs'|trans }}</a>
+            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.status'|trans }}</a>
+            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.privacy'|trans }}</a>
         </div>
     </div>
 </footer>
