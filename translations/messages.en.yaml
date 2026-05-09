@@ -178,4 +178,81 @@ payment:
 errors:
     invalid_email: Please enter a valid email
     password_too_short: Password must be at least 12 characters
+    password_mismatch: Passwords don't match
     network_mismatch: Your wallet is on the wrong network
+    csrf_invalid: Form expired — please reload and try again
+
+auth:
+    email: Email
+    password: Password
+    password_confirm: Confirm password
+    password_hint: 'At least 12 characters. Use a passphrase you can remember.'
+    register:
+        title: Create your account
+        sub: 'Send your first invoice in under a minute. Free up to $1,000 invoiced/month.'
+        submit: Create account
+        terms: 'By creating an account you agree to our <a class="text-brand-600 hover:underline" href="#">Terms</a> and <a class="text-brand-600 hover:underline" href="#">Privacy</a>.'
+        have_account: Already have an account?
+    login:
+        title: Sign in
+        sub: 'Welcome back.'
+        forgot: Forgot password?
+        remember: Stay signed in
+        no_account: Don't have an account?
+        errors:
+            invalid_credentials: Email or password is incorrect.
+            account_locked: Too many failed attempts. Try again later.
+    forgot:
+        title: Forgot your password?
+        sub: 'Enter your email and we will send you a link to choose a new one.'
+        submit: Send reset link
+        back_login: Back to sign in
+        sent_title: Check your email
+        sent_sub: 'If an account exists for that address, a reset link is on its way. The link expires in 1 hour.'
+    reset:
+        title: Choose a new password
+        sub: 'Pick something you have not used elsewhere.'
+        submit: Update password
+        expired_title: Link expired
+        expired_sub: 'Reset links are valid for 1 hour. Request a fresh one.'
+        request_new: Request new link
+        done_title: Password updated
+        done_sub: 'You can sign in with the new password now.'
+    check_email:
+        title: One last step — check your email
+        sub: 'We sent a verification link to your email. Click it to activate your account.'
+        tips_title: 'Not seeing it?'
+        tip_1: 'Look in your Spam or Promotions folder. Once you mark it as not-spam, future emails will inbox.'
+        tip_2: 'The link expires in 24 hours.'
+        tip_3: 'Sender is hello@settlepay.pro.'
+        back_login: Back to sign in
+    verified:
+        title: Email verified
+        sub: 'Your account is active. You can sign in now.'
+        error_title: Verification link not valid
+        error_sub: 'It may have already been used or expired. Sign in to request a fresh link.'
+
+dashboard:
+    welcome_title: 'Welcome, %name%.'
+    welcome_sub: 'Your authenticated home. Invoice CRUD, payments table, and settings ship in the next milestone.'
+    verify_title: Verify your email
+    verify_sub: 'We sent a confirmation link to %email%. Click it to unlock invoice sending. Resend if you do not see it.'
+    empty_title: 'Dashboard SPA coming next'
+    empty_sub: 'The full React dashboard with invoice CRUD, the payments table, and settings is the next milestone.'
+    empty_coming: 'Until then, you can run bin/console app:invoice:create-sample on the server to seed test invoices.'
+
+emails:
+    verify:
+        heading: Confirm your email
+        body: "Tap the button below to verify your email and activate your settlepay.pro account."
+        cta: Verify email
+        fallback: 'Or paste this link into your browser:'
+        expiry: 'The link is valid for 24 hours.'
+        footer: 'You received this because someone signed up with this address at settlepay.pro. If that was not you, ignore this email.'
+    reset:
+        heading: Reset your password
+        body: 'Click the button to choose a new password. The link is valid for 1 hour.'
+        cta: Reset password
+        fallback: 'Or paste this link into your browser:'
+        ignore: 'If you did not request a reset, ignore this email — your password stays the same.'
+        footer: 'Password reset for settlepay.pro.'

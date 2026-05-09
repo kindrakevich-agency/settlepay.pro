@@ -178,4 +178,81 @@ payment:
 errors:
     invalid_email: Introduce un correo válido
     password_too_short: La contraseña debe tener al menos 12 caracteres
+    password_mismatch: Las contraseñas no coinciden
     network_mismatch: Tu billetera está en la red equivocada
+    csrf_invalid: 'El formulario expiró — recarga la página y vuelve a intentar'
+
+auth:
+    email: Correo
+    password: Contraseña
+    password_confirm: Confirma la contraseña
+    password_hint: 'Mínimo 12 caracteres. Mejor una frase fácil de recordar.'
+    register:
+        title: Crea tu cuenta
+        sub: 'Manda tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes.'
+        submit: Crear cuenta
+        terms: 'Al crear una cuenta aceptas nuestros <a class="text-brand-600 hover:underline" href="#">Términos</a> y <a class="text-brand-600 hover:underline" href="#">Privacidad</a>.'
+        have_account: ¿Ya tienes cuenta?
+    login:
+        title: Iniciar sesión
+        sub: 'Bienvenido de vuelta.'
+        forgot: ¿Olvidaste tu contraseña?
+        remember: Mantener sesión iniciada
+        no_account: ¿No tienes cuenta?
+        errors:
+            invalid_credentials: 'Correo o contraseña incorrectos.'
+            account_locked: 'Demasiados intentos fallidos. Inténtalo más tarde.'
+    forgot:
+        title: ¿Olvidaste tu contraseña?
+        sub: 'Indica tu correo y te enviaremos un enlace para elegir una nueva.'
+        submit: Enviar enlace
+        back_login: Volver a iniciar sesión
+        sent_title: Revisa tu correo
+        sent_sub: 'Si existe una cuenta con esa dirección, el enlace ya va camino. Caduca en 1 hora.'
+    reset:
+        title: Elige una nueva contraseña
+        sub: 'Que sea distinta de las que usas en otros sitios.'
+        submit: Guardar contraseña
+        expired_title: Enlace caducado
+        expired_sub: 'Los enlaces son válidos 1 hora. Solicita uno nuevo.'
+        request_new: Solicitar nuevo enlace
+        done_title: Contraseña actualizada
+        done_sub: 'Ya puedes iniciar sesión con la nueva contraseña.'
+    check_email:
+        title: Un último paso — revisa tu correo
+        sub: 'Te enviamos un enlace de verificación. Pulsa para activar tu cuenta.'
+        tips_title: '¿No lo ves?'
+        tip_1: 'Revisa Spam o Promociones. Si lo marcas como "no spam", los próximos correos llegarán a Recibidos.'
+        tip_2: 'El enlace caduca en 24 horas.'
+        tip_3: 'El remitente es hello@settlepay.pro.'
+        back_login: Volver a iniciar sesión
+    verified:
+        title: Correo verificado
+        sub: 'Tu cuenta está activa. Ya puedes iniciar sesión.'
+        error_title: Enlace inválido
+        error_sub: 'Es posible que ya se haya usado o haya caducado. Inicia sesión y solicita uno nuevo.'
+
+dashboard:
+    welcome_title: 'Hola, %name%.'
+    welcome_sub: 'Tu panel autenticado. CRUD de facturas, tabla de pagos y ajustes llegan en el siguiente hito.'
+    verify_title: Verifica tu correo
+    verify_sub: 'Enviamos un enlace de confirmación a %email%. Pulsa para desbloquear el envío de facturas.'
+    empty_title: 'El panel React llega pronto'
+    empty_sub: 'El panel completo con CRUD de facturas, tabla de pagos y ajustes es el próximo hito.'
+    empty_coming: 'Mientras tanto, puedes seedear facturas con bin/console app:invoice:create-sample en el servidor.'
+
+emails:
+    verify:
+        heading: Confirma tu correo
+        body: 'Pulsa el botón para verificar tu correo y activar tu cuenta de settlepay.pro.'
+        cta: Verificar correo
+        fallback: 'O pega este enlace en tu navegador:'
+        expiry: 'El enlace es válido 24 horas.'
+        footer: 'Recibiste este correo porque alguien creó una cuenta con esta dirección en settlepay.pro. Si no fuiste tú, ignóralo.'
+    reset:
+        heading: Restablece tu contraseña
+        body: 'Pulsa el botón para elegir una nueva contraseña. El enlace es válido 1 hora.'
+        cta: Restablecer contraseña
+        fallback: 'O pega este enlace en tu navegador:'
+        ignore: 'Si no solicitaste el restablecimiento, ignora este correo — tu contraseña no cambiará.'
+        footer: 'Restablecimiento de contraseña en settlepay.pro.'

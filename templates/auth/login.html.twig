@@ -1,0 +1,52 @@
+{% extends 'auth/_layout.html.twig' %}
+{% set locale = app.request.locale|default('en') %}
+
+{% block title %}{{ 'auth.login.title'|trans }} · Settlepay{% endblock %}
+
+{% block auth_content %}
+    <header class="mb-7">
+        <h1 class="font-display text-2xl font-semibold tracking-tight">{{ 'auth.login.title'|trans }}</h1>
+        <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400">{{ 'auth.login.sub'|trans }}</p>
+    </header>
+
+    {% if error %}
+        <div class="mb-5 rounded-xl border border-danger-200 dark:border-danger-500/30 bg-danger-50 dark:bg-danger-500/10 p-3.5 text-sm text-danger-700 dark:text-danger-500">
+            {{ ('auth.login.errors.' ~ (error.messageKey|replace({' ':'_','.':''})))|trans({}, 'security') }}
+        </div>
+    {% endif %}
+
+    <form method="POST" novalidate class="space-y-4">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <label class="block">
+            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'auth.email'|trans }}</span>
+            <input type="email" name="email" value="{{ last_email }}" autocomplete="email" required
+                   class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+        </label>
+
+        <label class="block">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">{{ 'auth.password'|trans }}</span>
+                <a href="{{ path('auth_forgot_password', {_locale: locale}) }}" class="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline">{{ 'auth.login.forgot'|trans }}</a>
+            </div>
+            <input type="password" name="password" autocomplete="current-password" required
+                   class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+        </label>
+
+        <label class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+            <input type="checkbox" name="_remember_me" class="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-brand-600 focus:ring-brand-500">
+            {{ 'auth.login.remember'|trans }}
+        </label>
+
+        <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-3 text-sm font-semibold shadow-card hover:shadow-card-hover transition">
+            {{ 'common.sign_in'|trans }}
+        </button>
+    </form>
+{% endblock %}
+
+{% block auth_below %}
+    <p class="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+        {{ 'auth.login.no_account'|trans }}
+        <a href="{{ path('auth_register', {_locale: locale}) }}" class="font-medium text-brand-600 dark:text-brand-400 hover:underline">{{ 'common.sign_up'|trans }}</a>
+    </p>
+{% endblock %}

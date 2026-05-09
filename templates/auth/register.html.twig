@@ -1,0 +1,55 @@
+{% extends 'auth/_layout.html.twig' %}
+{% set locale = app.request.locale|default('en') %}
+
+{% block title %}{{ 'auth.register.title'|trans }} · Settlepay{% endblock %}
+
+{% block auth_content %}
+    <header class="mb-7">
+        <h1 class="font-display text-2xl font-semibold tracking-tight">{{ 'auth.register.title'|trans }}</h1>
+        <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400">{{ 'auth.register.sub'|trans }}</p>
+    </header>
+
+    {% if form.errors|length > 0 %}
+        <div class="mb-5 rounded-xl border border-danger-200 dark:border-danger-500/30 bg-danger-50 dark:bg-danger-500/10 p-3.5 text-sm text-danger-700 dark:text-danger-500">
+            <ul class="space-y-1">
+                {% for err in form.errors %}<li>· {{ err|trans }}</li>{% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <form method="POST" novalidate class="space-y-4">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
+
+        <label class="block">
+            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'auth.email'|trans }}</span>
+            <input type="email" name="email" value="{{ form.email }}" autocomplete="email" required
+                   class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+        </label>
+
+        <label class="block">
+            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'auth.password'|trans }}</span>
+            <input type="password" name="password" autocomplete="new-password" required minlength="12"
+                   class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+            <span class="mt-1.5 block text-xs text-slate-500">{{ 'auth.password_hint'|trans }}</span>
+        </label>
+
+        <label class="block">
+            <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'auth.password_confirm'|trans }}</span>
+            <input type="password" name="password_confirm" autocomplete="new-password" required minlength="12"
+                   class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+        </label>
+
+        <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-3 text-sm font-semibold shadow-card hover:shadow-card-hover transition">
+            {{ 'auth.register.submit'|trans }}
+        </button>
+    </form>
+
+    <p class="mt-6 text-xs text-center text-slate-500 dark:text-slate-500">{{ 'auth.register.terms'|trans|raw }}</p>
+{% endblock %}
+
+{% block auth_below %}
+    <p class="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
+        {{ 'auth.register.have_account'|trans }}
+        <a href="{{ path('auth_login', {_locale: locale}) }}" class="font-medium text-brand-600 dark:text-brand-400 hover:underline">{{ 'common.sign_in'|trans }}</a>
+    </p>
+{% endblock %}
