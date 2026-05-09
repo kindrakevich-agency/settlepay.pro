@@ -31,10 +31,10 @@
                     </a>
                 {% endfor %}
             </div>
-            <a href="#" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+            <a href="{{ path('auth_login', {_locale: locale}) }}" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
                 {{ 'common.sign_in'|trans }}
             </a>
-            <a href="#" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
+            <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
                 {{ 'common.sign_up'|trans }}
             </a>
         </div>
@@ -65,7 +65,7 @@
                 <p class="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'hero.sub'|trans }}</p>
 
                 <div class="mt-8 flex flex-wrap items-center gap-3">
-                    <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
+                    <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
                         {{ 'hero.cta_primary'|trans }}
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
@@ -614,7 +614,7 @@
         <h2 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">{{ 'final_cta.title'|trans }}</h2>
         <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{{ 'final_cta.sub'|trans }}</p>
         <div class="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-6 py-3.5 text-base font-medium shadow-card hover:shadow-card-hover transition">
+            <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-6 py-3.5 text-base font-medium shadow-card hover:shadow-card-hover transition">
                 {{ 'hero.cta_primary'|trans }}
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </a>
