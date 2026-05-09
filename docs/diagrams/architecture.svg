@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="archTitle archDesc" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <title id="archTitle">Settle production architecture</title>
+  <desc id="archDesc">Three-layer architecture: browsers, Hetzner server (nginx, PHP-FPM, MariaDB, Redis, workers), external RPC providers reading from L2 chains.</desc>
+
+  <style><![CDATA[
+    :root {
+      --bg: #ffffff;
+      --line: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --card: #ffffff;
+      --card-stroke: #e2e8f0;
+      --bg-server: #f8fafc;
+      --bg-rpc: #fffbeb;
+      --bg-rpc-stroke: #fde68a;
+      --bg-browser: #f0fdfa;
+      --bg-browser-stroke: #99f6e4;
+      --brand: #0d9488;
+      --brand-soft: #ccfbf1;
+      --on-chain: #d97706;
+      --user: #2563eb;
+      --user-soft: #dbeafe;
+      --proc: #7c3aed;
+      --proc-soft: #ede9fe;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #020617;
+        --line: #1e293b;
+        --text: #f1f5f9;
+        --text-muted: #94a3b8;
+        --card: #0f172a;
+        --card-stroke: #1e293b;
+        --bg-server: #0a1326;
+        --bg-rpc: rgba(245,158,11,0.08);
+        --bg-rpc-stroke: rgba(245,158,11,0.30);
+        --bg-browser: rgba(13,148,136,0.10);
+        --bg-browser-stroke: rgba(45,212,191,0.30);
+        --brand: #2dd4bf;
+        --brand-soft: rgba(13,148,136,0.18);
+        --on-chain: #f59e0b;
+        --user: #60a5fa;
+        --user-soft: rgba(59,130,246,0.18);
+        --proc: #a78bfa;
+        --proc-soft: rgba(124,58,237,0.18);
+      }
+    }
+    .bg            { fill: var(--bg); }
+    .text          { fill: var(--text); }
+    .muted         { fill: var(--text-muted); }
+    .card          { fill: var(--card); stroke: var(--card-stroke); stroke-width: 1.5; }
+    .lane-server   { fill: var(--bg-server); stroke: var(--card-stroke); stroke-width: 1.5; stroke-dasharray: 0; }
+    .lane-rpc      { fill: var(--bg-rpc); stroke: var(--bg-rpc-stroke); stroke-width: 1.5; }
+    .lane-browser  { fill: var(--bg-browser); stroke: var(--bg-browser-stroke); stroke-width: 1.5; }
+    .h1            { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .h2            { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+    .h3            { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+    .body          { font-size: 12px; font-weight: 400; }
+    .mono          { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; }
+    .arrow         { stroke: var(--text-muted); stroke-width: 1.5; fill: none; }
+    .arrow-brand   { stroke: var(--brand); stroke-width: 2; fill: none; }
+    .arrow-https   { stroke: var(--user); stroke-width: 1.75; fill: none; }
+    .arrow-rpc     { stroke: var(--on-chain); stroke-width: 1.75; fill: none; stroke-dasharray: 5 4; }
+    .pill-user     { fill: var(--user-soft); }
+    .pill-user-tx  { fill: var(--user); }
+    .pill-proc     { fill: var(--proc-soft); }
+    .pill-proc-tx  { fill: var(--proc); }
+    .pill-brand    { fill: var(--brand-soft); }
+    .pill-brand-tx { fill: var(--brand); }
+  ]]></style>
+
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--text-muted)"/>
+    </marker>
+    <marker id="ah-https" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--user)"/>
+    </marker>
+    <marker id="ah-rpc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--on-chain)"/>
+    </marker>
+    <marker id="ah-brand" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--brand)"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1200" height="720"/>
+
+  <!-- ─────── Title ─────── -->
+  <text class="h1" x="60" y="44" fill="var(--brand)">ARCHITECTURE</text>
+  <text class="text" x="60" y="72" font-size="22" font-weight="600" letter-spacing="-0.015em">Three layers, one server, no custody</text>
+
+  <!-- ─────── Layer 1: Browsers ─────── -->
+  <g transform="translate(60, 110)">
+    <rect class="lane-browser" width="1080" height="120" rx="16"/>
+    <text class="h1" x="20" y="28" fill="var(--brand)">BROWSERS</text>
+
+    <!-- Marketing Twig -->
+    <g transform="translate(20, 44)">
+      <rect class="card" width="320" height="58" rx="10"/>
+      <text class="h3 text" x="16" y="24">Marketing site</text>
+      <text class="muted body" x="16" y="44">Twig · multilingual · SEO</text>
+    </g>
+
+    <!-- Public payment Twig+viem -->
+    <g transform="translate(360, 44)">
+      <rect class="card" width="340" height="58" rx="10"/>
+      <text class="h3 text" x="16" y="24">Public payment page</text>
+      <text class="muted body" x="16" y="44">Twig + viem · wagmi · RainbowKit</text>
+    </g>
+
+    <!-- Dashboard React SPA -->
+    <g transform="translate(720, 44)">
+      <rect class="card" width="340" height="58" rx="10"/>
+      <text class="h3 text" x="16" y="24">Dashboard SPA</text>
+      <text class="muted body" x="16" y="44">React 18 · TS strict · Vite · authenticated</text>
+    </g>
+  </g>
+
+  <!-- HTTPS arrow down to server -->
+  <path class="arrow-https" d="M 600 230 L 600 280" marker-end="url(#ah-https)"/>
+  <g transform="translate(610, 250)">
+    <rect rx="9" width="56" height="22" fill="var(--user-soft)"/>
+    <text class="h1" x="28" y="15" text-anchor="middle" fill="var(--user)">HTTPS</text>
+  </g>
+
+  <!-- ─────── Layer 2: Hetzner server ─────── -->
+  <g transform="translate(60, 290)">
+    <rect class="lane-server" width="1080" height="280" rx="20"/>
+    <text class="h1" x="24" y="32" fill="var(--text-muted)">HETZNER SERVER · UBUNTU 24.04</text>
+
+    <!-- nginx -->
+    <g transform="translate(24, 56)">
+      <rect class="card" width="200" height="200" rx="12"/>
+      <text class="h2 text" x="20" y="32">nginx</text>
+      <text class="muted body" x="20" y="54">aaPanel-managed</text>
+      <text class="muted body" x="20" y="72">TLS · Cloudflare proxied</text>
+      <line x1="20" x2="180" y1="92" y2="92" stroke="var(--card-stroke)" stroke-width="1"/>
+      <text class="h1 muted" x="20" y="116">REVERSE PROXY</text>
+      <text class="text body" x="20" y="138" font-weight="500">→ PHP-FPM (Symfony)</text>
+      <text class="text body" x="20" y="158" font-weight="500">→ static /build/</text>
+      <text class="muted body" x="20" y="184">Rate limiting · WAF</text>
+    </g>
+
+    <!-- Symfony PHP-FPM -->
+    <g transform="translate(244, 56)">
+      <rect class="card" width="380" height="200" rx="12"/>
+      <text class="h2 text" x="20" y="32">Symfony 7.1 · PHP 8.3</text>
+      <text class="muted body" x="20" y="54">Twig · Doctrine · Messenger · Mailer</text>
+      <line x1="20" x2="360" y1="74" y2="74" stroke="var(--card-stroke)" stroke-width="1"/>
+      <text class="h1 muted" x="20" y="98">RESPONSIBILITIES</text>
+      <text class="text body" x="20" y="118" font-weight="500">Invoice CRUD · auth · API · PDFs</text>
+      <text class="text body" x="20" y="138" font-weight="500">Email · webhooks · audit log</text>
+      <line x1="20" x2="360" y1="158" y2="158" stroke="var(--card-stroke)" stroke-width="1"/>
+      <g transform="translate(20, 168)">
+        <rect class="pill-brand" width="148" height="26" rx="13"/>
+        <text class="h1 pill-brand-tx" x="74" y="17" text-anchor="middle">READS chain only</text>
+      </g>
+      <text class="muted body" x="180" y="184" font-style="italic">never signs txs</text>
+    </g>
+
+    <!-- MariaDB -->
+    <g transform="translate(644, 56)">
+      <rect class="card" width="200" height="92" rx="12"/>
+      <text class="h2 text" x="20" y="32">MariaDB 10.11</text>
+      <text class="muted body" x="20" y="54">utf8mb4 · InnoDB</text>
+      <text class="text body" x="20" y="74" font-weight="500">users · invoices · payments</text>
+    </g>
+
+    <!-- Redis -->
+    <g transform="translate(644, 164)">
+      <rect class="card" width="200" height="92" rx="12"/>
+      <text class="h2 text" x="20" y="32">Redis 7</text>
+      <text class="muted body" x="20" y="54">Cache · sessions · rate-limit</text>
+      <text class="muted body" x="20" y="74">Messenger queue (later)</text>
+    </g>
+
+    <!-- Workers -->
+    <g transform="translate(864, 56)">
+      <rect class="card" width="192" height="200" rx="12"/>
+      <text class="h2 text" x="20" y="32">systemd</text>
+      <line x1="20" x2="172" y1="48" y2="48" stroke="var(--card-stroke)" stroke-width="1"/>
+      <g transform="translate(20, 64)">
+        <rect class="pill-proc" width="148" height="22" rx="11"/>
+        <text class="h1 pill-proc-tx" x="74" y="15" text-anchor="middle">MESSENGER WORKER</text>
+      </g>
+      <text class="muted body" x="20" y="106">Async jobs:</text>
+      <text class="text body" x="20" y="124">emails · webhooks · PDF</text>
+      <line x1="20" x2="172" y1="142" y2="142" stroke="var(--card-stroke)" stroke-width="1"/>
+      <g transform="translate(20, 152)">
+        <rect class="pill-brand" width="148" height="22" rx="11"/>
+        <text class="h1 pill-brand-tx" x="74" y="15" text-anchor="middle">CHAIN LISTENER</text>
+      </g>
+      <text class="muted body" x="20" y="194">eth_getLogs polling</text>
+    </g>
+
+    <!-- Internal connector arrows -->
+    <path class="arrow" d="M 224 156 L 244 156" marker-end="url(#ah)"/>
+    <path class="arrow" d="M 624 156 L 644 156" marker-end="url(#ah)"/>
+    <path class="arrow" d="M 624 156 L 644 210" marker-end="url(#ah)"/>
+    <!-- workers ↔ DB -->
+    <path class="arrow-brand" d="M 864 156 Q 854 100 844 100" marker-end="url(#ah-brand)"/>
+  </g>
+
+  <!-- RPC arrow down to chain layer -->
+  <path class="arrow-rpc" d="M 950 570 L 950 612" marker-end="url(#ah-rpc)"/>
+  <g transform="translate(960, 580)">
+    <rect rx="9" width="92" height="22" fill="var(--bg-rpc)" stroke="var(--bg-rpc-stroke)"/>
+    <text class="h1" x="46" y="15" text-anchor="middle" fill="var(--on-chain)">JSON-RPC</text>
+  </g>
+
+  <!-- ─────── Layer 3: External RPC + L2 chains ─────── -->
+  <g transform="translate(60, 620)">
+    <rect class="lane-rpc" width="1080" height="80" rx="16"/>
+    <text class="h1" x="24" y="32" fill="var(--on-chain)">EXTERNAL · ALCHEMY / QUICKNODE</text>
+    <g transform="translate(290, 12)">
+      <rect class="card" width="180" height="56" rx="10"/>
+      <text class="h3 text" x="16" y="22">Base · 8453</text>
+      <text class="muted body" x="16" y="42">5 confirmations</text>
+    </g>
+    <g transform="translate(478, 12)">
+      <rect class="card" width="180" height="56" rx="10"/>
+      <text class="h3 text" x="16" y="22">Polygon · 137</text>
+      <text class="muted body" x="16" y="42">30 confirmations</text>
+    </g>
+    <g transform="translate(666, 12)">
+      <rect class="card" width="180" height="56" rx="10"/>
+      <text class="h3 text" x="16" y="22">Arbitrum · 42161</text>
+      <text class="muted body" x="16" y="42">5 confirmations</text>
+    </g>
+    <g transform="translate(854, 12)">
+      <rect class="card" width="180" height="56" rx="10"/>
+      <text class="h3 text" x="16" y="22">Optimism · 10</text>
+      <text class="muted body" x="16" y="42">5 confirmations</text>
+    </g>
+  </g>
+</svg>

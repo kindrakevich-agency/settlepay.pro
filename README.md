@@ -42,31 +42,7 @@ Settle removes the friction with a Stripe-grade UX layered over **non-custodial*
 
 ## How it works
 
-```
-┌─────────────┐  1. Create invoice                ┌──────────────┐
-│  Freelancer ├─────────────────────────────────▶│    Settle    │
-└─────┬───────┘                                  └──────┬───────┘
-      │                                                 │
-      │ 2. Share link                                   │ 3. Generate
-      │    settle.app/pay/inv_abc123                    │    payment URL
-      ▼                                                 ▼
-┌─────────────┐                                  ┌──────────────┐
-│   Client    │  4. Connect wallet, pick chain,  │ Public page  │
-│ (any wallet)├─────── pay USDC on Base ───────▶│  (Twig + viem)│
-└─────────────┘                                  └──────┬───────┘
-                                                        │
-                          5. eth_getLogs polling        ▼
-                                                 ┌──────────────┐
-                                                 │   Listener   │ ──▶ DB update
-                                                 │  (PHP daemon)│ ──▶ email + receipt
-                                                 └──────────────┘
-                                                        │
-                                                        ▼  6. < 30s
-                                                ┌──────────────┐
-                                                │   Dashboard  │
-                                                │  (React SPA) │
-                                                └──────────────┘
-```
+![Settle payment flow](docs/diagrams/flow.svg)
 
 The single most important architectural decision: **Symfony writes nothing on-chain. It only reads.** All transactions are signed in the user's browser by their wallet. This keeps Settle out of money-transmitter regulation territory and dramatically simplifies the codebase.
 
@@ -74,35 +50,7 @@ The single most important architectural decision: **Symfony writes nothing on-ch
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Hetzner server                          │
-│                                                             │
-│  ┌──────────┐   ┌─────────────┐   ┌──────────────────────┐  │
-│  │  nginx   │──▶│ Symfony app │──▶│      MariaDB         │  │
-│  │  + TLS   │   │  (PHP-FPM)  │   │  invoices/users/...  │  │
-│  └──────────┘   └──────┬──────┘   └──────────────────────┘  │
-│                        │                                    │
-│                        ▼                                    │
-│                  ┌──────────┐    ┌──────────────────────┐   │
-│                  │  Redis   │    │  systemd:            │   │
-│                  │  (cache, │    │   ↳ messenger worker │   │
-│                  │   queue) │    │   ↳ chain-listener   │   │
-│                  └──────────┘    └──────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                           │
-                           ▼  HTTPS — JSON-RPC
-              ┌────────────────────────┐
-              │  Alchemy / QuickNode   │
-              │  Base · Polygon ·      │
-              │  Arbitrum · Optimism   │
-              └────────────────────────┘
-
-  Browsers:
-    Marketing (Twig, multilingual)            ─ public
-    Public payment page (Twig + viem/wagmi)   ─ public
-    Dashboard (React SPA, served by Symfony)  ─ authenticated
-```
+![Settle architecture](docs/diagrams/architecture.svg)
 
 ### Why the stack looks this way
 
