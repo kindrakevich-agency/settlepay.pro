@@ -3,6 +3,33 @@
 
 {% set locale = app.request.locale|default('en') %}
 
+{% block title %}{{ 'seo.home.title'|trans }}{% endblock %}
+{% block meta_description %}{{ 'seo.home.description'|trans }}{% endblock %}
+{% block meta_keywords %}<meta name="keywords" content="{{ 'seo.home.keywords'|trans }}">{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type":    "SoftwareApplication",
+        "name":     "Settlepay",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type":         "Offer",
+            "price":         "0",
+            "priceCurrency": "USD",
+            "description":   {{ 'seo.home.offer_description'|trans|json_encode|raw }}
+        },
+        "description":   {{ 'seo.home.description'|trans|json_encode|raw }},
+        "url":           "https://settlepay.pro/{{ locale }}/",
+        "inLanguage":    "{{ locale }}",
+        "aggregateRating": null
+    }
+    </script>
+{% endblock %}
+
 {% block body %}
 {# ───────────────────────── TOP NAV ───────────────────────── #}
 <header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">

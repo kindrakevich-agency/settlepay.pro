@@ -1,7 +1,8 @@
 {% extends 'base.html.twig' %}
 {% from '_logo.html.twig' import logo %}
 
-{% set locale = app.request.locale|default('en') %}
+{% set locale        = app.request.locale|default('en') %}
+{% set seo_indexable = false %}{# Authenticated dashboard — never index. #}
 
 {% block title %}{{ 'nav.dashboard'|trans }} · Settlepay{% endblock %}
 

@@ -1,3 +1,11 @@
+seo:
+    default_description: 'Settlepay es la forma con UX de Stripe para facturar en stablecoins. Envía una factura profesional y cobra en USDC en Base, Polygon, Arbitrum u Optimism — sin custodia, sin bancos, sin esperas.'
+    home:
+        title: 'Settlepay — cobra en stablecoins. Sin bancos. Sin esperas.'
+        description: 'Manda facturas y cobra en USDC en las L2 más baratas. No custodial, comisiones desde 0,5%, sin KYC para clientes. Hecho para freelancers en Argentina, México, Colombia, Nigeria y más.'
+        keywords: 'facturación crypto, facturas en stablecoins, pagos USDC, cobrar en cripto, factura crypto freelance, Base USDC, no custodial, settlepay'
+        offer_description: 'Gratis hasta $1.000 facturados al mes. 1% en el plan Free, 0,5% en Pro.'
+
 common:
     app_name: Settle
     tagline: Cobra en stablecoins. Sin bancos. Sin esperas.

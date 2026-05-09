@@ -1,3 +1,11 @@
+seo:
+    default_description: 'Settlepay is the Stripe-grade way to invoice in stablecoins. Send a professional invoice, get paid in USDC on Base, Polygon, Arbitrum, or Optimism — non-custodial, non-bank, no waiting.'
+    home:
+        title: 'Settlepay — Get paid in stablecoins. No banks. No waiting.'
+        description: 'Send invoices, receive USDC on the cheapest L2s. Non-custodial, fees from 0.5%, no KYC for clients. Built for freelancers in Ukraine, Argentina, Brazil, Nigeria and beyond.'
+        keywords: 'crypto invoicing, stablecoin invoices, USDC payments, get paid in crypto, freelance crypto invoice, Base USDC, non-custodial billing, settlepay'
+        offer_description: 'Free up to $1,000 invoiced per month. 1% fee on Free, 0.5% on Pro.'
+
 common:
     app_name: Settle
     tagline: Get paid in stablecoins. Without banks. Without waiting.

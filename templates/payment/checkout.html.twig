@@ -1,9 +1,10 @@
 {% extends 'base.html.twig' %}
 {% from '_logo.html.twig' import logo %}
 
-{% set locale = app.request.locale|default('en') %}
-{% set is_paid = invoice.status.value == 'paid' %}
-{% set is_payable = invoice.payable %}
+{% set locale        = app.request.locale|default('en') %}
+{% set is_paid       = invoice.status.value == 'paid' %}
+{% set is_payable    = invoice.payable %}
+{% set seo_indexable = false %}{# Public payment URLs must never appear in search index — they contain a UUID that's effectively a credential. #}
 
 {% block title %}{{ 'payment.connect_wallet'|trans }} · {{ invoice.number }} · {{ invoice.user.businessName|default('Settlepay') }}{% endblock %}
 

@@ -1,17 +1,105 @@
+{# ─── SEO + meta defaults ──────────────────────────────────────────
+   Each page can override the four blocks: title, meta_description,
+   og_image, robots. The hreflang and Open Graph blocks are derived
+   automatically from the current route + supported locales unless
+   `seo_indexable` is set to false (e.g. payment / auth / dashboard).
+─────────────────────────────────────────────────────────────────── #}
+{% set locale       = app.request.locale|default('en') %}
+{% set route        = app.request.attributes.get('_route') %}
+{% set route_params = app.request.attributes.get('_route_params')|default({}) %}
+{% set seo_indexable = seo_indexable|default(true) %}
+
+{# Build absolute alt-language URLs for hreflang. If the current route
+   has a `_locale` requirement, swap it; otherwise just point at root. #}
+{% set hreflang_urls = {} %}
+{% if route and route_params._locale is defined %}
+    {% for code in ['en', 'uk', 'es'] %}
+        {% set hreflang_urls = hreflang_urls|merge({(code): url(route, route_params|merge({_locale: code}))}) %}
+    {% endfor %}
+{% endif %}
+
+{# Canonical = absolute URL of the current page. #}
+{% set canonical_url = app.request.uri %}
 <!DOCTYPE html>
-<html lang="{{ app.request.locale|default('en') }}" class="scroll-smooth">
+<html lang="{{ locale }}" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}{{ 'common.app_name'|trans }} — {{ 'common.tagline'|trans }}{% endblock %}</title>
-    <meta name="description" content="{% block description %}{{ 'common.tagline'|trans }}{% endblock %}">
 
+    {# ─── Title + description ─────────────────────────────────── #}
+    <title>{% block title %}{{ 'common.app_name'|trans }} — {{ 'common.tagline'|trans }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ 'seo.default_description'|trans }}{% endblock %}">
+    {% block meta_keywords %}{% endblock %}
+
+    {# ─── robots: indexable pages get follow/index, private pages
+         (auth/checkout/dashboard) override this block to noindex. ── #}
+    <meta name="robots" content="{% block robots %}{{ seo_indexable ? 'index, follow, max-image-preview:large' : 'noindex, nofollow' }}{% endblock %}">
+
+    {# ─── Canonical ──────────────────────────────────────────── #}
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {# ─── hreflang (only on indexable, locale-aware pages) ──── #}
+    {% if seo_indexable and hreflang_urls|length > 0 %}
+        {% for code, url in hreflang_urls %}
+            <link rel="alternate" hreflang="{{ code }}" href="{{ url }}">
+        {% endfor %}
+        <link rel="alternate" hreflang="x-default" href="{{ hreflang_urls.en }}">
+    {% endif %}
+
+    {# ─── Open Graph ─────────────────────────────────────────── #}
+    <meta property="og:type"        content="{% block og_type %}website{% endblock %}">
+    <meta property="og:site_name"   content="Settlepay">
+    <meta property="og:title"       content="{% block og_title %}{{ block('title') }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
+    <meta property="og:url"         content="{{ canonical_url }}">
+    <meta property="og:image"       content="{% block og_image %}{{ url('marketing_home', {_locale: 'en'})|trim('/') }}/og-image.png{% endblock %}">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale"      content="{{ locale == 'uk' ? 'uk_UA' : (locale == 'es' ? 'es_ES' : 'en_US') }}">
+    {% if seo_indexable and hreflang_urls|length > 0 %}
+        {% for code in ['en', 'uk', 'es']|filter(c => c != locale) %}
+            <meta property="og:locale:alternate" content="{{ code == 'uk' ? 'uk_UA' : (code == 'es' ? 'es_ES' : 'en_US') }}">
+        {% endfor %}
+    {% endif %}
+
+    {# ─── Twitter Card ───────────────────────────────────────── #}
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="{{ block('og_title') }}">
+    <meta name="twitter:description" content="{{ block('og_description') }}">
+    <meta name="twitter:image"       content="{{ block('og_image') }}">
+
+    {# ─── Theme color (mobile browsers) ──────────────────────── #}
+    <meta name="theme-color" content="#0d9488" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#042f2e" media="(prefers-color-scheme: dark)">
+
+    {# ─── Icons + manifest ───────────────────────────────────── #}
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    {# ─── Fonts (preconnect + non-blocking) ──────────────────── #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     {% block stylesheets %}
         {{ vite_entry_link('assets/styles/app.css') }}
+    {% endblock %}
+
+    {# ─── JSON-LD structured data (page-overridable) ─────────── #}
+    {% block structured_data %}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type":    "Organization",
+            "name":     "Settlepay",
+            "url":      "https://settlepay.pro",
+            "logo":     "https://settlepay.pro/og-image.png",
+            "description": {{ 'seo.default_description'|trans|json_encode|raw }},
+            "sameAs": [
+                "https://github.com/kindrakevich-agency/settlepay.pro"
+            ]
+        }
+        </script>
     {% endblock %}
 
     {% block javascripts %}{% endblock %}

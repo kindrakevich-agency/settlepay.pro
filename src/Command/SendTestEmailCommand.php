@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
 
 /**
@@ -34,6 +35,7 @@ class SendTestEmailCommand extends Command
         $to = (string) $input->getArgument('to');
 
         $email = (new Email())
+            ->from(new Address('hello@settlepay.pro', 'Settlepay'))
             ->to($to)
             ->subject('Settlepay — mailer smoke test')
             ->text("If you're reading this, MAILER_DSN is configured correctly.\n\nSent from settlepay.pro.")
