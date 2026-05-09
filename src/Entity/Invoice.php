@@ -59,16 +59,16 @@ class Invoice
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
-    #[ORM\Column(name: 'due_date', type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'due_date', type: Types::DATE_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $dueDate = null;
 
-    #[ORM\Column(name: 'issued_at', type: Types::DATE_MUTABLE)]
+    #[ORM\Column(name: 'issued_at', type: Types::DATE_IMMUTABLE)]
     private \DateTimeInterface $issuedAt;
 
-    #[ORM\Column(name: 'paid_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'paid_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $paidAt = null;
 
-    #[ORM\Column(name: 'viewed_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'viewed_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $viewedAt = null;
 
     /** @var int[] List of chain IDs this invoice accepts. */
@@ -86,10 +86,10 @@ class Invoice
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $metadata = null;
 
-    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeInterface $updatedAt;
 
     /** @var Collection<int, InvoiceLineItem> */

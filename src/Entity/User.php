@@ -29,7 +29,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'password_hash', length: 255)]
     private string $passwordHash;
 
-    #[ORM\Column(name: 'email_verified_at', type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'email_verified_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $emailVerifiedAt = null;
 
     #[ORM\Column(name: 'display_name', length: 120, nullable: true)]
@@ -63,10 +63,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, options: ['default' => 'free'])]
     private string $plan = 'free';
 
-    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeInterface $createdAt;
 
-    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeInterface $updatedAt;
 
     /** @var Collection<int, Invoice> */
