@@ -1,0 +1,127 @@
+# Local development stack for Settle.
+# Mirrors the production stack on Hetzner where possible (PHP 8.3, MariaDB 10.11, Redis 7).
+# Usage:
+#   docker compose up -d
+#   docker compose exec php composer install
+#   docker compose exec node pnpm install
+#   docker compose exec php bin/console doctrine:migrations:migrate
+#
+# Then visit:
+#   http://localhost:8080  — Symfony app (marketing + checkout + dashboard shell)
+#   http://localhost:5173  — Vite dev server (hot module reload for React/Tailwind)
+
+name: settle
+
+services:
+  php:
+    build:
+      context: ./docker/php
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - composer-cache:/composer-cache
+    environment:
+      COMPOSER_HOME: /composer-cache
+      DATABASE_URL: "mysql://settle:settle@db:3306/settle?serverVersion=10.11.6-MariaDB&charset=utf8mb4"
+      REDIS_URL: "redis://redis:6379"
+      APP_ENV: dev
+      APP_DEBUG: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks: [settle-net]
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/app:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+    networks: [settle-net]
+
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: settle
+      MARIADB_USER: settle
+      MARIADB_PASSWORD: settle
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    networks: [settle-net]
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    networks: [settle-net]
+
+  node:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - node-modules:/app/node_modules
+    command: ["sh", "-c", "corepack enable && tail -f /dev/null"]
+    ports:
+      - "5173:5173"
+    networks: [settle-net]
+
+  worker:
+    build:
+      context: ./docker/php
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - composer-cache:/composer-cache
+    environment:
+      COMPOSER_HOME: /composer-cache
+      DATABASE_URL: "mysql://settle:settle@db:3306/settle?serverVersion=10.11.6-MariaDB&charset=utf8mb4"
+      REDIS_URL: "redis://redis:6379"
+      APP_ENV: dev
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["php", "bin/console", "messenger:consume", "async", "-vv", "--time-limit=3600", "--memory-limit=128M"]
+    networks: [settle-net]
+
+  listener:
+    build:
+      context: ./docker/php
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - composer-cache:/composer-cache
+    environment:
+      COMPOSER_HOME: /composer-cache
+      DATABASE_URL: "mysql://settle:settle@db:3306/settle?serverVersion=10.11.6-MariaDB&charset=utf8mb4"
+      REDIS_URL: "redis://redis:6379"
+      APP_ENV: dev
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["php", "bin/console", "app:chain:listen", "--testnet"]
+    networks: [settle-net]
+
+volumes:
+  db-data:
+  redis-data:
+  node-modules:
+  composer-cache:
+
+networks:
+  settle-net:
+    driver: bridge

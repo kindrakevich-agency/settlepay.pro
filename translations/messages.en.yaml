@@ -1,0 +1,47 @@
+common:
+    app_name: Settle
+    tagline: Get paid in stablecoins. Without banks. Without waiting.
+    cta_primary: Get started — it's free
+    cta_secondary: How it works
+    sign_in: Sign in
+    sign_up: Sign up
+    log_out: Log out
+
+nav:
+    dashboard: Dashboard
+    invoices: Invoices
+    payments: Payments
+    settings: Settings
+    docs: Docs
+
+invoice:
+    status:
+        draft: Draft
+        sent: Sent
+        viewed: Viewed
+        paid: Paid
+        overdue: Overdue
+        void: Voided
+    new: New invoice
+    client: Client
+    amount: Amount
+    due_date: Due date
+    description: Description
+    send: Send invoice
+    pay_now: Pay now
+    paid_with: 'Paid with {token} on {chain}'
+    view_receipt: View receipt
+
+payment:
+    connect_wallet: Connect wallet
+    switch_network: Switch network
+    confirming: Confirming on-chain…
+    success_title: Payment received
+    success_subtitle: A receipt has been sent to your email.
+    rejected: Transaction rejected. You can try again.
+    insufficient_balance: Not enough balance for this token.
+
+errors:
+    invalid_email: Please enter a valid email
+    password_too_short: Password must be at least 12 characters
+    network_mismatch: Your wallet is on the wrong network

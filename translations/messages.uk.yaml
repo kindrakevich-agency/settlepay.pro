@@ -1,0 +1,47 @@
+common:
+    app_name: Settle
+    tagline: Отримуй оплату в стейблкоїнах. Без банків. Без чекання.
+    cta_primary: Почати — безкоштовно
+    cta_secondary: Як це працює
+    sign_in: Увійти
+    sign_up: Зареєструватися
+    log_out: Вийти
+
+nav:
+    dashboard: Кабінет
+    invoices: Інвойси
+    payments: Платежі
+    settings: Налаштування
+    docs: Документація
+
+invoice:
+    status:
+        draft: Чернетка
+        sent: Надіслано
+        viewed: Переглянуто
+        paid: Оплачено
+        overdue: Прострочено
+        void: Скасовано
+    new: Новий інвойс
+    client: Клієнт
+    amount: Сума
+    due_date: Термін оплати
+    description: Опис
+    send: Надіслати інвойс
+    pay_now: Оплатити
+    paid_with: 'Оплачено в {token} у мережі {chain}'
+    view_receipt: Переглянути квитанцію
+
+payment:
+    connect_wallet: Підключити гаманець
+    switch_network: Змінити мережу
+    confirming: Підтвердження в блокчейні…
+    success_title: Оплату отримано
+    success_subtitle: Квитанцію надіслано на твою електронну пошту.
+    rejected: Транзакцію відхилено. Можна спробувати ще раз.
+    insufficient_balance: Недостатньо балансу для цього токена.
+
+errors:
+    invalid_email: Введи коректну електронну адресу
+    password_too_short: Пароль має бути не коротшим за 12 символів
+    network_mismatch: Твій гаманець у неправильній мережі

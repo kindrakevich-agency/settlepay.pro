@@ -1,0 +1,62 @@
+# Per-chain settings for the listener. RPC URLs are templated — fill the
+# actual URL (with API key) in .env.local. The skeleton here uses public
+# fallbacks that are safe to commit.
+
+chains:
+  base:
+    chain_id: 8453
+    name: 'Base'
+    rpc_env: BASE_RPC_URL
+    rpc_fallback: 'https://mainnet.base.org'
+    block_time_seconds: 2
+    required_confirmations: 5
+    explorer: 'https://basescan.org'
+
+  polygon:
+    chain_id: 137
+    name: 'Polygon PoS'
+    rpc_env: POLYGON_RPC_URL
+    rpc_fallback: 'https://polygon-rpc.com'
+    block_time_seconds: 2
+    required_confirmations: 30
+    explorer: 'https://polygonscan.com'
+
+  arbitrum:
+    chain_id: 42161
+    name: 'Arbitrum One'
+    rpc_env: ARBITRUM_RPC_URL
+    rpc_fallback: 'https://arb1.arbitrum.io/rpc'
+    block_time_seconds: 1
+    required_confirmations: 5
+    explorer: 'https://arbiscan.io'
+
+  optimism:
+    chain_id: 10
+    name: 'Optimism'
+    rpc_env: OPTIMISM_RPC_URL
+    rpc_fallback: 'https://mainnet.optimism.io'
+    block_time_seconds: 2
+    required_confirmations: 5
+    explorer: 'https://optimistic.etherscan.io'
+
+testnets:
+  base_sepolia:
+    chain_id: 84532
+    name: 'Base Sepolia'
+    rpc_env: BASE_SEPOLIA_RPC_URL
+    rpc_fallback: 'https://sepolia.base.org'
+    required_confirmations: 2
+
+  optimism_sepolia:
+    chain_id: 11155420
+    name: 'Optimism Sepolia'
+    rpc_env: OP_SEPOLIA_RPC_URL
+    rpc_fallback: 'https://sepolia.optimism.io'
+    required_confirmations: 2
+
+  arbitrum_sepolia:
+    chain_id: 421614
+    name: 'Arbitrum Sepolia'
+    rpc_env: ARB_SEPOLIA_RPC_URL
+    rpc_fallback: 'https://sepolia-rollup.arbitrum.io/rpc'
+    required_confirmations: 2

@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settle — Design System Preview</title>
+  <meta name="description" content="Settle design system showcase: landing, payment checkout, dashboard, components." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind via Play CDN (preview only — replace with build in production) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50:'#f0fdfa',100:'#ccfbf1',200:'#99f6e4',300:'#5eead4',400:'#2dd4bf',
+              500:'#14b8a6',600:'#0d9488',700:'#0f766e',800:'#115e59',900:'#134e4a',950:'#042f2e',
+            },
+            success:{50:'#ecfdf5',500:'#10b981',600:'#059669'},
+            warning:{50:'#fffbeb',500:'#f59e0b',600:'#d97706'},
+            danger:{50:'#fef2f2',500:'#ef4444',600:'#dc2626'},
+            info:{50:'#eff6ff',500:'#3b82f6',600:'#2563eb'},
+          },
+          fontFamily: {
+            sans: ['Inter','ui-sans-serif','system-ui','sans-serif'],
+            display: ['Inter','ui-sans-serif','system-ui','sans-serif'],
+            mono: ['"JetBrains Mono"','ui-monospace','monospace'],
+          },
+          borderRadius: { xl:'0.875rem','2xl':'1.125rem','3xl':'1.5rem' },
+          boxShadow: {
+            'card':'0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.04)',
+            'card-hover':'0 2px 4px rgba(15,23,42,0.06), 0 8px 24px rgba(15,23,42,0.08)',
+            'pop':'0 8px 24px rgba(15,23,42,0.10), 0 24px 48px rgba(15,23,42,0.08)',
+          },
+          animation: {
+            'fade-in':'fadeIn 200ms ease-out',
+            'slide-up':'slideUp 240ms cubic-bezier(0.16,1,0.3,1)',
+            'pulse-dot':'pulseDot 2s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn:{'0%':{opacity:'0'},'100%':{opacity:'1'}},
+            slideUp:{'0%':{opacity:'0',transform:'translateY(8px)'},'100%':{opacity:'1',transform:'translateY(0)'}},
+            pulseDot:{'0%,100%':{opacity:'1'},'50%':{opacity:'0.4'}},
+          },
+        }
+      }
+    };
+  </script>
+
+  <style type="text/tailwindcss">
+    @layer base {
+      html { font-feature-settings: 'cv11','ss01','ss03'; }
+      body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; }
+      :focus-visible { outline: none; }
+    }
+    @layer utilities {
+      .ring-focus { @apply focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950; }
+      .grid-bg {
+        background-image:
+          linear-gradient(to right, rgba(15,23,42,0.05) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(15,23,42,0.05) 1px, transparent 1px);
+        background-size: 32px 32px;
+      }
+      .dark .grid-bg {
+        background-image:
+          linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+      }
+      .mesh-brand {
+        background-image:
+          radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%),
+          radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%),
+          radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);
+      }
+      .dark .mesh-brand {
+        background-image:
+          radial-gradient(at 18% 24%, rgba(13,148,136,0.30) 0px, transparent 50%),
+          radial-gradient(at 82% 18%, rgba(15,118,110,0.25) 0px, transparent 50%),
+          radial-gradient(at 60% 78%, rgba(45,212,191,0.10) 0px, transparent 50%);
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased font-sans">
+
+<!-- ───────────────────────────── PREVIEW TOOLBAR ───────────────────────────── -->
+<div class="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-2 py-1.5 shadow-pop">
+  <button id="theme-toggle" class="ring-focus flex h-8 w-8 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition" aria-label="Toggle theme">
+    <svg class="h-4 w-4 hidden dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4l1.4-1.4M17 7l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+    <svg class="h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+  </button>
+  <a href="#nav" class="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">Top</a>
+</div>
+
+<!-- ───────────────────────────── TOP NAV ───────────────────────────── -->
+<header id="nav" class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+    <a href="#" class="flex items-center gap-2.5">
+      <span class="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
+        <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </span>
+      <span class="font-display text-lg font-semibold tracking-tight">Settle</span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+      <a class="ring-focus rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#hero">Product</a>
+      <a class="ring-focus rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#pricing">Pricing</a>
+      <a class="ring-focus rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#dashboard">Dashboard</a>
+      <a class="ring-focus rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#checkout">Checkout</a>
+      <a class="ring-focus rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#components">Components</a>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <!-- Locale switcher -->
+      <div class="hidden sm:flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
+        <button data-lang="en" class="locale-btn rounded-md px-2 py-1 bg-slate-900 text-white dark:bg-white dark:text-slate-900">EN</button>
+        <button data-lang="uk" class="locale-btn rounded-md px-2 py-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">UK</button>
+        <button data-lang="es" class="locale-btn rounded-md px-2 py-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">ES</button>
+      </div>
+      <a href="#" class="hidden sm:inline-flex ring-focus rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" data-i18n="signIn">Sign in</a>
+      <a href="#" class="ring-focus inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm" data-i18n="signUp">Get started</a>
+    </div>
+  </div>
+</header>
+
+<!-- ───────────────────────────── HERO ───────────────────────────── -->
+<section id="hero" class="relative overflow-hidden">
+  <div class="absolute inset-0 grid-bg"></div>
+  <div class="absolute inset-0 mesh-brand"></div>
+  <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80"></div>
+
+  <div class="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
+    <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
+      <!-- Left: copy + CTA -->
+      <div class="lg:col-span-7">
+        <span class="inline-flex items-center gap-2 rounded-full border border-brand-200/70 dark:border-brand-800/70 bg-brand-50/60 dark:bg-brand-950/40 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300 shadow-xs">
+          <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse-dot"></span>
+          Live on Base · Polygon · Arbitrum · Optimism
+        </span>
+
+        <h1 class="mt-6 font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight leading-[1.05]">
+          <span data-i18n="heroLine1">Get paid in stablecoins.</span><br/>
+          <span class="text-slate-500 dark:text-slate-400" data-i18n="heroLine2">Without banks. Without waiting.</span>
+        </h1>
+
+        <p class="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed" data-i18n="heroSub">
+          Send professional invoices, receive USDC on the cheapest L2s. Settle keeps no custody — funds go straight from your client to your wallet.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a href="#" class="ring-focus inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition" data-i18n="ctaPrimary">
+            Get started — it's free
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#checkout" class="ring-focus inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition shadow-xs" data-i18n="ctaSecondary">
+            See a payment page
+          </a>
+        </div>
+
+        <!-- Trust strip -->
+        <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-slate-500 dark:text-slate-500">
+          <span class="font-medium text-slate-400 dark:text-slate-600">Accepts</span>
+          <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> USDC</div>
+          <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> USDT</div>
+          <div class="flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> DAI</div>
+          <span class="text-slate-300 dark:text-slate-700">·</span>
+          <span>Non-custodial · 0.5–1% fee · No KYC for clients</span>
+        </div>
+      </div>
+
+      <!-- Right: floating invoice card -->
+      <div class="lg:col-span-5 relative">
+        <div class="absolute -inset-6 mesh-brand rounded-3xl blur-2xl opacity-60"></div>
+
+        <div class="relative animate-slide-up rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-pop p-6 lg:p-7">
+          <!-- Card header -->
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Invoice #INV-2026-0042</p>
+              <p class="mt-1 font-display text-3xl font-semibold tracking-tight tabular-nums">$2,450.00</p>
+              <p class="text-sm text-slate-500 dark:text-slate-400">Due May 24 · Acme Corp</p>
+            </div>
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 dark:bg-success-500/10 px-2.5 py-0.5 text-xs font-medium text-success-600 dark:text-success-500">
+              <span class="h-1.5 w-1.5 rounded-full bg-success-500 animate-pulse-dot"></span> Paid
+            </span>
+          </div>
+
+          <!-- Divider -->
+          <div class="my-5 h-px bg-slate-100 dark:bg-slate-800"></div>
+
+          <!-- Line items -->
+          <ul class="space-y-2.5 text-sm">
+            <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">Brand identity (10h)</span><span class="font-medium tabular-nums">$1,800.00</span></li>
+            <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">Logo iterations (4h)</span><span class="font-medium tabular-nums">$650.00</span></li>
+          </ul>
+
+          <!-- Tx detail -->
+          <div class="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-medium text-slate-500 dark:text-slate-400">Transaction · Base</span>
+              <span class="text-success-600 dark:text-success-500 font-medium">5/5 confirmations</span>
+            </div>
+            <div class="mt-2 flex items-center justify-between gap-3">
+              <code class="font-mono text-xs text-slate-700 dark:text-slate-300 truncate">0x8f3a…b2e91c</code>
+              <button class="ring-focus rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition" aria-label="Copy hash">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-5 flex gap-2">
+            <button class="ring-focus flex-1 rounded-xl bg-brand-600 hover:bg-brand-700 text-white py-2.5 text-sm font-medium transition">View receipt</button>
+            <button class="ring-focus rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition" aria-label="Share">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Floating chip -->
+        <div class="absolute -bottom-4 -left-4 hidden sm:flex items-center gap-2 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3.5 py-2 text-xs font-medium shadow-pop">
+          <svg class="h-3.5 w-3.5 text-success-400 dark:text-success-600" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="12"/></svg>
+          Settled in 14 seconds
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── FEATURES ───────────────────────────── -->
+<section id="features" class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+    <div class="max-w-2xl">
+      <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">Built for freelancers</p>
+      <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">Stripe-grade UX, on the rails you actually want.</h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">Clients pay from any wallet. You get stablecoins in your wallet, on the L2 of your choice. We never touch the money.</p>
+    </div>
+
+    <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Feature card -->
+      <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4 9-4M12 11v10"/></svg>
+        </div>
+        <h3 class="mt-5 font-semibold tracking-tight">Non-custodial by design</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Funds move directly from your client's wallet to yours. We're the software layer, never the bank.</p>
+      </article>
+
+      <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-info-50 dark:bg-info-500/10 text-info-600 dark:text-info-500">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </div>
+        <h3 class="mt-5 font-semibold tracking-tight">Confirmed in seconds</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Cheap L2s mean payments confirm in 10–30 seconds, with fees of pennies — not 5% bank charges.</p>
+      </article>
+
+      <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
+        <div class="grid h-10 w-10 place-items-center rounded-xl bg-success-50 dark:bg-success-500/10 text-success-600 dark:text-success-500">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+        </div>
+        <h3 class="mt-5 font-semibold tracking-tight">Receipts that look like Stripe's</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Branded PDFs, hosted invoice pages, automatic payment confirmation emails in three languages.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── DASHBOARD MOCKUP ───────────────────────────── -->
+<section id="dashboard" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+    <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
+      <div>
+        <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">Dashboard</p>
+        <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">Your invoices, your money, one screen.</h2>
+      </div>
+      <a href="#" class="text-sm font-medium text-brand-600 dark:text-brand-400 hover:underline">View full dashboard →</a>
+    </div>
+
+    <!-- App shell -->
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-card overflow-hidden">
+      <!-- Window chrome -->
+      <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+        <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+        <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+        <span class="ml-3 font-mono text-xs text-slate-500 dark:text-slate-500">app.settle.xyz/dashboard</span>
+      </div>
+
+      <div class="grid lg:grid-cols-[16rem_1fr]">
+        <!-- Sidebar -->
+        <aside class="hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+          <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+            <button class="ring-focus flex items-center gap-2.5 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+              <span class="grid h-7 w-7 place-items-center rounded-md bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-semibold">VK</span>
+              <div class="min-w-0">
+                <div class="text-sm font-medium truncate">Vitalii's Studio</div>
+                <div class="text-xs text-slate-500 dark:text-slate-500 truncate">vitalii@settle.xyz</div>
+              </div>
+              <svg class="ml-auto h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>
+            </button>
+          </div>
+
+          <nav class="p-2 space-y-0.5 text-sm">
+            <a href="#" class="flex items-center gap-2.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-2 font-medium">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>
+              Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+              Invoices
+              <span class="ml-auto text-2xs font-mono text-slate-400">42</span>
+            </a>
+            <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 6v2M12 16v2"/></svg>
+              Payments
+            </a>
+            <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.13a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.87"/></svg>
+              Clients
+            </a>
+            <div class="my-2 h-px bg-slate-200 dark:bg-slate-800 mx-2"></div>
+            <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+              Settings
+            </a>
+          </nav>
+
+          <div class="mt-auto p-3">
+            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-brand-50 to-white dark:from-brand-950/50 dark:to-slate-900 p-3.5">
+              <p class="text-xs font-medium text-slate-900 dark:text-slate-100">Upgrade to Pro</p>
+              <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">Unlimited volume, 0.5% fee, custom branding.</p>
+              <button class="mt-3 w-full rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium py-1.5 transition">$19/mo · Start trial</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="p-6 lg:p-8">
+          <!-- Page header -->
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-display text-2xl font-semibold tracking-tight">Good evening, Vitalii.</h3>
+              <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Here's what's happening across your invoices.</p>
+            </div>
+            <button class="ring-focus inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium shadow-card transition">
+              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              New invoice
+            </button>
+          </div>
+
+          <!-- Metrics -->
+          <div class="mt-6 grid sm:grid-cols-3 gap-4">
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Paid (May)</span>
+                <span class="text-2xs font-medium text-success-600 bg-success-50 dark:bg-success-500/10 rounded-full px-2 py-0.5">+12%</span>
+              </div>
+              <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">$8,420</div>
+              <div class="mt-3 flex items-end gap-1 h-8">
+                <div class="w-2 rounded bg-brand-200 dark:bg-brand-900" style="height:30%"></div>
+                <div class="w-2 rounded bg-brand-300 dark:bg-brand-800" style="height:50%"></div>
+                <div class="w-2 rounded bg-brand-400 dark:bg-brand-700" style="height:40%"></div>
+                <div class="w-2 rounded bg-brand-500 dark:bg-brand-600" style="height:75%"></div>
+                <div class="w-2 rounded bg-brand-600 dark:bg-brand-500" style="height:60%"></div>
+                <div class="w-2 rounded bg-brand-600 dark:bg-brand-500" style="height:90%"></div>
+                <div class="w-2 rounded bg-brand-700 dark:bg-brand-400" style="height:100%"></div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Awaiting payment</span>
+              <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">$3,180</div>
+              <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">3 invoices · 1 overdue</div>
+            </div>
+
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Avg. settle time</span>
+              <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">21<span class="text-lg text-slate-400">s</span></div>
+              <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">Across Base, Polygon, Arbitrum</div>
+            </div>
+          </div>
+
+          <!-- Invoice table -->
+          <div class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800">
+              <h4 class="font-semibold tracking-tight">Recent invoices</h4>
+              <div class="flex items-center gap-2">
+                <div class="relative">
+                  <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" placeholder="Search…" class="ring-focus rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 pl-8 pr-3 py-1.5 text-sm placeholder-slate-400 w-48 focus:bg-white dark:focus:bg-slate-900 transition" />
+                </div>
+                <button class="ring-focus rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">Filter</button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="text-xs text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-950/40">
+                  <tr class="border-b border-slate-200 dark:border-slate-800">
+                    <th class="text-left font-medium px-5 py-2.5">Invoice</th>
+                    <th class="text-left font-medium px-5 py-2.5">Client</th>
+                    <th class="text-left font-medium px-5 py-2.5">Status</th>
+                    <th class="text-right font-medium px-5 py-2.5">Amount</th>
+                    <th class="text-right font-medium px-5 py-2.5">Due</th>
+                    <th class="px-5 py-2.5"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                    <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0042</td>
+                    <td class="px-5 py-3.5">Acme Corp</td>
+                    <td class="px-5 py-3.5">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 dark:bg-success-500/10 px-2 py-0.5 text-2xs font-medium text-success-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> Paid
+                      </span>
+                    </td>
+                    <td class="px-5 py-3.5 text-right font-medium tabular-nums">$2,450.00</td>
+                    <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">May 24</td>
+                    <td class="px-5 py-3.5 text-right"><button class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">⋯</button></td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                    <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0041</td>
+                    <td class="px-5 py-3.5">Northwind LLC</td>
+                    <td class="px-5 py-3.5">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-info-50 dark:bg-info-500/10 px-2 py-0.5 text-2xs font-medium text-info-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-info-500"></span> Sent
+                      </span>
+                    </td>
+                    <td class="px-5 py-3.5 text-right font-medium tabular-nums">$1,200.00</td>
+                    <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">May 30</td>
+                    <td class="px-5 py-3.5 text-right"><button class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">⋯</button></td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                    <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0040</td>
+                    <td class="px-5 py-3.5">Globex Inc</td>
+                    <td class="px-5 py-3.5">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 dark:bg-warning-500/10 px-2 py-0.5 text-2xs font-medium text-warning-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-warning-500"></span> Viewed
+                      </span>
+                    </td>
+                    <td class="px-5 py-3.5 text-right font-medium tabular-nums">$680.00</td>
+                    <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">Jun 02</td>
+                    <td class="px-5 py-3.5 text-right"><button class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">⋯</button></td>
+                  </tr>
+                  <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                    <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0039</td>
+                    <td class="px-5 py-3.5">Initech</td>
+                    <td class="px-5 py-3.5">
+                      <span class="inline-flex items-center gap-1.5 rounded-full bg-danger-50 dark:bg-danger-500/10 px-2 py-0.5 text-2xs font-medium text-danger-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-danger-500"></span> Overdue
+                      </span>
+                    </td>
+                    <td class="px-5 py-3.5 text-right font-medium tabular-nums">$1,300.00</td>
+                    <td class="px-5 py-3.5 text-right text-danger-600">Apr 28</td>
+                    <td class="px-5 py-3.5 text-right"><button class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">⋯</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── PAYMENT CHECKOUT (PUBLIC PAGE) ───────────────────────────── -->
+<section id="checkout" class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+    <div class="max-w-2xl mb-10">
+      <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">Payment page</p>
+      <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">Where revenue is converted. Treat as sacred.</h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">Single, focused screen. No nav. No distractions. The only job: connect, confirm, pay.</p>
+    </div>
+
+    <!-- Phone mock + checkout side-by-side -->
+    <div class="grid lg:grid-cols-12 gap-8 items-start">
+      <!-- The actual checkout card -->
+      <div class="lg:col-span-7 order-2 lg:order-1">
+        <div class="relative rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 lg:p-10 shadow-pop">
+          <!-- Header: business + locale -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white text-sm font-semibold">VS</span>
+              <div>
+                <div class="text-sm font-semibold">Vitalii's Studio</div>
+                <div class="text-xs text-slate-500 dark:text-slate-500">Invoice from Settle</div>
+              </div>
+            </div>
+            <select class="ring-focus rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-medium py-1.5 pl-2.5 pr-7">
+              <option>EN</option><option>UK</option><option>ES</option>
+            </select>
+          </div>
+
+          <!-- Amount focus -->
+          <div class="mt-10 text-center">
+            <p class="text-sm text-slate-500 dark:text-slate-400" data-i18n="amountDue">Amount due</p>
+            <p class="mt-2 font-display text-6xl font-semibold tracking-tight tabular-nums">$2,450<span class="text-3xl text-slate-400">.00</span></p>
+            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">For: Brand identity & logo iterations · Due May 24</p>
+          </div>
+
+          <!-- Token / chain selector -->
+          <div class="mt-8 grid grid-cols-2 gap-3">
+            <fieldset>
+              <legend class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Pay with</legend>
+              <div class="grid grid-cols-3 gap-2">
+                <label class="ring-focus cursor-pointer rounded-xl border-2 border-brand-500 bg-brand-50/60 dark:bg-brand-500/10 p-2.5 text-center transition">
+                  <input type="radio" name="token" class="sr-only" checked />
+                  <div class="text-xs font-semibold text-brand-700 dark:text-brand-400">USDC</div>
+                </label>
+                <label class="ring-focus cursor-pointer rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-center hover:border-slate-300 dark:hover:border-slate-700 transition">
+                  <input type="radio" name="token" class="sr-only" />
+                  <div class="text-xs font-semibold">USDT</div>
+                </label>
+                <label class="ring-focus cursor-pointer rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-center hover:border-slate-300 dark:hover:border-slate-700 transition">
+                  <input type="radio" name="token" class="sr-only" />
+                  <div class="text-xs font-semibold">DAI</div>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">On network</legend>
+              <select class="ring-focus block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm">
+                <option>Base</option>
+                <option>Polygon</option>
+                <option>Arbitrum One</option>
+                <option>Optimism</option>
+              </select>
+            </fieldset>
+          </div>
+
+          <!-- Recipient -->
+          <div class="mt-6 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Pays to</span>
+              <span class="text-2xs text-slate-400">Verified · EIP-55</span>
+            </div>
+            <code class="mt-1.5 block font-mono text-sm text-slate-700 dark:text-slate-300 break-all">0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c</code>
+          </div>
+
+          <!-- Pay button -->
+          <button class="ring-focus mt-8 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white py-4 text-base font-semibold shadow-card hover:shadow-card-hover transition" data-i18n="connectWallet">
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M14 12h4M22 10v4"/></svg>
+            Connect wallet
+          </button>
+
+          <p class="mt-3 text-center text-2xs text-slate-500 dark:text-slate-500">
+            Funds go directly to the recipient. Settle never holds your money.
+          </p>
+
+          <!-- Trust row -->
+          <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
+            <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Non-custodial</span>
+            <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secured by your wallet</span>
+            <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Settles in seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: state walkthrough -->
+      <aside class="lg:col-span-5 order-1 lg:order-2 lg:pt-4 space-y-3">
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">Payment states</p>
+
+        <!-- State: idle -->
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-start gap-3">
+          <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold">1</span>
+          <div class="flex-1">
+            <p class="font-medium text-sm">Awaiting wallet</p>
+            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Client picks token, network, clicks connect.</p>
+          </div>
+        </div>
+
+        <!-- State: confirming -->
+        <div class="rounded-xl border-2 border-brand-500 bg-brand-50/40 dark:bg-brand-500/10 p-4 flex items-start gap-3">
+          <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-brand-500 text-white text-xs font-semibold animate-pulse-dot">2</span>
+          <div class="flex-1">
+            <p class="font-medium text-sm">Confirming on-chain…</p>
+            <p class="mt-0.5 text-xs text-slate-600 dark:text-slate-400">Tx detected · 2 of 5 confirmations on Base.</p>
+            <div class="mt-2.5 h-1.5 w-full rounded-full bg-brand-100 dark:bg-brand-950 overflow-hidden">
+              <div class="h-full w-2/5 rounded-full bg-brand-500"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- State: paid -->
+        <div class="rounded-xl border border-success-200 dark:border-success-500/30 bg-success-50 dark:bg-success-500/10 p-4 flex items-start gap-3">
+          <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-success-500 text-white">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+          </span>
+          <div class="flex-1">
+            <p class="font-medium text-sm text-success-700 dark:text-success-500">Payment received</p>
+            <p class="mt-0.5 text-xs text-success-600/80 dark:text-success-500/80">Receipt sent to client@acme.com</p>
+          </div>
+        </div>
+
+        <!-- State: error -->
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-start gap-3 opacity-60">
+          <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-danger-50 dark:bg-danger-500/10 text-danger-600">!</span>
+          <div class="flex-1">
+            <p class="font-medium text-sm">Wrong network</p>
+            <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Prompt switch via wallet_switchEthereumChain.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────────────────────── COMPONENT LIBRARY ───────────────────────────── -->
+<section id="components" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24 space-y-16">
+
+    <header class="max-w-2xl">
+      <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">Component library</p>
+      <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">Tokens & primitives.</h2>
+      <p class="mt-4 text-slate-600 dark:text-slate-400">Every screen above is built from these. Used in Twig (marketing/checkout) and React (dashboard).</p>
+    </header>
+
+    <!-- Color tokens -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Color tokens</h3>
+      <div class="grid sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div><div class="h-16 rounded-xl bg-brand-50 ring-1 ring-inset ring-slate-900/5"></div><div class="mt-2 text-xs"><span class="font-medium">brand-50</span><br/><span class="font-mono text-slate-500">#f0fdfa</span></div></div>
+        <div><div class="h-16 rounded-xl bg-brand-200 ring-1 ring-inset ring-slate-900/5"></div><div class="mt-2 text-xs"><span class="font-medium">brand-200</span><br/><span class="font-mono text-slate-500">#99f6e4</span></div></div>
+        <div><div class="h-16 rounded-xl bg-brand-400 ring-1 ring-inset ring-slate-900/5"></div><div class="mt-2 text-xs"><span class="font-medium">brand-400</span><br/><span class="font-mono text-slate-500">#2dd4bf</span></div></div>
+        <div><div class="h-16 rounded-xl bg-brand-600 ring-1 ring-inset ring-slate-900/10"></div><div class="mt-2 text-xs"><span class="font-medium">brand-600 ★</span><br/><span class="font-mono text-slate-500">#0d9488</span></div></div>
+        <div><div class="h-16 rounded-xl bg-brand-800 ring-1 ring-inset ring-slate-900/10"></div><div class="mt-2 text-xs"><span class="font-medium">brand-800</span><br/><span class="font-mono text-slate-500">#115e59</span></div></div>
+        <div><div class="h-16 rounded-xl bg-brand-950 ring-1 ring-inset ring-slate-900/10"></div><div class="mt-2 text-xs"><span class="font-medium">brand-950</span><br/><span class="font-mono text-slate-500">#042f2e</span></div></div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 p-3"><span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 dark:bg-success-500/10 px-2 py-0.5 text-2xs font-medium text-success-600"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span>Success</span></div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 p-3"><span class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 dark:bg-warning-500/10 px-2 py-0.5 text-2xs font-medium text-warning-600"><span class="h-1.5 w-1.5 rounded-full bg-warning-500"></span>Warning</span></div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 p-3"><span class="inline-flex items-center gap-1.5 rounded-full bg-danger-50 dark:bg-danger-500/10 px-2 py-0.5 text-2xs font-medium text-danger-600"><span class="h-1.5 w-1.5 rounded-full bg-danger-500"></span>Danger</span></div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-800 p-3"><span class="inline-flex items-center gap-1.5 rounded-full bg-info-50 dark:bg-info-500/10 px-2 py-0.5 text-2xs font-medium text-info-600"><span class="h-1.5 w-1.5 rounded-full bg-info-500"></span>Info</span></div>
+      </div>
+    </div>
+
+    <!-- Typography -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Typography</h3>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8 space-y-5">
+        <div>
+          <span class="text-2xs font-mono text-slate-400">display · 60/64 · semibold · -0.025em</span>
+          <p class="font-display text-6xl font-semibold tracking-tighter">Get paid.</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">h1 · 36/40 · semibold</span>
+          <p class="font-display text-4xl font-semibold tracking-tight">Recent invoices</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">h2 · 24/32 · semibold</span>
+          <p class="text-2xl font-semibold tracking-tight">Awaiting payment</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">h3 · 18/28 · semibold</span>
+          <p class="text-lg font-semibold">Connect wallet</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">body · 16/24</span>
+          <p class="text-base text-slate-700 dark:text-slate-300">A clean, modern paragraph that establishes our voice — confident, plainspoken, and never marketing-fluff.</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">small · 14/20</span>
+          <p class="text-sm text-slate-600 dark:text-slate-400">Helper text and captions live here.</p>
+        </div>
+        <div>
+          <span class="text-2xs font-mono text-slate-400">mono · 14 · for hashes / addresses</span>
+          <p class="font-mono text-sm text-slate-700 dark:text-slate-300">0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Buttons</h3>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 flex flex-wrap items-center gap-3">
+        <button class="ring-focus inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white font-medium text-sm shadow-sm hover:shadow transition disabled:opacity-50">Primary</button>
+        <button class="ring-focus inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-200 hover:border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-medium text-sm transition">Secondary</button>
+        <button class="ring-focus inline-flex items-center gap-2 px-3 py-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800 text-sm font-medium transition">Ghost</button>
+        <button class="ring-focus inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-danger-600 hover:bg-danger-700 text-white font-medium text-sm shadow-sm transition">Destructive</button>
+        <button class="ring-focus inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white font-medium text-sm opacity-50 cursor-not-allowed" disabled>
+          <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>
+          Sending…
+        </button>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Form fields</h3>
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 grid sm:grid-cols-2 gap-5">
+        <label class="block">
+          <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</span>
+          <input type="email" placeholder="you@settle.xyz" class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+          <span class="mt-1.5 block text-xs text-slate-500">We'll send the invoice link here.</span>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Amount <span class="text-slate-400 font-normal">(USD)</span></span>
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+            <input type="text" value="2,450.00" class="block w-full pl-7 pr-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-medium tabular-nums focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition" />
+          </div>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Wallet address</span>
+          <input type="text" value="0x742d35Cc6634C053…" class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border-2 border-success-500 text-slate-900 dark:text-slate-100 font-mono text-sm focus:outline-none" />
+          <span class="mt-1.5 flex items-center gap-1 text-xs text-success-600"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg> Valid EIP-55 checksum</span>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</span>
+          <input type="password" value="weakpass" class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border-2 border-danger-500 focus:outline-none" />
+          <span class="mt-1.5 flex items-center gap-1 text-xs text-danger-600">Password must be at least 12 characters.</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Toasts & alerts</h3>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div class="rounded-xl border border-success-200 dark:border-success-500/30 bg-success-50 dark:bg-success-500/10 p-4 flex items-start gap-3">
+          <span class="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-success-500 text-white shrink-0"><svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></span>
+          <div class="flex-1 text-sm">
+            <p class="font-medium text-success-700 dark:text-success-500">Invoice sent.</p>
+            <p class="text-success-600/80 dark:text-success-500/80 text-xs">acme@example.com will receive the link in a few seconds.</p>
+          </div>
+          <button class="text-success-600/60 hover:text-success-700 text-xs">Dismiss</button>
+        </div>
+
+        <div class="rounded-xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4 flex items-start gap-3">
+          <span class="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-warning-500 text-white shrink-0 text-xs font-bold">!</span>
+          <div class="flex-1 text-sm">
+            <p class="font-medium text-warning-700 dark:text-warning-500">Switch to Base.</p>
+            <p class="text-warning-600/80 dark:text-warning-500/80 text-xs">Your wallet is on Polygon — this invoice expects Base.</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-danger-200 dark:border-danger-500/30 bg-danger-50 dark:bg-danger-500/10 p-4 flex items-start gap-3">
+          <span class="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-danger-500 text-white shrink-0 text-xs font-bold">×</span>
+          <div class="flex-1 text-sm">
+            <p class="font-medium text-danger-700 dark:text-danger-500">Transaction rejected.</p>
+            <p class="text-danger-600/80 dark:text-danger-500/80 text-xs">You cancelled the wallet prompt. You can try again.</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-info-200 dark:border-info-500/30 bg-info-50 dark:bg-info-500/10 p-4 flex items-start gap-3">
+          <span class="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-info-500 text-white shrink-0 text-xs font-bold">i</span>
+          <div class="flex-1 text-sm">
+            <p class="font-medium text-info-700 dark:text-info-500">Email verification pending.</p>
+            <p class="text-info-600/80 dark:text-info-500/80 text-xs">Check your inbox at vitalii@settle.xyz.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div>
+      <h3 class="font-display text-xl font-semibold tracking-tight mb-4">Empty state</h3>
+      <div class="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
+        <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        </div>
+        <h4 class="mt-4 font-display text-lg font-semibold tracking-tight">No invoices yet</h4>
+        <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">Send your first invoice in under a minute. It's free up to $1,000/month.</p>
+        <button class="ring-focus mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium shadow-card transition">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New invoice
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ───────────────────────────── FOOTER ───────────────────────────── -->
+<footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+  <div class="mx-auto max-w-7xl px-6 py-10 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-2.5">
+      <span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
+        <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </span>
+      <span class="text-sm text-slate-600 dark:text-slate-400">© 2026 Settle. Get paid in stablecoins.</span>
+    </div>
+    <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400">
+      <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">Pricing</a>
+      <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">Docs</a>
+      <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">Status</a>
+      <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ───────────────────────────── SCRIPTS ───────────────────────────── -->
+<script>
+  // Theme toggle (respects system + persists)
+  const root = document.documentElement;
+  const stored = localStorage.getItem('settle-theme');
+  if (stored === 'dark' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    root.classList.add('dark');
+  }
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    root.classList.toggle('dark');
+    localStorage.setItem('settle-theme', root.classList.contains('dark') ? 'dark' : 'light');
+  });
+
+  // Locale rotator (just hero copy + a few strings, demo only)
+  const i18n = {
+    en: {
+      heroLine1: 'Get paid in stablecoins.',
+      heroLine2: 'Without banks. Without waiting.',
+      heroSub: 'Send professional invoices, receive USDC on the cheapest L2s. Settle keeps no custody — funds go straight from your client to your wallet.',
+      ctaPrimary: "Get started — it's free",
+      ctaSecondary: 'See a payment page',
+      signIn: 'Sign in',
+      signUp: 'Get started',
+      amountDue: 'Amount due',
+      connectWallet: 'Connect wallet',
+    },
+    uk: {
+      heroLine1: 'Отримуй оплату в стейблкоїнах.',
+      heroLine2: 'Без банків. Без чекання.',
+      heroSub: 'Надсилай професійні інвойси й отримуй USDC на найдешевших L2. Settle не зберігає твоїх коштів — гроші йдуть напряму від клієнта в твій гаманець.',
+      ctaPrimary: 'Почати — безкоштовно',
+      ctaSecondary: 'Подивитись сторінку оплати',
+      signIn: 'Увійти',
+      signUp: 'Почати',
+      amountDue: 'До сплати',
+      connectWallet: 'Підключити гаманець',
+    },
+    es: {
+      heroLine1: 'Cobra en stablecoins.',
+      heroLine2: 'Sin bancos. Sin esperas.',
+      heroSub: 'Envía facturas profesionales y recibe USDC en las L2 más baratas. Settle no custodia tus fondos: van directos del cliente a tu billetera.',
+      ctaPrimary: 'Empezar — es gratis',
+      ctaSecondary: 'Ver una página de pago',
+      signIn: 'Iniciar sesión',
+      signUp: 'Empezar',
+      amountDue: 'Importe',
+      connectWallet: 'Conectar billetera',
+    },
+  };
+  document.querySelectorAll('.locale-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      const dict = i18n[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('.locale-btn').forEach(b => {
+        const active = b.dataset.lang === lang;
+        b.classList.toggle('bg-slate-900', active);
+        b.classList.toggle('text-white', active);
+        b.classList.toggle('dark:bg-white', active);
+        b.classList.toggle('dark:text-slate-900', active);
+        b.classList.toggle('text-slate-600', !active);
+        b.classList.toggle('dark:text-slate-400', !active);
+      });
+      document.documentElement.lang = lang;
+    });
+  });
+</script>
+</body>
+</html>

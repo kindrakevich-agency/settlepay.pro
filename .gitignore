@@ -1,0 +1,62 @@
+# ─── Secrets (NEVER commit — public repo!) ────────────────────────────
+.env.local
+.env.local.php
+.env.*.local
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*.ppk
+
+# ─── Editor / OS ────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# ─── Claude Code local settings ─────────────────────────────────────────
+.claude/
+
+# ─── Symfony ────────────────────────────────────────────────────────────
+/var/
+/vendor/
+/public/bundles/
+/public/uploads/
+/public/build/
+/public/hot
+
+# ─── Composer ───────────────────────────────────────────────────────────
+composer.phar
+composer.lock.bak
+
+# ─── Frontend (Tailwind / Vite / pnpm) ──────────────────────────────────
+/node_modules/
+.pnpm-store/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ─── Docker volumes / runtime ───────────────────────────────────────────
+/docker/data/
+*.pid
+
+# ─── Logs ───────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── PHPUnit / coverage ─────────────────────────────────────────────────
+/.phpunit.result.cache
+/coverage/
+
+# ─── Local-only design assets / source PNGs ────────────────────────────
+# The full-resolution screenshot stays local; the optimized copy under
+# docs/ is the version embedded in README.md.
+/screenshot.png
+/screenshot-*.png
+
+# ─── Misc ───────────────────────────────────────────────────────────────
+/tmp/
+*.bak

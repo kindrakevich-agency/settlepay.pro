@@ -1,0 +1,47 @@
+common:
+    app_name: Settle
+    tagline: Cobra en stablecoins. Sin bancos. Sin esperas.
+    cta_primary: Empezar — es gratis
+    cta_secondary: Cómo funciona
+    sign_in: Iniciar sesión
+    sign_up: Crear cuenta
+    log_out: Cerrar sesión
+
+nav:
+    dashboard: Panel
+    invoices: Facturas
+    payments: Pagos
+    settings: Ajustes
+    docs: Documentación
+
+invoice:
+    status:
+        draft: Borrador
+        sent: Enviada
+        viewed: Vista
+        paid: Pagada
+        overdue: Vencida
+        void: Anulada
+    new: Nueva factura
+    client: Cliente
+    amount: Importe
+    due_date: Fecha de vencimiento
+    description: Descripción
+    send: Enviar factura
+    pay_now: Pagar ahora
+    paid_with: 'Pagada con {token} en {chain}'
+    view_receipt: Ver recibo
+
+payment:
+    connect_wallet: Conectar billetera
+    switch_network: Cambiar de red
+    confirming: Confirmando en la blockchain…
+    success_title: Pago recibido
+    success_subtitle: Te hemos enviado el recibo por correo.
+    rejected: Transacción rechazada. Puedes intentarlo de nuevo.
+    insufficient_balance: Saldo insuficiente para este token.
+
+errors:
+    invalid_email: Introduce un correo válido
+    password_too_short: La contraseña debe tener al menos 12 caracteres
+    network_mismatch: Tu billetera está en la red equivocada
