@@ -26,10 +26,11 @@ Settle is a SaaS platform that lets freelancers send professional invoices and g
 11. [Internationalization](#internationalization)
 12. [Design system](#design-system)
 13. [Security model](#security-model)
-14. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
-15. [Deployment](#deployment)
-16. [Roadmap](#roadmap)
-17. [License](#license)
+14. [Sending email (Resend setup)](#sending-email-resend-setup)
+15. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
+16. [Deployment](#deployment)
+17. [Roadmap](#roadmap)
+18. [License](#license)
 
 ---
 
@@ -338,6 +339,96 @@ A complete visual & token reference is in [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_
 | PDF generation | All user input sanitized — no XSS via SVG |
 | CORS | Strictly configured to dashboard origin only |
 | Audit log | Every state-changing operation logged with user/IP/UA |
+
+---
+
+## Sending email (Resend setup)
+
+Settlepay sends transactional email at four moments: **email verification**, **password reset**, **invoice delivered to client**, and **payment receipt**. We use [Resend](https://resend.com) for delivery — chosen for the free tier (3k/month, no card), modern API, and inbox-placement quality competitive with Postmark. The integration is one line of DSN.
+
+### One-time setup
+
+**1.** Create a free account at https://resend.com/signup. No credit card required.
+
+**2.** In the Resend dashboard, click **Domains** → **Add Domain** → enter `settlepay.pro` (or your domain). Resend shows you 3-4 DNS records to publish:
+
+| Type | Host | Value |
+|---|---|---|
+| `MX` | `send.settlepay.pro` | `feedback-smtp.eu-west-1.amazonses.com` (priority 10) |
+| `TXT` | `send.settlepay.pro` | `v=spf1 include:amazonses.com ~all` |
+| `TXT` | `resend._domainkey.settlepay.pro` | `p=MIGfMA0G…` (long DKIM public key, ~250 chars) |
+| `TXT` | `_dmarc.settlepay.pro` *(optional but recommended)* | `v=DMARC1; p=none;` |
+
+**3.** Add those records in your DNS provider (we use Cloudflare). They normally propagate in 30 seconds. Resend's domain page shows a green "Verified" badge once DKIM signatures match.
+
+**4.** Generate an API key: Resend dashboard → **API Keys** → **Create API Key** → name it `Settlepay production`, scope `Sending access`, restricted to the verified domain. Copy the key (starts with `re_…`). **It's a secret — only paste into `.env.local` on the server, never the repo.**
+
+**5.** SSH to the server and write the key into `.env.local`:
+
+```bash
+ssh root@settle-server
+cd /www/wwwroot/settlepay.pro
+chattr -i .env.local 2>/dev/null    # in case immutable from aaPanel
+sed -i '/^MAILER_DSN=/d; /^MAILER_SENDER=/d; /^MAILER_FROM=/d' .env.local
+cat >> .env.local <<'ENV'
+
+# Mailer (production: Resend)
+MAILER_DSN=resend+api://re_xxxxxxxxxxxxxxxxxxx@default
+MAILER_SENDER=hello@settlepay.pro
+MAILER_FROM='Settlepay <hello@settlepay.pro>'
+ENV
+chmod 600 .env.local
+chown www:www .env.local
+
+# Reload PHP-FPM so the new env is picked up
+/etc/init.d/php-fpm-83 restart
+```
+
+**6.** Verify it works with a one-shot test:
+
+```bash
+APP_ENV=prod php bin/console app:email:test you@example.com
+# → [OK] Email sent to you@example.com
+```
+
+Check your inbox. The first time, Gmail might spam-filter; "Mark as not spam" once and the domain is permanently allowlisted.
+
+### How it's wired
+
+- The `symfony/resend-mailer` bridge reads the `resend+api://` DSN scheme. Composer require: `composer require symfony/resend-mailer`.
+- `config/packages/mailer.yaml` reads three env vars: `MAILER_DSN`, `MAILER_SENDER`, `MAILER_FROM`. They flow into Symfony's `MailerInterface` which all our auth/notification services depend on.
+- `src/Service/Auth/AuthMailer.php` sends the verify + reset templates with `TemplatedEmail` so we get auto-rendering of the matching Twig template under `templates/emails/auth/`.
+- Email addresses and tokens are masked in monolog logs per CLAUDE.md PII rules.
+
+### What goes out the door
+
+| Trigger | Template | Locale |
+|---|---|---|
+| User registers | `emails/auth/verify_email.html.twig` | `app.request.locale` (or user's `default_locale`) |
+| User clicks "forgot password" | `emails/auth/reset_password.html.twig` | same |
+| Invoice paid (listener flips status) | `emails/invoices/paid.html.twig` *(coming soon)* | invoice's stored locale |
+| Invoice sent | `emails/invoices/sent.html.twig` *(coming soon)* | client's preferred locale |
+
+### Local development
+
+In dev, `MAILER_DSN=null://null` (the default in `.env`). Outgoing emails go nowhere — but the Symfony Profiler's "Email" tab shows the rendered HTML for every queued message at http://localhost:8080/_profiler. So you can preview templates without spending Resend quota.
+
+To preview against a real inbox during dev, drop a Resend "test" mode key into `.env.local` and your dev box will start sending real emails. Don't ship test-mode keys to prod.
+
+### Quotas, costs
+
+- **Free tier:** 100 emails/day, 3,000/month.
+- **Pro ($20/mo):** 50,000/month, multiple domains, 7-day log retention.
+- **Inbox placement:** Resend signs every outgoing email with DKIM and SPF, so deliverability against Gmail/Outlook should be 95%+ once the domain is warm.
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `The "resend+api" scheme is not supported` | Bridge not installed | `composer require symfony/resend-mailer` |
+| `403 Forbidden` from Resend | API key wrong scope or revoked | Generate a fresh key, scope = "Sending access" |
+| Email received but in spam | DKIM/SPF not propagated yet, or first-touch from a cold domain | Wait 1 hour, mark as not-spam once. Subsequent emails will inbox |
+| `domain not verified` | DNS records missing or wrong | Run `dig +short TXT resend._domainkey.settlepay.pro` and compare against Resend dashboard |
 
 ---
 
