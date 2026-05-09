@@ -116,6 +116,14 @@ Testnets used during development: **Base Sepolia** (84532), **Optimism Sepolia**
 
 ---
 
+## Never used crypto before? Start here.
+
+If words like "wallet", "gas", "testnet" don't mean anything yet, **start with [`docs/CRYPTO_BASICS.md`](docs/CRYPTO_BASICS.md)**. It's a 15-minute walkthrough that gets you from zero to "I just paid an invoice with stablecoins on Base" without spending a cent of real money. After that, the rest of this README will make sense.
+
+Every entry in [`.env.example`](.env.example) is also extensively documented inline — what each variable does, **where to register** for the third-party service, what plan / free tier covers the MVP. No guesswork required.
+
+---
+
 ## Local development with Docker
 
 ### Prerequisites
