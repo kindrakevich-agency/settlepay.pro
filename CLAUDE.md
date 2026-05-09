@@ -33,7 +33,7 @@ A **SaaS platform** that lets freelancers send professional invoices and get pai
 
 ## 2. Target users
 
-- **Primary:** solo freelancers in countries with poor banking (Ukraine, Argentina, Nigeria, Pakistan, Philippines, Russia/Belarus diaspora) earning $500–$10K per invoice.
+- **Primary:** solo freelancers in countries with poor or expensive banking (Ukraine, Argentina, Nigeria, Brazil, Mexico, Colombia, Philippines, Vietnam, Egypt, Turkey) earning $500–$10K per invoice.
 - **Secondary:** Web3-native freelancers (designers, developers, writers) in EU/US who already get paid in crypto but use awkward tools.
 - **Tertiary:** small agencies billing international clients.
 

@@ -34,7 +34,7 @@ Settle is a SaaS platform that lets freelancers send professional invoices and g
 
 ## Why this exists
 
-Freelancers in Ukraine, Argentina, Nigeria, Pakistan, Russia/Belarus diaspora and similar markets lose **5–10% of every invoice** to SWIFT delays, frozen wires, currency conversion spreads, and platform fees. They already use crypto privately — but the tooling is awkward, custodial, or built for Web3 natives.
+Freelancers in **Ukraine, Argentina, Nigeria, Brazil, Mexico, Colombia, the Philippines, Vietnam, Egypt, Turkey** and similar markets lose **5–10% of every invoice** to SWIFT delays, frozen wires, currency conversion spreads, and platform fees. They already use crypto privately — but the tooling is awkward, custodial, or built for Web3 natives.
 
 Settle removes the friction with a Stripe-grade UX layered over **non-custodial** stablecoin payments. We are a software facilitator, not a money transmitter — funds move directly from client wallet to freelancer wallet.
 
