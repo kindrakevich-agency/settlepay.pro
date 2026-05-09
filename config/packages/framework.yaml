@@ -14,11 +14,8 @@ framework:
         log: true
 
     rate_limiter:
-        # Symfony's login_throttling expects a limiter named "app.login.limiter".
-        'app.login.limiter':
-            policy: 'sliding_window'
-            limit: 5
-            interval: '15 minutes'
+        # login_throttling on the firewall has its own auto-named limiter,
+        # we don't define one here. These are the app-level limiters.
         public_invoice:
             policy: 'token_bucket'
             limit: 60

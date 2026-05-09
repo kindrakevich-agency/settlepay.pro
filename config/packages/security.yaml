@@ -34,7 +34,8 @@ security:
                 target: marketing_home
 
             login_throttling:
-                limiter: app.login.limiter
+                max_attempts: 5
+                interval: '15 minutes'
 
             remember_me:
                 secret: '%kernel.secret%'
