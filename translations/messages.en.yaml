@@ -49,8 +49,57 @@ features:
         title: Receipts that look like Stripe's
         body: 'Branded PDFs, hosted invoice pages, automatic payment confirmation emails in three languages.'
 
+dashboard_section:
+    eyebrow: Dashboard
+    title: 'Your invoices, your money, one screen.'
+    studio: "Vitalii's Studio"
+    upgrade_title: Upgrade to Pro
+    upgrade_sub: 'Unlimited volume, 0.5% fee, custom branding.'
+    upgrade_cta: $19/mo · Start trial
+    greeting: 'Good evening, Vitalii.'
+    greeting_sub: "Here's what's happening across your invoices."
+    metric_paid: 'Paid (May)'
+    metric_awaiting: Awaiting payment
+    metric_awaiting_sub: '3 invoices · 1 overdue'
+    metric_settle: Avg. settle time
+    metric_settle_sub: 'Across Base, Polygon, Arbitrum'
+    recent_invoices: Recent invoices
+    col_invoice: Invoice
+    col_status: Status
+    col_due: Due
+
+checkout_section:
+    eyebrow: Payment page
+    title: 'Where revenue is converted. Treat as sacred.'
+    sub: 'Single, focused screen. No nav. No distractions. The only job: connect, confirm, pay.'
+    studio: "Vitalii's Studio"
+    invoice_from: Invoice from Settlepay
+    amount_due: Amount due
+    for: 'For: Brand identity & logo iterations · Due May 24'
+    pay_with: Pay with
+    on_network: On network
+    pays_to: Pays to
+    verified: 'Verified · EIP-55'
+    disclaimer: Funds go directly to the recipient. Settlepay never holds your money.
+    trust_one: Non-custodial
+    trust_two: Secured by your wallet
+    trust_three: Settles in seconds
+    states_label: Payment states
+    state1_title: Awaiting wallet
+    state1_sub: 'Client picks token, network, clicks connect.'
+    state2_title: Confirming on-chain…
+    state2_sub: 'Tx detected · 2 of 5 confirmations on Base.'
+    state3_title: Payment received
+    state3_sub: Receipt sent to client@acme.com
+
+final_cta:
+    title: Ready to get paid in seconds, not weeks?
+    sub: 'Send your first invoice in under a minute. Free up to $1,000 invoiced per month — no credit card required.'
+    secondary: See how it works
+    fineprint: 'No KYC for clients · Self-custodial · Cancel any time'
+
 footer:
-    copyright: '© 2026 Settle'
+    copyright: '© 2026 settlepay.pro · all rights reserved'
     links:
         pricing: Pricing
         docs: Docs

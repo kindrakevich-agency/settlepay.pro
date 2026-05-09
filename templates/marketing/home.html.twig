@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% from '_logo.html.twig' import logo %}
 
 {% set locale = app.request.locale|default('en') %}
 
@@ -6,17 +7,15 @@
 {# ───────────────────────── TOP NAV ───────────────────────── #}
 <header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
-        <a href="{{ path('marketing_home') }}" class="flex items-center gap-2.5">
-            <span class="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
-                <svg class="h-4 w-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </span>
-            <span class="font-display text-lg font-semibold tracking-tight">{{ 'common.app_name'|trans }}</span>
+        <a href="{{ path('marketing_home') }}" aria-label="settlepay home" class="-mx-2 px-2 py-1 rounded-lg hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition">
+            {{ logo(size='md') }}
         </a>
 
         <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400">
             <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#features">{{ 'nav.product'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#dashboard">{{ 'nav.dashboard'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#checkout">{{ 'nav.payments'|trans }}</a>
             <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#pricing">{{ 'nav.pricing'|trans }}</a>
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#docs">{{ 'nav.docs'|trans }}</a>
         </nav>
 
         <div class="flex items-center gap-2">
@@ -44,7 +43,6 @@
 
 {# ───────────────────────── HERO ───────────────────────── #}
 <section class="relative overflow-hidden">
-    {# Subtle decoration: dotted grid + brand mesh #}
     <div class="absolute inset-0" aria-hidden="true"
          style="background-image: linear-gradient(to right, rgba(15,23,42,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(15,23,42,0.05) 1px, transparent 1px); background-size: 32px 32px;"></div>
     <div class="absolute inset-0" aria-hidden="true"
@@ -53,8 +51,6 @@
 
     <div class="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
         <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-
-            {# Left: copy + CTA #}
             <div class="lg:col-span-7">
                 <span class="inline-flex items-center gap-2 rounded-full border border-brand-200/70 dark:border-brand-800/70 bg-brand-50/60 dark:bg-brand-950/40 px-3 py-1 text-xs font-medium text-brand-700 dark:text-brand-300">
                     <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"></span>
@@ -66,16 +62,14 @@
                     <span class="text-slate-500 dark:text-slate-400">{{ 'hero.line_two'|trans }}</span>
                 </h1>
 
-                <p class="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
-                    {{ 'hero.sub'|trans }}
-                </p>
+                <p class="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'hero.sub'|trans }}</p>
 
                 <div class="mt-8 flex flex-wrap items-center gap-3">
                     <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
                         {{ 'hero.cta_primary'|trans }}
                         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
-                    <a href="#features" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                    <a href="#checkout" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
                         {{ 'hero.cta_secondary'|trans }}
                     </a>
                 </div>
@@ -90,7 +84,6 @@
                 </div>
             </div>
 
-            {# Right: floating invoice card #}
             <div class="lg:col-span-5 relative">
                 <div class="absolute -inset-6 rounded-3xl blur-2xl opacity-60" aria-hidden="true"
                      style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.30) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.25) 0px, transparent 50%);"></div>
@@ -107,14 +100,11 @@
                             {{ 'invoice.status.paid'|trans }}
                         </span>
                     </div>
-
                     <div class="my-5 h-px bg-slate-100 dark:bg-slate-800"></div>
-
                     <ul class="space-y-2.5 text-sm">
                         <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">{{ 'hero.invoice_card.line_one'|trans }}</span><span class="font-medium tabular-nums">$1,800.00</span></li>
                         <li class="flex justify-between"><span class="text-slate-600 dark:text-slate-400">{{ 'hero.invoice_card.line_two'|trans }}</span><span class="font-medium tabular-nums">$650.00</span></li>
                     </ul>
-
                     <div class="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-3.5">
                         <div class="flex items-center justify-between text-xs">
                             <span class="font-medium text-slate-500 dark:text-slate-400">{{ 'hero.invoice_card.tx_label'|trans }}</span>
@@ -127,7 +117,6 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="mt-5 flex gap-2">
                         <button type="button" class="flex-1 rounded-xl bg-brand-600 hover:bg-brand-700 text-white py-2.5 text-sm font-medium transition">{{ 'hero.invoice_card.view_receipt'|trans }}</button>
                         <button type="button" class="rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition" aria-label="Share">
@@ -162,7 +151,6 @@
                 <h3 class="mt-5 font-semibold tracking-tight">{{ 'features.one.title'|trans }}</h3>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'features.one.body'|trans }}</p>
             </article>
-
             <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
                 <div class="grid h-10 w-10 place-items-center rounded-xl bg-info-50 dark:bg-info-500/10 text-info-600 dark:text-info-500">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
@@ -170,7 +158,6 @@
                 <h3 class="mt-5 font-semibold tracking-tight">{{ 'features.two.title'|trans }}</h3>
                 <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ 'features.two.body'|trans }}</p>
             </article>
-
             <article class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-card hover:shadow-card-hover transition-shadow">
                 <div class="grid h-10 w-10 place-items-center rounded-xl bg-success-50 dark:bg-success-500/10 text-success-600 dark:text-success-500">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
@@ -182,14 +169,296 @@
     </div>
 </section>
 
+{# ───────────────────────── DASHBOARD MOCKUP ───────────────────────── #}
+<section id="dashboard" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+        <div class="flex items-end justify-between flex-wrap gap-4 mb-10">
+            <div>
+                <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">{{ 'dashboard_section.eyebrow'|trans }}</p>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">{{ 'dashboard_section.title'|trans }}</h2>
+            </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-card overflow-hidden">
+            <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/40">
+                <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <span class="h-2.5 w-2.5 rounded-full bg-slate-300 dark:bg-slate-700"></span>
+                <span class="ml-3 font-mono text-xs text-slate-500 dark:text-slate-500">app.settlepay.pro/dashboard</span>
+            </div>
+
+            <div class="grid lg:grid-cols-[16rem_1fr]">
+                <aside class="hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40">
+                    <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+                        <button type="button" class="flex items-center gap-2.5 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                            <span class="grid h-7 w-7 place-items-center rounded-md bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-semibold">VK</span>
+                            <div class="min-w-0">
+                                <div class="text-sm font-medium truncate">{{ 'dashboard_section.studio'|trans }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500 truncate">vitalii@settlepay.pro</div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <nav class="p-2 space-y-0.5 text-sm">
+                        <a href="#" class="flex items-center gap-2.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-3 py-2 font-medium">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>
+                            {{ 'nav.dashboard'|trans }}
+                        </a>
+                        <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                            {{ 'nav.invoices'|trans }}
+                            <span class="ml-auto font-mono text-xs text-slate-400">42</span>
+                        </a>
+                        <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 6v2M12 16v2"/></svg>
+                            {{ 'nav.payments'|trans }}
+                        </a>
+                        <a href="#" class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+                            {{ 'nav.settings'|trans }}
+                        </a>
+                    </nav>
+
+                    <div class="mt-auto p-3">
+                        <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-brand-50 to-white dark:from-brand-950/50 dark:to-slate-900 p-3.5">
+                            <p class="text-xs font-medium text-slate-900 dark:text-slate-100">{{ 'dashboard_section.upgrade_title'|trans }}</p>
+                            <p class="mt-1 text-xs text-slate-600 dark:text-slate-400">{{ 'dashboard_section.upgrade_sub'|trans }}</p>
+                            <button type="button" class="mt-3 w-full rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium py-1.5 transition">{{ 'dashboard_section.upgrade_cta'|trans }}</button>
+                        </div>
+                    </div>
+                </aside>
+
+                <main class="p-6 lg:p-8">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div>
+                            <h3 class="font-display text-2xl font-semibold tracking-tight">{{ 'dashboard_section.greeting'|trans }}</h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ 'dashboard_section.greeting_sub'|trans }}</p>
+                        </div>
+                        <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium shadow-card transition">
+                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            {{ 'invoice.new'|trans }}
+                        </button>
+                    </div>
+
+                    <div class="mt-6 grid sm:grid-cols-3 gap-4">
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_paid'|trans }}</span>
+                                <span class="text-xs font-medium text-success-600 bg-success-50 dark:bg-success-500/10 rounded-full px-2 py-0.5">+12%</span>
+                            </div>
+                            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">$8,420</div>
+                            <div class="mt-3 flex items-end gap-1 h-8">
+                                <div class="w-2 rounded bg-brand-200 dark:bg-brand-900" style="height:30%"></div>
+                                <div class="w-2 rounded bg-brand-300 dark:bg-brand-800" style="height:50%"></div>
+                                <div class="w-2 rounded bg-brand-400 dark:bg-brand-700" style="height:40%"></div>
+                                <div class="w-2 rounded bg-brand-500 dark:bg-brand-600" style="height:75%"></div>
+                                <div class="w-2 rounded bg-brand-600 dark:bg-brand-500" style="height:60%"></div>
+                                <div class="w-2 rounded bg-brand-600 dark:bg-brand-500" style="height:90%"></div>
+                                <div class="w-2 rounded bg-brand-700 dark:bg-brand-400" style="height:100%"></div>
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_awaiting'|trans }}</span>
+                            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">$3,180</div>
+                            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ 'dashboard_section.metric_awaiting_sub'|trans }}</div>
+                        </div>
+                        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_settle'|trans }}</span>
+                            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">21<span class="text-lg text-slate-400">s</span></div>
+                            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ 'dashboard_section.metric_settle_sub'|trans }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800">
+                            <h4 class="font-semibold tracking-tight">{{ 'dashboard_section.recent_invoices'|trans }}</h4>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-950/40">
+                                    <tr class="border-b border-slate-200 dark:border-slate-800">
+                                        <th class="text-left font-medium px-5 py-2.5">{{ 'dashboard_section.col_invoice'|trans }}</th>
+                                        <th class="text-left font-medium px-5 py-2.5">{{ 'invoice.client'|trans }}</th>
+                                        <th class="text-left font-medium px-5 py-2.5">{{ 'dashboard_section.col_status'|trans }}</th>
+                                        <th class="text-right font-medium px-5 py-2.5">{{ 'invoice.amount'|trans }}</th>
+                                        <th class="text-right font-medium px-5 py-2.5">{{ 'dashboard_section.col_due'|trans }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <tr>
+                                        <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0042</td>
+                                        <td class="px-5 py-3.5">Acme Corp</td>
+                                        <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full bg-success-50 dark:bg-success-500/10 px-2 py-0.5 text-xs font-medium text-success-600"><span class="h-1.5 w-1.5 rounded-full bg-success-500"></span> {{ 'invoice.status.paid'|trans }}</span></td>
+                                        <td class="px-5 py-3.5 text-right font-medium tabular-nums">$2,450.00</td>
+                                        <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">May 24</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0041</td>
+                                        <td class="px-5 py-3.5">Northwind LLC</td>
+                                        <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full bg-info-50 dark:bg-info-500/10 px-2 py-0.5 text-xs font-medium text-info-600"><span class="h-1.5 w-1.5 rounded-full bg-info-500"></span> {{ 'invoice.status.sent'|trans }}</span></td>
+                                        <td class="px-5 py-3.5 text-right font-medium tabular-nums">$1,200.00</td>
+                                        <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">May 30</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0040</td>
+                                        <td class="px-5 py-3.5">Globex Inc</td>
+                                        <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 dark:bg-warning-500/10 px-2 py-0.5 text-xs font-medium text-warning-600"><span class="h-1.5 w-1.5 rounded-full bg-warning-500"></span> {{ 'invoice.status.viewed'|trans }}</span></td>
+                                        <td class="px-5 py-3.5 text-right font-medium tabular-nums">$680.00</td>
+                                        <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400">Jun 02</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-5 py-3.5 font-mono text-xs">INV-2026-0039</td>
+                                        <td class="px-5 py-3.5">Initech</td>
+                                        <td class="px-5 py-3.5"><span class="inline-flex items-center gap-1.5 rounded-full bg-danger-50 dark:bg-danger-500/10 px-2 py-0.5 text-xs font-medium text-danger-600"><span class="h-1.5 w-1.5 rounded-full bg-danger-500"></span> {{ 'invoice.status.overdue'|trans }}</span></td>
+                                        <td class="px-5 py-3.5 text-right font-medium tabular-nums">$1,300.00</td>
+                                        <td class="px-5 py-3.5 text-right text-danger-600">Apr 28</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ───────────────────────── PAYMENT CHECKOUT ───────────────────────── #}
+<section id="checkout" class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+    <div class="mx-auto max-w-7xl px-6 py-20 lg:py-24">
+        <div class="max-w-2xl mb-10">
+            <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">{{ 'checkout_section.eyebrow'|trans }}</p>
+            <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">{{ 'checkout_section.title'|trans }}</h2>
+            <p class="mt-4 text-slate-600 dark:text-slate-400">{{ 'checkout_section.sub'|trans }}</p>
+        </div>
+
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+            <div class="lg:col-span-7 order-2 lg:order-1">
+                <div class="relative rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 lg:p-10 shadow-pop">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white text-sm font-semibold">VS</span>
+                            <div>
+                                <div class="text-sm font-semibold">{{ 'checkout_section.studio'|trans }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">{{ 'checkout_section.invoice_from'|trans }}</div>
+                            </div>
+                        </div>
+                        <span class="rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-medium py-1.5 px-2.5">{{ locale|upper }}</span>
+                    </div>
+
+                    <div class="mt-10 text-center">
+                        <p class="text-sm text-slate-500 dark:text-slate-400">{{ 'checkout_section.amount_due'|trans }}</p>
+                        <p class="mt-2 font-display text-6xl font-semibold tracking-tight tabular-nums">$2,450<span class="text-3xl text-slate-400">.00</span></p>
+                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ 'checkout_section.for'|trans }}</p>
+                    </div>
+
+                    <div class="mt-8 grid grid-cols-2 gap-3">
+                        <div>
+                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">{{ 'checkout_section.pay_with'|trans }}</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div class="rounded-xl border-2 border-brand-500 bg-brand-50/60 dark:bg-brand-500/10 p-2.5 text-center">
+                                    <div class="text-xs font-semibold text-brand-700 dark:text-brand-400">USDC</div>
+                                </div>
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-center">
+                                    <div class="text-xs font-semibold">USDT</div>
+                                </div>
+                                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-center">
+                                    <div class="text-xs font-semibold">DAI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">{{ 'checkout_section.on_network'|trans }}</div>
+                            <div class="block w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm">Base</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 p-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'checkout_section.pays_to'|trans }}</span>
+                            <span class="text-xs text-slate-400">{{ 'checkout_section.verified'|trans }}</span>
+                        </div>
+                        <code class="mt-1.5 block font-mono text-sm text-slate-700 dark:text-slate-300 break-all">0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c</code>
+                    </div>
+
+                    <button type="button" class="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white py-4 text-base font-semibold shadow-card hover:shadow-card-hover transition">
+                        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M14 12h4M22 10v4"/></svg>
+                        {{ 'payment.connect_wallet'|trans }}
+                    </button>
+
+                    <p class="mt-3 text-center text-xs text-slate-500 dark:text-slate-500">{{ 'checkout_section.disclaimer'|trans }}</p>
+
+                    <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-6 text-xs text-slate-400 dark:text-slate-500">
+                        <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> {{ 'checkout_section.trust_one'|trans }}</span>
+                        <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> {{ 'checkout_section.trust_two'|trans }}</span>
+                        <span class="flex items-center gap-1.5"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> {{ 'checkout_section.trust_three'|trans }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="lg:col-span-5 order-1 lg:order-2 lg:pt-4 space-y-3">
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'checkout_section.states_label'|trans }}</p>
+
+                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-start gap-3">
+                    <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-semibold">1</span>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">{{ 'checkout_section.state1_title'|trans }}</p>
+                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ 'checkout_section.state1_sub'|trans }}</p>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border-2 border-brand-500 bg-brand-50/40 dark:bg-brand-500/10 p-4 flex items-start gap-3">
+                    <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-brand-500 text-white text-xs font-semibold animate-pulse">2</span>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm">{{ 'checkout_section.state2_title'|trans }}</p>
+                        <p class="mt-0.5 text-xs text-slate-600 dark:text-slate-400">{{ 'checkout_section.state2_sub'|trans }}</p>
+                        <div class="mt-2.5 h-1.5 w-full rounded-full bg-brand-100 dark:bg-brand-950 overflow-hidden">
+                            <div class="h-full w-2/5 rounded-full bg-brand-500"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-xl border border-success-200 dark:border-success-500/30 bg-success-50 dark:bg-success-500/10 p-4 flex items-start gap-3">
+                    <span class="mt-1 grid h-6 w-6 place-items-center rounded-full bg-success-500 text-white">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+                    </span>
+                    <div class="flex-1">
+                        <p class="font-medium text-sm text-success-700 dark:text-success-500">{{ 'checkout_section.state3_title'|trans }}</p>
+                        <p class="mt-0.5 text-xs text-success-600/80 dark:text-success-500/80">{{ 'checkout_section.state3_sub'|trans }}</p>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+{# ───────────────────────── FINAL CTA ───────────────────────── #}
+<section id="pricing" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div class="mx-auto max-w-4xl px-6 py-20 lg:py-28 text-center">
+        <div class="inline-flex items-center justify-center mb-8">
+            {{ logo(size='xl', wordmark=false) }}
+        </div>
+        <h2 class="font-display text-3xl sm:text-5xl font-semibold tracking-tight">{{ 'final_cta.title'|trans }}</h2>
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{{ 'final_cta.sub'|trans }}</p>
+        <div class="mt-8 flex flex-wrap justify-center gap-3">
+            <a href="#" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-6 py-3.5 text-base font-medium shadow-card hover:shadow-card-hover transition">
+                {{ 'hero.cta_primary'|trans }}
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#features" class="inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-3.5 text-base font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                {{ 'final_cta.secondary'|trans }}
+            </a>
+        </div>
+        <p class="mt-6 text-xs text-slate-500 dark:text-slate-500">{{ 'final_cta.fineprint'|trans }}</p>
+    </div>
+</section>
+
 {# ───────────────────────── FOOTER ───────────────────────── #}
 <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
     <div class="mx-auto max-w-7xl px-6 py-10 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-2.5">
-            <span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 shadow-card">
-                <svg class="h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </span>
-            <span class="text-sm text-slate-600 dark:text-slate-400">{{ 'footer.copyright'|trans }} · {{ 'common.tagline'|trans }}</span>
+        <div class="flex items-center gap-3">
+            {{ logo(size='sm') }}
+            <span class="text-xs text-slate-500 dark:text-slate-500">{{ 'footer.copyright'|trans }}</span>
         </div>
         <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400">
             <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.pricing'|trans }}</a>

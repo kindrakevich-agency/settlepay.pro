@@ -1,0 +1,66 @@
+{# Settlepay logo — reusable mark + wordmark. ──────────────────────────
+   The glyph is a custom "S" formed by two interlocking flow curves
+   inside a rounded gradient square. It reads as both a stylized "S"
+   for Settle and as two-way payment flow (top arrow goes right,
+   bottom arrow returns left) — non-custodial in a single mark.
+
+   The wordmark is "settle" in slate + "pay" in brand-600 so the
+   domain "settlepay.pro" reads naturally and the brand color
+   highlights the action verb.
+
+   Usage:
+     {% from '_logo.html.twig' import logo %}
+     {{ logo() }}                          {# default: md, with wordmark #}
+     {{ logo(size='lg') }}                 {# bigger glyph + wordmark #}
+     {{ logo(size='sm', wordmark=false) }} {# tiny mark only, e.g. favicon-style spot #}
+   ────────────────────────────────────────────────────────────────── #}
+
+{% macro logo(size = 'md', wordmark = true, monogram_mode = false) %}
+    {% set sizes = {
+        sm: { px: 24, gap: 'gap-2',    text: 'text-sm'  },
+        md: { px: 32, gap: 'gap-2.5',  text: 'text-lg'  },
+        lg: { px: 44, gap: 'gap-3',    text: 'text-2xl' },
+        xl: { px: 64, gap: 'gap-4',    text: 'text-4xl' }
+    } %}
+    {% set s = sizes[size] %}
+
+    <span class="inline-flex items-center {{ s.gap }} select-none">
+        {# ─── Glyph ─────────────────────────────────────────────── #}
+        <svg width="{{ s.px }}" height="{{ s.px }}" viewBox="0 0 32 32" fill="none"
+             xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Settlepay">
+            <defs>
+                <linearGradient id="settlepay-grad-{{ size }}" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%"   stop-color="#2dd4bf"/>
+                    <stop offset="55%"  stop-color="#14b8a6"/>
+                    <stop offset="100%" stop-color="#0d9488"/>
+                </linearGradient>
+                <linearGradient id="settlepay-shine-{{ size }}" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.18"/>
+                    <stop offset="50%"  stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+
+            {# Rounded gradient tile #}
+            <rect x="0" y="0" width="32" height="32" rx="9" fill="url(#settlepay-grad-{{ size }})"/>
+            {# Subtle top highlight so it doesn't look flat #}
+            <rect x="0" y="0" width="32" height="32" rx="9" fill="url(#settlepay-shine-{{ size }})"/>
+
+            {# Top-right arrow: enters left, exits right (sender → receiver) #}
+            <path d="M 9 11 H 19 L 16 8 M 19 11 L 16 14"
+                  stroke="#ffffff" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+            {# Bottom-left arrow: enters right, exits left (settled, receipt back) #}
+            <path d="M 23 21 H 13 L 16 18 M 13 21 L 16 24"
+                  stroke="#ffffff" stroke-width="2.2"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+
+        {# ─── Wordmark ──────────────────────────────────────────── #}
+        {% if wordmark %}
+            <span class="font-display {{ s.text }} font-semibold tracking-tight leading-none">
+                <span class="text-slate-900 dark:text-slate-50">settle</span><span class="text-brand-600 dark:text-brand-400">pay</span>{% if monogram_mode %}<span class="text-slate-400 dark:text-slate-500 font-normal">.pro</span>{% endif %}
+            </span>
+        {% endif %}
+    </span>
+{% endmacro %}

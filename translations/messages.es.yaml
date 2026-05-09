@@ -49,8 +49,57 @@ features:
         title: Recibos al nivel de Stripe
         body: 'PDFs con tu marca, páginas de factura alojadas y correos de confirmación automáticos en tres idiomas.'
 
+dashboard_section:
+    eyebrow: Panel
+    title: 'Tus facturas, tu dinero, una sola pantalla.'
+    studio: 'Estudio de Vitalii'
+    upgrade_title: Pásate a Pro
+    upgrade_sub: 'Volumen ilimitado, comisión 0.5%, marca propia.'
+    upgrade_cta: $19/mes · Probar gratis
+    greeting: 'Buenas tardes, Vitalii.'
+    greeting_sub: 'Esto es lo que está pasando con tus facturas.'
+    metric_paid: 'Cobrado (mayo)'
+    metric_awaiting: Pendiente
+    metric_awaiting_sub: '3 facturas · 1 vencida'
+    metric_settle: Tiempo medio
+    metric_settle_sub: 'En Base, Polygon, Arbitrum'
+    recent_invoices: Facturas recientes
+    col_invoice: Factura
+    col_status: Estado
+    col_due: Vencimiento
+
+checkout_section:
+    eyebrow: Página de pago
+    title: 'Aquí se convierte el ingreso. Trátala como sagrada.'
+    sub: 'Una pantalla enfocada. Sin navegación. Sin distracciones. El único trabajo: conectar, confirmar, pagar.'
+    studio: 'Estudio de Vitalii'
+    invoice_from: Factura de Settlepay
+    amount_due: Importe
+    for: 'Por: identidad de marca e iteraciones de logo · vence el 24 de mayo'
+    pay_with: Pagar con
+    on_network: En la red
+    pays_to: Paga a
+    verified: 'Verificada · EIP-55'
+    disclaimer: Los fondos van directos al destinatario. Settlepay nunca custodia tu dinero.
+    trust_one: No custodial
+    trust_two: Protegido por tu billetera
+    trust_three: Liquida en segundos
+    states_label: Estados del pago
+    state1_title: Esperando billetera
+    state1_sub: 'El cliente elige token, red y pulsa conectar.'
+    state2_title: Confirmando en la blockchain…
+    state2_sub: 'Tx detectada · 2 de 5 confirmaciones en Base.'
+    state3_title: Pago recibido
+    state3_sub: Recibo enviado a client@acme.com
+
+final_cta:
+    title: '¿Listo para cobrar en segundos, no en semanas?'
+    sub: 'Manda tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes — sin tarjeta.'
+    secondary: Cómo funciona
+    fineprint: 'Sin KYC para clientes · auto-custodia · cancela cuando quieras'
+
 footer:
-    copyright: '© 2026 Settle'
+    copyright: '© 2026 settlepay.pro · todos los derechos reservados'
     links:
         pricing: Precios
         docs: Documentación
