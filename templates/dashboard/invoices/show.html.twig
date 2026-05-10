@@ -1,0 +1,136 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale     = app.request.locale|default('en') %}
+{% set status     = invoice.status.value %}
+{% set tone       = {paid:'success', sent:'info', viewed:'warning', overdue:'danger', draft:'slate', void:'slate', refunded:'slate', partially_paid:'warning'}[status]|default('slate') %}
+{% set pay_url    = url('public_payment_checkout', {_locale: locale, uuid: invoice.uuid}) %}
+{% set is_draft   = status == 'draft' %}
+
+{% block dashboard_title %}{{ invoice.number }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center gap-3 mb-6">
+        <a href="{{ path('dashboard_invoices', {_locale: locale}) }}"
+           class="grid h-9 w-9 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" aria-label="Back">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="font-display text-xl sm:text-2xl font-semibold tracking-tight font-mono">{{ invoice.number }}</h1>
+        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
+                      {% if tone == 'success' %}bg-success-50 dark:bg-success-500/10 text-success-600
+                      {% elseif tone == 'info' %}bg-info-50 dark:bg-info-500/10 text-info-600
+                      {% elseif tone == 'warning' %}bg-warning-50 dark:bg-warning-500/10 text-warning-600
+                      {% elseif tone == 'danger' %}bg-danger-50 dark:bg-danger-500/10 text-danger-600
+                      {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+            <span class="h-1.5 w-1.5 rounded-full
+                         {% if tone == 'success' %}bg-success-500
+                         {% elseif tone == 'info' %}bg-info-500
+                         {% elseif tone == 'warning' %}bg-warning-500
+                         {% elseif tone == 'danger' %}bg-danger-500
+                         {% else %}bg-slate-400{% endif %}"></span>
+            {{ ('invoice.status.' ~ status)|trans }}
+        </span>
+    </div>
+
+    {# Action bar — varies by status #}
+    {% if is_draft %}
+        <form method="POST" action="{{ path('dashboard_invoice_send', {_locale: locale, uuid: invoice.uuid}) }}"
+              class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-200 dark:border-brand-700/50 bg-brand-50/60 dark:bg-brand-500/10 p-4">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-send') }}">
+            <div class="text-sm">
+                <p class="font-medium text-brand-700 dark:text-brand-400">{{ 'invoice.draft_ready_title'|trans }}</p>
+                <p class="text-brand-700/80 dark:text-brand-400/80 text-xs mt-0.5">
+                    {% if invoice.clientEmail %}{{ 'invoice.draft_ready_with_email'|trans({'%email%': invoice.clientEmail}) }}{% else %}{{ 'invoice.draft_ready_no_email'|trans }}{% endif %}
+                </p>
+            </div>
+            <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 text-sm font-medium transition">{{ 'invoice.send'|trans }}</button>
+        </form>
+    {% else %}
+        <div class="mb-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">{{ 'invoice.share_link'|trans }}</div>
+            <div class="flex items-center gap-2">
+                <code class="flex-1 font-mono text-xs text-slate-700 dark:text-slate-300 break-all bg-slate-50 dark:bg-slate-950/60 rounded-lg px-3 py-2">{{ pay_url }}</code>
+                <button type="button" onclick="navigator.clipboard.writeText('{{ pay_url }}'); this.textContent='✓ Copied'"
+                        class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition shrink-0">{{ 'invoice.copy'|trans }}</button>
+                <a href="{{ pay_url }}" target="_blank" rel="noopener"
+                   class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition shrink-0">{{ 'invoice.open'|trans }} ↗</a>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Body card — invoice details #}
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'invoice.from'|trans }}</p>
+                <p class="mt-1 font-semibold">{{ invoice.user.businessName ?? (invoice.user.email|split('@')|first) }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{{ invoice.user.email }}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'invoice.to'|trans }}</p>
+                <p class="mt-1 font-semibold">{{ invoice.clientName }}</p>
+                {% if invoice.clientEmail %}<p class="text-sm text-slate-500 dark:text-slate-400">{{ invoice.clientEmail }}</p>{% endif %}
+            </div>
+        </div>
+
+        <div class="text-center my-8">
+            <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'checkout_section.amount_due'|trans }}</p>
+            <p class="mt-2 font-display text-5xl font-semibold tracking-tight tabular-nums">
+                ${{ (invoice.amountCents / 100)|number_format(2, '.', ',') }}
+                <span class="text-base text-slate-400 ml-2">{{ invoice.currency }}</span>
+            </p>
+            {% if invoice.dueDate %}
+                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">{{ 'invoice.due_date'|trans }}: {{ invoice.dueDate|format_date('medium', locale=locale) }}</p>
+            {% endif %}
+        </div>
+
+        <table class="w-full text-sm border-t border-slate-200 dark:border-slate-800">
+            <thead>
+                <tr class="text-xs text-slate-500 dark:text-slate-400">
+                    <th class="text-left py-2.5 font-medium">{{ 'invoice.description'|trans }}</th>
+                    <th class="text-right py-2.5 font-medium w-20">{{ 'invoice.qty'|trans }}</th>
+                    <th class="text-right py-2.5 font-medium w-32">{{ 'invoice.unit_price'|trans }}</th>
+                    <th class="text-right py-2.5 font-medium w-32">{{ 'invoice.line_total'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                {% for item in invoice.lineItems %}
+                    <tr>
+                        <td class="py-3 text-slate-700 dark:text-slate-300">{{ item.description }}</td>
+                        <td class="py-3 text-right tabular-nums">{{ item.quantity }}</td>
+                        <td class="py-3 text-right tabular-nums">${{ (item.unitPriceCents / 100)|number_format(2, '.', ',') }}</td>
+                        <td class="py-3 text-right tabular-nums font-medium">${{ (item.totalCents / 100)|number_format(2, '.', ',') }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="border-t border-slate-200 dark:border-slate-800">
+                    <td colspan="3" class="py-3 text-right text-sm font-medium">{{ 'invoice.total'|trans }}</td>
+                    <td class="py-3 text-right tabular-nums font-display text-lg font-semibold">${{ (invoice.amountCents / 100)|number_format(2, '.', ',') }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {% if invoice.description %}
+            <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">{{ 'invoice.description'|trans }}</p>
+                <p class="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-line">{{ invoice.description }}</p>
+            </div>
+        {% endif %}
+
+        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 grid sm:grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">{{ 'invoice.recipient_address'|trans }}</p>
+                <code class="font-mono text-xs text-slate-700 dark:text-slate-300 break-all">{{ invoice.recipientAddress }}</code>
+            </div>
+            <div>
+                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">{{ 'invoice.accepts'|trans }}</p>
+                <p class="text-slate-700 dark:text-slate-300">
+                    {{ invoice.acceptedTokens|join(' · ') }}
+                    <span class="text-slate-400">on {{ invoice.acceptedChains|length }} chain{{ invoice.acceptedChains|length == 1 ? '' : 's' }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -14,6 +14,7 @@ common:
     sign_in: Увійти
     sign_up: Почати
     log_out: Вийти
+    cancel: Скасувати
 
 nav:
     dashboard: Кабінет
@@ -166,13 +167,48 @@ invoice:
         void: Скасовано
     new: Новий інвойс
     client: Клієнт
+    client_email: Email клієнта
+    client_email_hint: 'Необов’язково — якщо вкажеш, ми надішлемо клієнту посилання на оплату автоматично.'
     amount: Сума
     due_date: Термін оплати
     description: Опис
+    description_placeholder: 'За що цей інвойс? (необов’язково)'
     send: Надіслати інвойс
     pay_now: Оплатити
     paid_with: 'Оплачено в {token} у мережі {chain}'
     view_receipt: Переглянути квитанцію
+    create_draft: Зберегти чернетку
+    qty: Кільк.
+    unit_price: Ціна
+    line_total: Сума
+    total: Всього
+    item_description_placeholder: 'Послуга або позиція'
+    add_line_item: Додати позицію
+    currency: Валюта
+    accepted_chains: Мережі
+    accepted_tokens: Токени
+    section_client: Клієнт
+    section_items: Позиції
+    section_details: Деталі інвойсу
+    section_payment: Спосіб оплати
+    section_payment_hint: 'Обери, які мережі й токени приймаєш для цього інвойсу. За замовчуванням — твої налаштування акаунту.'
+    errors_header: 'Виправ, будь ласка:'
+    search_placeholder: 'Пошук за номером або клієнтом…'
+    filter_all: Усі статуси
+    filter_apply: Застосувати
+    filter_clear: Очистити
+    empty_filtered: 'Немає інвойсів за цими фільтрами'
+    pagination: 'Сторінка %page% з %pages% · %total% усього'
+    draft_ready_title: 'Готово до надсилання'
+    draft_ready_with_email: 'Ми надішлемо посилання на %email%.'
+    draft_ready_no_email: 'Email клієнта не вказано — після надсилання скопіюй посилання й поділись вручну.'
+    share_link: Публічне посилання на оплату
+    copy: Копіювати
+    open: Відкрити
+    from: Від
+    to: Кому
+    accepts: 'Приймає оплату в'
+    recipient_address: 'На гаманець'
 
 payment:
     connect_wallet: Підключити гаманець
@@ -189,6 +225,15 @@ errors:
     password_mismatch: Паролі не збігаються
     network_mismatch: Твій гаманець у неправильній мережі
     csrf_invalid: 'Форма застаріла — перезавантаж сторінку й спробуй ще раз'
+    no_line_items: 'Додай хоча б одну позицію з описом і ціною.'
+    line_item_desc_required: 'У кожної позиції має бути опис.'
+    line_item_price_invalid: 'Ціна має бути додатнім числом.'
+    line_item_qty_invalid: 'Кількість має бути більше 0.'
+    client_name_required: 'Ім''я клієнта обов''язкове.'
+    no_chains: 'Обери хоча б одну мережу для оплати.'
+    no_tokens: 'Обери хоча б один токен (USDC / USDT / DAI).'
+    payout_address_unset: 'Спочатку встанови адресу гаманця-отримувача в Налаштуваннях.'
+    invoice_already_sent: 'Цей інвойс уже надіслано. Чернетки можна надсилати лише один раз.'
 
 auth:
     email: Електронна пошта
@@ -242,12 +287,20 @@ auth:
 
 dashboard:
     welcome_title: 'Привіт, %name%.'
-    welcome_sub: 'Це твій кабінет. Створення інвойсів, таблиця платежів і налаштування з’являться в наступному релізі.'
+    welcome_sub: 'Це твій кабінет.'
+    welcome_sub_v2: 'Ось що відбувається з твоїми інвойсами.'
     verify_title: Підтверди пошту
     verify_sub: 'Ми надіслали лист на %email%. Натисни на посилання в листі, щоб активувати створення інвойсів.'
     empty_title: 'Повний кабінет — у наступному кроці'
-    empty_sub: 'Повний React-кабінет із CRUD інвойсів, таблицею платежів і налаштуваннями — наступна віха.'
-    empty_coming: 'Поки що тестові інвойси можна створювати через bin/console app:invoice:create-sample на сервері.'
+    empty_sub: 'Створи перший інвойс менш ніж за хвилину.'
+    empty_coming: 'Або через CLI: bin/console app:invoice:create-sample.'
+    metric_paid_sub: 'цього місяця'
+    metric_settle_sub: 'усі мережі'
+    see_all: 'Усі'
+    coming_soon:
+        title: 'Скоро'
+        payments_sub: 'Тут буде таблиця платежів — мережа, tx-хеш, USD-сума, кількість підтверджень.'
+        settings_sub: 'Тут редагуватимеш бренд, гаманець-отримувач, мережу/токен за замовчуванням і локаль.'
 
 emails:
     verify:

@@ -1,0 +1,162 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block dashboard_title %}{{ 'invoice.new'|trans }}{% endblock %}
+
+{% block dashboard_content %}
+    <div class="max-w-3xl mx-auto">
+        <div class="flex items-center gap-3 mb-6">
+            <a href="{{ path('dashboard_invoices', {_locale: locale}) }}"
+               class="grid h-9 w-9 place-items-center rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" aria-label="Back">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </a>
+            <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'invoice.new'|trans }}</h1>
+        </div>
+
+        {% if errors|length > 0 %}
+            <div class="mb-6 rounded-xl border border-danger-200 dark:border-danger-500/30 bg-danger-50 dark:bg-danger-500/10 p-4 text-sm text-danger-700 dark:text-danger-500">
+                <p class="font-medium mb-1">{{ 'invoice.errors_header'|trans }}</p>
+                <ul class="space-y-1 list-disc list-inside">
+                    {% for err in errors %}<li>{{ err|trans }}</li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" novalidate class="space-y-6">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-new') }}">
+
+            {# ─── Client section ─── #}
+            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <h2 class="font-semibold tracking-tight mb-4">{{ 'invoice.section_client'|trans }}</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <label class="block sm:col-span-2">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'invoice.client'|trans }} *</span>
+                        <input type="text" name="client_name" value="{{ form.client_name }}" required
+                               class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                    </label>
+                    <label class="block sm:col-span-2">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'invoice.client_email'|trans }}</span>
+                        <input type="email" name="client_email" value="{{ form.client_email }}"
+                               class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                        <span class="mt-1.5 block text-xs text-slate-500">{{ 'invoice.client_email_hint'|trans }}</span>
+                    </label>
+                </div>
+            </section>
+
+            {# ─── Line items section ─── #}
+            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <h2 class="font-semibold tracking-tight mb-4">{{ 'invoice.section_items'|trans }}</h2>
+                <div data-line-items class="space-y-3">
+                    {% for i, li in form.line_items %}
+                        <div data-line-item class="grid grid-cols-12 gap-2 items-start">
+                            <input type="text" name="line_items[{{ i }}][description]" value="{{ li.description }}"
+                                   placeholder="{{ 'invoice.item_description_placeholder'|trans }}"
+                                   class="col-span-7 px-3 py-2 text-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                            <input type="text" name="line_items[{{ i }}][quantity]" value="{{ li.quantity }}"
+                                   placeholder="1"
+                                   class="col-span-2 px-3 py-2 text-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-right tabular-nums focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                            <div class="col-span-3 relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                                <input type="text" name="line_items[{{ i }}][unit_price]" value="{{ li.unit_price }}"
+                                       placeholder="0.00"
+                                       class="w-full pl-7 pr-3 py-2 text-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-right tabular-nums focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" data-add-line-item
+                        class="mt-3 inline-flex items-center gap-2 text-sm font-medium text-brand-600 dark:text-brand-400 hover:underline">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    {{ 'invoice.add_line_item'|trans }}
+                </button>
+            </section>
+
+            {# ─── Details section ─── #}
+            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <h2 class="font-semibold tracking-tight mb-4">{{ 'invoice.section_details'|trans }}</h2>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <label class="block">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'invoice.due_date'|trans }}</span>
+                        <input type="date" name="due_date" value="{{ form.due_date }}"
+                               class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                    </label>
+                    <label class="block">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'invoice.currency'|trans }}</span>
+                        <select name="currency" class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                            {% for c in ['USD', 'EUR'] %}
+                                <option value="{{ c }}" {{ c == form.currency ? 'selected' : '' }}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="block sm:col-span-2">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'invoice.description'|trans }}</span>
+                        <textarea name="description" rows="2" placeholder="{{ 'invoice.description_placeholder'|trans }}"
+                                  class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{ form.description }}</textarea>
+                    </label>
+                </div>
+            </section>
+
+            {# ─── Accepted chains/tokens ─── #}
+            <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                <h2 class="font-semibold tracking-tight mb-4">{{ 'invoice.section_payment'|trans }}</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">{{ 'invoice.section_payment_hint'|trans }}</p>
+
+                <fieldset class="mb-4">
+                    <legend class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ 'invoice.accepted_chains'|trans }}</legend>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                        {% for key, cfg in available_chains %}
+                            <label class="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2.5 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition">
+                                <input type="checkbox" name="accepted_chains[]" value="{{ cfg.chain_id }}"
+                                       {{ cfg.chain_id in form.accepted_chains ? 'checked' : '' }}
+                                       class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm">{{ cfg.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{{ 'invoice.accepted_tokens'|trans }}</legend>
+                    <div class="flex flex-wrap gap-2">
+                        {% for sym in ['USDC', 'USDT', 'DAI'] %}
+                            <label class="flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-3 py-2 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition">
+                                <input type="checkbox" name="accepted_tokens[]" value="{{ sym }}"
+                                       {{ sym in form.accepted_tokens ? 'checked' : '' }}
+                                       class="h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500">
+                                <span class="text-sm font-medium">{{ sym }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+            </section>
+
+            <div class="flex items-center justify-between gap-3">
+                <a href="{{ path('dashboard_invoices', {_locale: locale}) }}" class="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100">
+                    {{ 'common.cancel'|trans }}
+                </a>
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-5 py-3 text-sm font-semibold shadow-card hover:shadow-card-hover transition">
+                    {{ 'invoice.create_draft'|trans }}
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // "+ Add line item" — clones the last row.
+        document.querySelector('[data-add-line-item]')?.addEventListener('click', () => {
+            const wrap = document.querySelector('[data-line-items]');
+            const items = wrap.querySelectorAll('[data-line-item]');
+            const last = items[items.length - 1];
+            const next = last.cloneNode(true);
+            const idx = items.length;
+            next.querySelectorAll('input').forEach(input => {
+                const name = input.getAttribute('name').replace(/\[\d+\]/, `[${idx}]`);
+                input.setAttribute('name', name);
+                input.value = name.endsWith('[quantity]') ? '1' : '';
+            });
+            wrap.appendChild(next);
+            next.querySelector('input').focus();
+        });
+    </script>
+{% endblock %}

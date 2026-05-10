@@ -1,0 +1,15 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% block dashboard_title %}{{ title_key|trans }}{% endblock %}
+
+{% block dashboard_content %}
+    <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ title_key|trans }}</h1>
+
+    <div class="mt-8 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
+        <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+        </div>
+        <h2 class="mt-4 font-display text-lg font-semibold tracking-tight">{{ 'dashboard.coming_soon.title'|trans }}</h2>
+        <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">{{ sub_key|trans }}</p>
+    </div>
+{% endblock %}

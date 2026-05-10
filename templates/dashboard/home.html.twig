@@ -1,49 +1,148 @@
-{% extends 'base.html.twig' %}
-{% from '_logo.html.twig' import logo %}
+{% extends 'dashboard/_layout.html.twig' %}
 
-{% set locale        = app.request.locale|default('en') %}
-{% set seo_indexable = false %}{# Authenticated dashboard — never index. #}
+{% set locale = app.request.locale|default('en') %}
 
-{% block title %}{{ 'nav.dashboard'|trans }} · Settlepay{% endblock %}
+{% block dashboard_title %}{{ 'nav.dashboard'|trans }}{% endblock %}
 
-{% block body %}
-<div class="min-h-dvh bg-slate-50 dark:bg-slate-950">
-    {# Stripped-down topbar — full sidebar comes with the React SPA milestone. #}
-    <header class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-            <a href="{{ path('marketing_home', {_locale: locale}) }}" aria-label="settlepay">{{ logo(size='sm') }}</a>
-            <div class="flex items-center gap-3 text-sm">
-                <span class="text-slate-500 dark:text-slate-400">{{ user.email }}</span>
-                <a href="{{ path('auth_logout', {_locale: locale}) }}"
-                   class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
-                    {{ 'common.log_out'|trans }}
+{% block dashboard_content %}
+    {# Greeting + create CTA #}
+    <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <div>
+            <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                {{ 'dashboard.welcome_title'|trans({'%name%': user.displayName ?? (user.email|split('@')|first)}) }}
+            </h1>
+            <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ 'dashboard.welcome_sub_v2'|trans }}</p>
+        </div>
+        <a href="{{ path('dashboard_invoice_new', {_locale: locale}) }}"
+           class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-card hover:shadow-card-hover transition">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            {{ 'invoice.new'|trans }}
+        </a>
+    </div>
+
+    {# Verification banner #}
+    {% if verification_needed %}
+        <div class="mb-6 rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-5 flex gap-3">
+            <span class="grid h-6 w-6 shrink-0 mt-0.5 place-items-center rounded-full bg-warning-500 text-white text-xs font-bold">!</span>
+            <div class="flex-1 text-sm">
+                <p class="font-medium text-warning-700 dark:text-warning-500">{{ 'dashboard.verify_title'|trans }}</p>
+                <p class="text-warning-700/80 dark:text-warning-500/80">{{ 'dashboard.verify_sub'|trans({'%email%': user.email}) }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {# Metrics #}
+    <div class="grid sm:grid-cols-3 gap-4 mb-6">
+        {# Paid this month #}
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_paid'|trans }}</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">
+                ${{ (metrics.paid_this_month_cents / 100)|number_format(2, '.', ',') }}
+            </div>
+            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ 'dashboard.metric_paid_sub'|trans }}</div>
+        </div>
+
+        {# Awaiting payment #}
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_awaiting'|trans }}</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">
+                ${{ (metrics.awaiting_cents / 100)|number_format(2, '.', ',') }}
+            </div>
+            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                {{ metrics.awaiting_count }} {{ metrics.awaiting_count == 1 ? 'invoice' : 'invoices' }}
+                {% if metrics.awaiting_overdue > 0 %}
+                    · <span class="text-danger-600 font-medium">{{ metrics.awaiting_overdue }} {{ 'invoice.status.overdue'|trans|lower }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {# Avg settle time #}
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'dashboard_section.metric_settle'|trans }}</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums tracking-tight">
+                {% if metrics.avg_settle_seconds is null %}
+                    <span class="text-slate-400">—</span>
+                {% elseif metrics.avg_settle_seconds < 60 %}
+                    {{ metrics.avg_settle_seconds }}<span class="text-lg text-slate-400">s</span>
+                {% elseif metrics.avg_settle_seconds < 3600 %}
+                    {{ (metrics.avg_settle_seconds / 60)|number_format(0) }}<span class="text-lg text-slate-400">m</span>
+                {% elseif metrics.avg_settle_seconds < 86400 %}
+                    {{ (metrics.avg_settle_seconds / 3600)|number_format(1) }}<span class="text-lg text-slate-400">h</span>
+                {% else %}
+                    {{ (metrics.avg_settle_seconds / 86400)|number_format(1) }}<span class="text-lg text-slate-400">d</span>
+                {% endif %}
+            </div>
+            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">{{ 'dashboard.metric_settle_sub'|trans }}</div>
+        </div>
+    </div>
+
+    {# Recent invoices table or empty state #}
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-200 dark:border-slate-800">
+            <h2 class="font-semibold tracking-tight">{{ 'dashboard_section.recent_invoices'|trans }}</h2>
+            <a href="{{ path('dashboard_invoices', {_locale: locale}) }}" class="text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline">{{ 'dashboard.see_all'|trans }} →</a>
+        </div>
+
+        {% if recent_invoices|length == 0 %}
+            <div class="p-12 text-center">
+                <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+                    <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                </div>
+                <h3 class="mt-4 font-display text-lg font-semibold tracking-tight">{{ 'components_section.empty_title'|trans }}</h3>
+                <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">{{ 'components_section.empty_sub'|trans }}</p>
+                <a href="{{ path('dashboard_invoice_new', {_locale: locale}) }}"
+                   class="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium shadow-card transition">
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    {{ 'invoice.new'|trans }}
                 </a>
             </div>
-        </div>
-    </header>
-
-    <main class="mx-auto max-w-6xl px-6 py-12">
-        <h1 class="font-display text-3xl font-semibold tracking-tight">{{ 'dashboard.welcome_title'|trans({'%name%': user.displayName ?? (user.email|split('@')|first)}) }}</h1>
-        <p class="mt-2 text-slate-600 dark:text-slate-400">{{ 'dashboard.welcome_sub'|trans }}</p>
-
-        {% if verification_needed %}
-            <div class="mt-6 rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-5 flex gap-3">
-                <span class="grid h-6 w-6 shrink-0 mt-0.5 place-items-center rounded-full bg-warning-500 text-white text-xs font-bold">!</span>
-                <div class="flex-1 text-sm">
-                    <p class="font-medium text-warning-700 dark:text-warning-500">{{ 'dashboard.verify_title'|trans }}</p>
-                    <p class="text-warning-700/80 dark:text-warning-500/80">{{ 'dashboard.verify_sub'|trans({'%email%': user.email}) }}</p>
-                </div>
+        {% else %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-xs text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-950/40">
+                        <tr class="border-b border-slate-200 dark:border-slate-800">
+                            <th class="text-left font-medium px-5 py-2.5">{{ 'dashboard_section.col_invoice'|trans }}</th>
+                            <th class="text-left font-medium px-5 py-2.5">{{ 'invoice.client'|trans }}</th>
+                            <th class="text-left font-medium px-5 py-2.5">{{ 'dashboard_section.col_status'|trans }}</th>
+                            <th class="text-right font-medium px-5 py-2.5">{{ 'invoice.amount'|trans }}</th>
+                            <th class="text-right font-medium px-5 py-2.5">{{ 'dashboard_section.col_due'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        {% for inv in recent_invoices %}
+                            {% set status = inv.status.value %}
+                            {% set tone = {paid:'success', sent:'info', viewed:'warning', overdue:'danger', draft:'slate', void:'slate', refunded:'slate', partially_paid:'warning'}[status]|default('slate') %}
+                            <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                                <td class="px-5 py-3.5">
+                                    <a href="{{ path('dashboard_invoice_show', {_locale: locale, uuid: inv.uuid}) }}"
+                                       class="font-mono text-xs hover:text-brand-600 dark:hover:text-brand-400 transition">{{ inv.number }}</a>
+                                </td>
+                                <td class="px-5 py-3.5">{{ inv.clientName }}</td>
+                                <td class="px-5 py-3.5">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium
+                                                  {% if tone == 'success' %}bg-success-50 dark:bg-success-500/10 text-success-600
+                                                  {% elseif tone == 'info' %}bg-info-50 dark:bg-info-500/10 text-info-600
+                                                  {% elseif tone == 'warning' %}bg-warning-50 dark:bg-warning-500/10 text-warning-600
+                                                  {% elseif tone == 'danger' %}bg-danger-50 dark:bg-danger-500/10 text-danger-600
+                                                  {% else %}bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400{% endif %}">
+                                        <span class="h-1.5 w-1.5 rounded-full
+                                                     {% if tone == 'success' %}bg-success-500
+                                                     {% elseif tone == 'info' %}bg-info-500
+                                                     {% elseif tone == 'warning' %}bg-warning-500
+                                                     {% elseif tone == 'danger' %}bg-danger-500
+                                                     {% else %}bg-slate-400{% endif %}"></span>
+                                        {{ ('invoice.status.' ~ status)|trans }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-3.5 text-right font-medium tabular-nums">${{ (inv.amountCents / 100)|number_format(2, '.', ',') }}</td>
+                                <td class="px-5 py-3.5 text-right text-slate-500 dark:text-slate-400 {% if status == 'overdue' %}text-danger-600 dark:text-danger-500{% endif %}">
+                                    {% if inv.dueDate %}{{ inv.dueDate|format_date('medium', locale=locale) }}{% else %}—{% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         {% endif %}
-
-        <div class="mt-10 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
-            <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
-                <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
-            </div>
-            <h2 class="mt-4 font-display text-lg font-semibold tracking-tight">{{ 'dashboard.empty_title'|trans }}</h2>
-            <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 max-w-md mx-auto">{{ 'dashboard.empty_sub'|trans }}</p>
-            <p class="mt-3 text-xs text-slate-500 dark:text-slate-500">{{ 'dashboard.empty_coming'|trans }}</p>
-        </div>
-    </main>
-</div>
+    </div>
 {% endblock %}

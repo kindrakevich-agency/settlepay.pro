@@ -14,6 +14,7 @@ common:
     sign_in: Iniciar sesión
     sign_up: Empezar
     log_out: Cerrar sesión
+    cancel: Cancelar
 
 nav:
     dashboard: Panel
@@ -166,13 +167,48 @@ invoice:
         void: Anulada
     new: Nueva factura
     client: Cliente
+    client_email: Correo del cliente
+    client_email_hint: 'Opcional — si lo añades, le enviamos el enlace de pago automáticamente.'
     amount: Importe
     due_date: Fecha de vencimiento
     description: Descripción
+    description_placeholder: '¿De qué es esta factura? (opcional)'
     send: Enviar factura
     pay_now: Pagar ahora
     paid_with: 'Pagada con {token} en {chain}'
     view_receipt: Ver recibo
+    create_draft: Guardar borrador
+    qty: Cant.
+    unit_price: Precio
+    line_total: Total
+    total: Total
+    item_description_placeholder: 'Servicio o concepto'
+    add_line_item: Añadir línea
+    currency: Moneda
+    accepted_chains: Redes aceptadas
+    accepted_tokens: Tokens aceptados
+    section_client: Cliente
+    section_items: Líneas
+    section_details: Detalles de la factura
+    section_payment: Opciones de pago
+    section_payment_hint: 'Elige qué redes y tokens aceptas. Por defecto se usa la configuración de tu cuenta.'
+    errors_header: 'Por favor corrige lo siguiente:'
+    search_placeholder: 'Buscar por número o cliente…'
+    filter_all: Todos los estados
+    filter_apply: Aplicar
+    filter_clear: Limpiar
+    empty_filtered: 'No hay facturas con esos filtros'
+    pagination: 'Página %page% de %pages% · %total% en total'
+    draft_ready_title: 'Listo para enviar'
+    draft_ready_with_email: 'Enviaremos el enlace a %email%.'
+    draft_ready_no_email: 'Sin correo del cliente — copia el enlace tras enviar y compártelo manualmente.'
+    share_link: Enlace público de pago
+    copy: Copiar
+    open: Abrir
+    from: De
+    to: Para
+    accepts: 'Acepta pagos en'
+    recipient_address: 'Paga a billetera'
 
 payment:
     connect_wallet: Conectar billetera
@@ -189,6 +225,15 @@ errors:
     password_mismatch: Las contraseñas no coinciden
     network_mismatch: Tu billetera está en la red equivocada
     csrf_invalid: 'El formulario expiró — recarga la página y vuelve a intentar'
+    no_line_items: 'Añade al menos una línea con descripción y precio.'
+    line_item_desc_required: 'Cada línea necesita una descripción.'
+    line_item_price_invalid: 'El precio debe ser un número positivo.'
+    line_item_qty_invalid: 'La cantidad debe ser mayor que 0.'
+    client_name_required: 'El nombre del cliente es obligatorio.'
+    no_chains: 'Elige al menos una red para aceptar pagos.'
+    no_tokens: 'Elige al menos un token (USDC / USDT / DAI).'
+    payout_address_unset: 'Configura tu billetera de cobro en Ajustes antes de enviar facturas.'
+    invoice_already_sent: 'Esta factura ya fue enviada. Los borradores solo se envían una vez.'
 
 auth:
     email: Correo
@@ -242,12 +287,20 @@ auth:
 
 dashboard:
     welcome_title: 'Hola, %name%.'
-    welcome_sub: 'Tu panel autenticado. CRUD de facturas, tabla de pagos y ajustes llegan en el siguiente hito.'
+    welcome_sub: 'Tu panel autenticado.'
+    welcome_sub_v2: 'Esto es lo que pasa con tus facturas.'
     verify_title: Verifica tu correo
     verify_sub: 'Enviamos un enlace de confirmación a %email%. Pulsa para desbloquear el envío de facturas.'
-    empty_title: 'El panel React llega pronto'
-    empty_sub: 'El panel completo con CRUD de facturas, tabla de pagos y ajustes es el próximo hito.'
-    empty_coming: 'Mientras tanto, puedes seedear facturas con bin/console app:invoice:create-sample en el servidor.'
+    empty_title: 'Aún no hay facturas'
+    empty_sub: 'Crea tu primera factura en menos de un minuto.'
+    empty_coming: 'O por CLI: bin/console app:invoice:create-sample.'
+    metric_paid_sub: 'este mes'
+    metric_settle_sub: 'todas las redes'
+    see_all: 'Ver todas'
+    coming_soon:
+        title: 'Próximamente'
+        payments_sub: 'Tabla de pagos en vivo con red, hash, valor en USD y confirmaciones — en el próximo hito.'
+        settings_sub: 'Edita tu marca, billetera de cobro, red/token por defecto y locale aquí.'
 
 emails:
     verify:

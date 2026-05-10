@@ -14,6 +14,7 @@ common:
     sign_in: Sign in
     sign_up: Get started
     log_out: Log out
+    cancel: Cancel
 
 nav:
     dashboard: Dashboard
@@ -166,13 +167,48 @@ invoice:
         void: Voided
     new: New invoice
     client: Client
+    client_email: Client email
+    client_email_hint: 'Optional — when set, we email them the payment link automatically.'
     amount: Amount
     due_date: Due date
     description: Description
+    description_placeholder: "What's this invoice for? (optional)"
     send: Send invoice
     pay_now: Pay now
     paid_with: 'Paid with {token} on {chain}'
     view_receipt: View receipt
+    create_draft: Save as draft
+    qty: Qty
+    unit_price: Unit price
+    line_total: Total
+    total: Total
+    item_description_placeholder: 'Service or item'
+    add_line_item: Add line item
+    currency: Currency
+    accepted_chains: Accepted networks
+    accepted_tokens: Accepted tokens
+    section_client: Client
+    section_items: Line items
+    section_details: Invoice details
+    section_payment: Payment options
+    section_payment_hint: 'Pick which networks and tokens you accept for this invoice. Defaults match your account settings.'
+    errors_header: 'Please fix the following before continuing:'
+    search_placeholder: 'Search by number or client…'
+    filter_all: All statuses
+    filter_apply: Apply
+    filter_clear: Clear
+    empty_filtered: 'No invoices match those filters'
+    pagination: 'Page %page% of %pages% · %total% total'
+    draft_ready_title: 'Ready to send'
+    draft_ready_with_email: "We'll email %email% with the payment link."
+    draft_ready_no_email: 'No client email set — copy the payment link after sending and share it manually.'
+    share_link: Public payment link
+    copy: Copy
+    open: Open
+    from: From
+    to: To
+    accepts: 'Accepts payment in'
+    recipient_address: 'Pays to wallet'
 
 payment:
     connect_wallet: Connect wallet
@@ -189,6 +225,15 @@ errors:
     password_mismatch: Passwords don't match
     network_mismatch: Your wallet is on the wrong network
     csrf_invalid: Form expired — please reload and try again
+    no_line_items: Add at least one line item with a description and price.
+    line_item_desc_required: Each line item needs a description.
+    line_item_price_invalid: 'Unit price must be a positive number.'
+    line_item_qty_invalid: 'Quantity must be greater than 0.'
+    client_name_required: 'Client name is required.'
+    no_chains: 'Pick at least one network to accept payment on.'
+    no_tokens: 'Pick at least one token (USDC / USDT / DAI).'
+    payout_address_unset: 'Set your payout wallet address in Settings before sending invoices.'
+    invoice_already_sent: 'This invoice has already been sent. Drafts can only be sent once.'
 
 auth:
     email: Email
@@ -243,11 +288,19 @@ auth:
 dashboard:
     welcome_title: 'Welcome, %name%.'
     welcome_sub: 'Your authenticated home. Invoice CRUD, payments table, and settings ship in the next milestone.'
+    welcome_sub_v2: "Here's what's happening with your invoices."
     verify_title: Verify your email
     verify_sub: 'We sent a confirmation link to %email%. Click it to unlock invoice sending. Resend if you do not see it.'
     empty_title: 'Dashboard SPA coming next'
     empty_sub: 'The full React dashboard with invoice CRUD, the payments table, and settings is the next milestone.'
     empty_coming: 'Until then, you can run bin/console app:invoice:create-sample on the server to seed test invoices.'
+    metric_paid_sub: 'this month'
+    metric_settle_sub: 'across all chains'
+    see_all: 'See all'
+    coming_soon:
+        title: 'Coming soon'
+        payments_sub: 'A live payments table with chain, tx hash, USD value, and confirmations is the next slice.'
+        settings_sub: 'Edit your business name, payout wallet, default chain/token, and locale here. Coming next.'
 
 emails:
     verify:
