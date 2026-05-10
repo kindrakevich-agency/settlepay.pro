@@ -38,17 +38,32 @@ final class InvoiceMailer
 
         $subject = sprintf('Invoice %s from %s', $invoice->getNumber(), $invoice->getUser()->getBusinessName() ?: 'Settlepay');
 
+        $amountDecimal = number_format($invoice->getAmountCents() / 100, 2, '.', ',');
+        $dueDateText   = $invoice->getDueDate()
+            ? $invoice->getDueDate()->format('F j, Y')   // "May 24, 2026" — recipient locale is unknown, English is the safe default
+            : null;
+
         $email = (new TemplatedEmail())
             ->from(new Address($this->mailerFromAddress, $invoice->getUser()->getBusinessName() ?: $this->mailerFromName))
             ->to($clientEmail)
             ->replyTo(new Address($invoice->getUser()->getEmail(), $invoice->getUser()->getBusinessName() ?: $invoice->getUser()->getDisplayName() ?: ''))
             ->subject($subject)
             ->htmlTemplate('emails/invoices/sent.html.twig')
+            ->textTemplate('emails/invoices/sent.txt.twig')
             ->context([
-                'invoice' => $invoice,
-                'pay_url' => $payUrl,
-                'amount_decimal' => number_format($invoice->getAmountCents() / 100, 2, '.', ''),
+                'invoice'        => $invoice,
+                'pay_url'        => $payUrl,
+                'amount_decimal' => $amountDecimal,
+                'due_date_text'  => $dueDateText,
             ]);
+
+        // List-Unsubscribe: Gmail / Outlook actively bump trust scores for
+        // transactional emails that declare an unsubscribe path even when
+        // unsubscribe doesn't really apply. Mailto routes to the freelancer
+        // who can manually act on the request.
+        $email->getHeaders()
+            ->addTextHeader('List-Unsubscribe', sprintf('<mailto:%s?subject=Unsubscribe>', $invoice->getUser()->getEmail()))
+            ->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
 
         try {
             $this->mailer->send($email);

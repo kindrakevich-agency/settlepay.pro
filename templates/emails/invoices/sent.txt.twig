@@ -1,0 +1,19 @@
+Invoice {{ invoice.number }}
+
+Hi {{ invoice.clientName }},
+
+{{ invoice.user.businessName ?? invoice.user.email|split('@')|first }} sent you an invoice for ${{ amount_decimal }} {{ invoice.currency }}{% if due_date_text %}, due {{ due_date_text }}{% endif %}.
+{% if invoice.description %}
+{{ invoice.description }}
+{% endif %}
+
+Pay the invoice:
+{{ pay_url }}
+
+Pay with USDC, USDT, or DAI on Base, Polygon, Arbitrum, or Optimism. Non-custodial. Settles in seconds.
+
+Questions? Reply directly to this email — replies go to {{ invoice.user.email }}.
+
+—
+You received this because {{ invoice.user.businessName ?? invoice.user.email }} sent you an invoice via settlepay.pro.
+{{ "now"|date("Y") }} settlepay.pro
