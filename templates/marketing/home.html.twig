@@ -42,7 +42,7 @@
             <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#features">{{ 'nav.product'|trans }}</a>
             <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#dashboard">{{ 'nav.dashboard'|trans }}</a>
             <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#checkout">{{ 'nav.payments'|trans }}</a>
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#pricing">{{ 'nav.pricing'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ path('marketing_pricing', {_locale: locale}) }}">{{ 'nav.pricing'|trans }}</a>
         </nav>
 
         <div class="flex items-center gap-2">
@@ -489,10 +489,9 @@
             <span class="text-xs text-slate-500 dark:text-slate-500">{{ 'footer.copyright'|trans }}</span>
         </div>
         <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400">
-            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.pricing'|trans }}</a>
-            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.docs'|trans }}</a>
-            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.status'|trans }}</a>
-            <a href="#" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.privacy'|trans }}</a>
+            <a href="{{ path('marketing_pricing', {_locale: locale}) }}" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.pricing'|trans }}</a>
+            <a href="{{ path('marketing_privacy', {_locale: locale}) }}" class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.privacy'|trans }}</a>
+            <a href="{{ path('marketing_terms', {_locale: locale}) }}"   class="hover:text-slate-900 dark:hover:text-slate-100">{{ 'footer.links.terms'|trans }}</a>
         </div>
     </div>
 </footer>

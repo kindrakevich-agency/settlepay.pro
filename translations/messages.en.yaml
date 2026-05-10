@@ -286,16 +286,6 @@ terms:
     s9_title: '9. Limitation of liability'
     s9_body: 'To the maximum extent permitted by law, Settlepay''s total liability is capped at the lesser of (a) fees you paid us in the 12 months prior to the claim, or (b) $100. We are not liable for any losses arising from blockchain network congestion, RPC provider outages, stablecoin de-peg events, smart contract bugs in token contracts, frozen funds by token issuers, or any third-party action.'
 
-docs:
-    title: Documentation
-    intro: 'Technical and getting-started resources for Settlepay.'
-    crypto_basics_title: 'Crypto basics for first-time users'
-    crypto_basics_sub: '15-minute walkthrough: install MetaMask, get free testnet ETH and USDC, pay your first invoice. No prior experience needed.'
-    tech_overview_title: 'Tech overview (README)'
-    tech_overview_sub: 'Architecture, stack (Symfony + viem + chain listener), local development with Docker, deployment to Hetzner.'
-    api_title: 'Public API reference'
-    api_sub: 'Coming with the Pro plan — programmatic invoice creation, webhooks, payment polling.'
-    contact: 'Have a question? Email <a href="mailto:hello@settlepay.pro" class="text-brand-600 hover:underline">hello@settlepay.pro</a>.'
 
 final_cta:
     title: Ready to get paid in seconds, not weeks?

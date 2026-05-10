@@ -7,15 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Public legal + pricing pages.
+ * Public marketing pages.
  *
  *   /pricing  — Free / Pro / Agency tier comparison + FAQ
- *   /privacy  — privacy policy (DRAFT pending counsel review)
- *   /terms    — terms of service (DRAFT pending counsel review)
+ *   /privacy  — privacy policy
+ *   /terms    — terms of service
  *
- * All three are static-content Twig renders with no DB hits, so we put
- * them in one controller. They're locale-prefixed so SEO hreflang
- * picks them up like the home page does.
+ * Locale-prefixed so SEO hreflang picks them up like the home page does.
  */
 class MarketingPagesController extends AbstractController
 {
@@ -41,11 +39,5 @@ class MarketingPagesController extends AbstractController
         return $this->render('marketing/terms.html.twig', [
             'last_updated' => '2026-05-10',
         ]);
-    }
-
-    #[Route(path: '/{_locale}/docs', name: 'marketing_docs', requirements: self::LOCALE_REQUIREMENTS, defaults: ['_locale' => 'en'], methods: ['GET'])]
-    public function docs(): Response
-    {
-        return $this->render('marketing/docs.html.twig');
     }
 }

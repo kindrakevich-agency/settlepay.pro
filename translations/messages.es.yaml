@@ -143,6 +143,148 @@ components_section:
     empty_title: Aún no hay facturas
     empty_sub: 'Envía tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes.'
 
+pricing:
+    eyebrow: Precios
+    title: 'Gratis hasta $1.000. Céntimos después.'
+    sub: 'Empieza gratis, sin tarjeta. Pasa al plan pago solo cuando tu volumen de facturación lo justifique.'
+    popular: Más popular
+    seo:
+        title: 'Precios — Settlepay'
+        description: 'Gratis hasta $1.000/mes facturados (comisión 1%). Pro a $19/mes con 0,5% y volumen ilimitado. Agency para equipos.'
+    tier_free:
+        name: Free
+        tagline: Para primeras facturas y proyectos personales
+        fee: '1% por factura cobrada'
+        feat_1: 'Hasta $1.000 facturados al mes'
+        feat_2: 'USDC, USDT, DAI en 4 redes'
+        feat_3: 'Página de pago con marca'
+        feat_4: 'Email + confirmación de pago'
+        feat_5: 'Checkout multilingüe (en / uk / es)'
+        cta: Empezar gratis
+    tier_pro:
+        name: Pro
+        tagline: Para freelancers activos
+        fee: '0,5% por factura cobrada'
+        feat_1: 'Todo lo del plan Free'
+        feat_2: 'Volumen ilimitado'
+        feat_3: 'Marca propia en página de pago + correos'
+        feat_4: 'Webhooks + acceso API'
+        feat_5: 'Recibos en PDF'
+        feat_6: 'Soporte prioritario'
+        cta: Pasar a Pro
+    tier_agency:
+        name: Agency
+        badge: Próximamente
+        tagline: Para estudios y equipos pequeños
+        fee: '0,5% por factura cobrada'
+        feat_1: 'Todo lo del plan Pro'
+        feat_2: 'Hasta 5 plazas en el equipo'
+        feat_3: 'Paneles de facturación por cliente'
+        feat_4: 'Lista de clientes compartida'
+        feat_5: 'Llamada de onboarding + soporte dedicado'
+        cta: Avísame
+    fees:
+        title: 'Cómo funcionan las comisiones'
+        body: 'En Free la comisión es del 1% por factura cobrada; en Pro, del 0,5%. Las comisiones se acumulan durante el mes y se cobran en fiat a tu tarjeta de suscripción el día 1 (nunca las descontamos de tus stablecoins). Todo no custodial — los fondos van directos del cliente a tu billetera.'
+        fineprint: 'Sin coste de alta, sin mínimo, cancela cuando quieras.'
+    faq:
+        title: 'Preguntas frecuentes'
+        q1: '¿Por qué la comisión es tan baja comparada con PayPal o Stripe?'
+        a1: 'PayPal y Stripe operan infraestructura de pago global (tarjetas, ACH, antifraude, contracargos). Settlepay no hace nada de eso — tu cliente paga desde su billetera cripto a la tuya, y la blockchain liquida la operación. Nosotros solo emparejamos pagos con facturas y te avisamos. La mayor parte de nuestros costes son servidor, email y soporte — a escala pequeña, ~0,5% de la factura promedio.'
+        q2: '¿Necesito conocimientos de cripto?'
+        a2: 'No. Configurar lleva 5 minutos: registrarse, pegar la dirección de tu billetera (de MetaMask, Coinbase Wallet, etc.), enviar tu primera factura. Tu cliente tampoco necesita ser experto — muchos ya tienen una billetera.'
+        q3: '¿Y si mi cliente nunca ha usado cripto?'
+        a3: 'Envíale <a href="https://github.com/kindrakevich-agency/settlepay.pro/blob/main/docs/CRYPTO_BASICS.md" class="text-brand-600 hover:underline">nuestra guía de 5 minutos</a>. O que compre USDC con tarjeta vía Coinbase / MoonPay / Transak — la primera vez tarda 10 minutos, después es instantáneo.'
+        q4: '¿Qué redes soportáis?'
+        a4: 'Base, Polygon, Arbitrum, Optimism — las cuatro L2 EVM más baratas. El gas medio por pago es $0,01-0,05. No soportamos Ethereum mainnet a propósito porque ahí el gas es demasiado caro para facturas pequeñas ($5-20 por tx).'
+        q5: '¿Es legal? ¿Tengo que hacer KYC a mis clientes?'
+        a5: 'Settlepay es software, no money transmitter — nunca custodiamos fondos. Tu cliente te paga directamente, peer-to-peer. Los requisitos KYC dependen de la fiscalidad de tu país (igual que recibir pagos por SWIFT). Nosotros no exigimos KYC. Consulta con un asesor fiscal local sobre la declaración de ingresos en stablecoins.'
+        q6: '¿Cómo paso a fiat?'
+        a6: 'Recibes USDC en tu billetera — el mismo USDC que puedes pasar a tu banco vía Coinbase, Binance, Kraken, MoonPay o exchanges locales. La primera vez tarda 1-3 días (KYC), luego son minutos. O salta el off-ramp y paga directamente con una tarjeta Coinbase Card / Crypto.com Card.'
+    cta:
+        title: '¿Listo para cobrar en stablecoins?'
+
+legal:
+    last_updated: 'Última actualización: %date%'
+
+privacy:
+    title: Política de privacidad
+    seo:
+        title: 'Política de privacidad — Settlepay'
+        description: 'Cómo Settlepay trata tus datos: cuenta, facturas, direcciones de billetera. No custodial; nunca vemos claves privadas.'
+    intro: 'Esta Política explica qué datos recoge Settlepay, por qué y cómo se usan. En lenguaje claro siempre que sea posible.'
+    s1_title: '1. Qué recogemos'
+    s1_body: 'Cuando creas una cuenta y usas Settlepay, recogemos:'
+    s1_item_account_t: 'Datos de cuenta'
+    s1_item_account_d: 'Tu correo, contraseña (hasheada con Argon2id; nunca guardamos el texto plano), nombre del negocio, opcionalmente NIF + dirección, moneda e idioma por defecto.'
+    s1_item_invoice_t: 'Contenido de las facturas'
+    s1_item_invoice_d: 'Número de factura, líneas, importes, nombre y correo del cliente que introduces, fecha de vencimiento.'
+    s1_item_wallet_t: 'Dirección pública de billetera'
+    s1_item_wallet_d: 'La dirección 0x... que configuras como cobro. Datos públicos en cadena; nunca solicitamos ni vemos tu clave privada.'
+    s1_item_logs_t: 'Logs del servidor'
+    s1_item_logs_d: 'Logs estándar de acceso web (IP, user-agent, ruta) para seguridad y prevención de abuso. Se retienen 30 días.'
+    s2_title: '2. Qué NO recogemos'
+    s2_body: 'Settlepay deliberadamente NO recoge:'
+    s2_item_1: '<strong>Tus claves privadas.</strong> Nunca. Settlepay es no custodial — tu billetera firma cada transacción por sí misma y no tenemos acceso técnico a tus fondos.'
+    s2_item_2: '<strong>Documentos KYC.</strong> Sin pasaporte, sin DNI, sin selfies. Somos software, no money transmitter.'
+    s2_item_3: '<strong>Datos personales de tus clientes más allá de lo que pones en la factura.</strong> Los clientes pagan por un enlace público — no les exigimos registrarse ni dar identidad.'
+    s3_title: '3. Servicios de terceros'
+    s3_body: 'Para operar Settlepay usamos estos proveedores. Cada uno tiene su propia política de privacidad:'
+    s3_cloudflare: 'CDN + protección DDoS. Ve la IP de cada visitante.'
+    s3_resend: 'Correo saliente. Ve direcciones de correo y contenido.'
+    s3_hetzner: 'Hosting del servidor. Almacena toda la BD cifrada en reposo.'
+    s3_rpc: 'Lee eventos Transfer en cadena para detectar pagos. Nunca enviamos tu dirección de billetera; filtramos por la dirección del contrato del token.'
+    s3_walletconnect: 'Conexión de billeteras móviles vía QR. Ve qué billetera se conecta, no qué se paga.'
+    s3_chain_t: 'La propia blockchain'
+    s3_chain_d: 'Pública y permisionless por definición. Cualquiera puede ver quién pagó a quién y cuánto. Nosotros no añadimos a eso.'
+    s4_title: '4. Cómo usamos tus datos'
+    s4_body: 'Estrictamente para prestar el servicio: renderizar tu panel, enviar correos de factura/recibo, detectar pagos en cadena y emparejarlos con facturas. No vendemos, alquilamos ni compartimos tus datos con anunciantes. No corremos analytics que te sigan por la web.'
+    s5_title: '5. Tus derechos'
+    s5_body: 'Puedes:'
+    s5_item_1: 'Exportar todos los datos de tu cuenta a petición (cuenta, facturas, pagos).'
+    s5_item_2: 'Eliminar tu cuenta permanentemente — guardamos los registros de facturas pagadas 7 años por motivos fiscales (anonimizados) pero borramos tu PII.'
+    s5_item_3: 'Corregir cualquier dato visible en /app/settings tú mismo.'
+    s5_item_4: 'Contactarnos con cualquier duda de privacidad.'
+    s5_contact: 'Para todo lo anterior, escríbenos a <a href="mailto:hello@settlepay.pro">hello@settlepay.pro</a>.'
+    s6_title: '6. Cookies'
+    s6_body: 'Usamos una sola cookie: la de sesión, para mantenerte logueado. Sin tracking, sin publicidad, sin cookies cross-site.'
+    s7_title: '7. Menores'
+    s7_body: 'Settlepay está pensado para usuarios mayores de 18 años. No recogemos datos de menores conscientemente.'
+    s8_title: '8. Cambios en esta política'
+    s8_body: 'Cuando cambiemos esta política, actualizaremos la fecha y avisaremos por correo a todas las cuentas activas. Cambios materiales se anuncian con 30 días de antelación.'
+
+terms:
+    title: Condiciones del servicio
+    seo:
+        title: 'Condiciones — Settlepay'
+        description: 'Condiciones del servicio Settlepay. Software facilitador, no money transmitter. No custodial. Úsalo bajo tu propio riesgo.'
+    intro: 'Estas Condiciones rigen el uso de Settlepay. Al crear una cuenta, las aceptas.'
+    s1_title: '1. Qué es Settlepay'
+    s1_body: 'Settlepay es un <strong>servicio de software</strong> que ayuda a freelancers y pequeñas empresas a enviar facturas profesionales y recibir pagos en stablecoins (USDC, USDT, DAI) en blockchains compatibles con EVM. Settlepay <strong>NO es</strong> money transmitter, custodio, banco, exchange o broker. No mantenemos, transferimos ni tenemos acceso a fondos de usuarios. Los fondos van directos de la billetera del cliente a la tuya vía blockchain pública.'
+    s2_title: '2. Elegibilidad'
+    s2_body: 'Debes:'
+    s2_item_1: 'Tener al menos 18 años.'
+    s2_item_2: 'No estar en ninguna lista de sanciones (OFAC SDN, UE consolidada, ONU, etc.).'
+    s2_item_3: 'Tener permitido usar software como Settlepay según las leyes de tu país de residencia.'
+    s3_title: '3. Tus responsabilidades'
+    s3_body: 'Eres el único responsable de: mantener seguras tus credenciales, asegurar la clave privada de tu billetera (no tenemos acceso ni podemos recuperarla), declarar y pagar los impuestos del ingreso recibido, garantizar la legalidad de tu actividad bajo tu jurisdicción local, y la veracidad de cualquier dato en las facturas que envíes.'
+    s4_title: '4. La realidad on-chain'
+    s4_body: 'Las transacciones de criptomoneda son <strong>irreversibles</strong>. Una vez confirmado un pago en la blockchain, ni Settlepay ni terceros pueden revertirlo, reembolsarlo ni recuperarlo. En particular:'
+    s4_item_1: 'Si publicas la dirección equivocada como cobro, los pagos a esa dirección se pierden — no por nosotros, sino por la naturaleza inmutable de la blockchain.'
+    s4_item_2: 'Si tu cliente envía un importe incorrecto, eso es entre tú y él — Settlepay registra la discrepancia pero no resuelve disputas.'
+    s4_item_3: 'Si la billetera del cliente está comprometida y otra persona paga tu factura, el pago se acredita; la resolución del robo es entre el cliente y las autoridades.'
+    s4_item_4: 'Si un emisor de stablecoin (p. ej. Circle para USDC) congela una billetera, esos fondos quedan inaccesibles hasta que el emisor los desbloquee — Settlepay no influye sobre eso.'
+    s5_title: '5. Comisiones'
+    s5_body: 'Plan Free: 1% por factura cobrada. Plan Pro: $19/mes + 0,5%. Plan Agency: $49/mes + 0,5%. Las comisiones se acumulan durante el mes y se cobran en fiat vía Stripe a tu tarjeta de suscripción el día 1 del mes siguiente. Nunca descontamos comisiones de tus pagos en stablecoins entrantes — esos fluyen a tu billetera intactos.'
+    s6_title: '6. Uso aceptable'
+    s6_body: 'Aceptas no usar Settlepay para: actividades ilegales (fraude, blanqueo, financiación del terrorismo); cobrar bienes o servicios prohibidos en tu jurisdicción; acoso, difamación o abuso vía contenido de factura; enviar facturas a clientes que no han aceptado ser facturados; o intentar interrumpir o aplicar ingeniería inversa al servicio.'
+    s7_title: '7. Terminación'
+    s7_body: 'Cualquiera de las partes puede terminar este acuerdo en cualquier momento. Podemos suspender o cerrar tu cuenta si violas estas Condiciones, dejas de pagar comisiones acumuladas, o entras en una lista de sanciones. La terminación no anula comisiones ya devengadas. Los datos se pueden exportar durante 30 días tras la terminación, después se eliminan (sujeto a requisitos legales de retención).'
+    s8_title: '8. Renuncia de garantías'
+    s8_body: 'Settlepay se proporciona "tal cual", sin garantía de ningún tipo. No garantizamos servicio ininterrumpido, ausencia de bugs, ni que ninguna red blockchain o stablecoin específica seguirá funcionando. Hacemos lo posible, pero la infraestructura subyacente está fuera de nuestro control.'
+    s9_title: '9. Limitación de responsabilidad'
+    s9_body: 'En la máxima medida permitida por ley, la responsabilidad total de Settlepay se limita a la menor de (a) las comisiones que nos pagaste en los 12 meses anteriores a la reclamación, o (b) $100. No somos responsables de pérdidas derivadas de congestión de red blockchain, caídas de proveedores RPC, eventos de despeg de stablecoins, bugs de smart contracts de tokens, fondos congelados por emisores de tokens o cualquier acción de terceros.'
+
 final_cta:
     title: '¿Listo para cobrar en segundos, no en semanas?'
     sub: 'Manda tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes — sin tarjeta.'

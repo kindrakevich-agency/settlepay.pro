@@ -75,10 +75,10 @@ class SeoController extends AbstractController
     {
         // Public, indexable URLs only. Auth/checkout/dashboard never go here.
         $publicRoutes = [
-            ['route' => 'marketing_home', 'priority' => '1.0', 'changefreq' => 'weekly'],
-            // Add new public marketing routes here as they ship:
-            //   ['route' => 'marketing_pricing', 'priority' => '0.8', 'changefreq' => 'monthly'],
-            //   ['route' => 'marketing_docs',    'priority' => '0.6', 'changefreq' => 'weekly'],
+            ['route' => 'marketing_home',    'priority' => '1.0', 'changefreq' => 'weekly'],
+            ['route' => 'marketing_pricing', 'priority' => '0.8', 'changefreq' => 'monthly'],
+            ['route' => 'marketing_privacy', 'priority' => '0.3', 'changefreq' => 'yearly'],
+            ['route' => 'marketing_terms',   'priority' => '0.3', 'changefreq' => 'yearly'],
         ];
 
         $today = (new \DateTimeImmutable())->format('Y-m-d');
