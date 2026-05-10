@@ -1,0 +1,211 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+{% set payout_unset = user.payoutAddress == '0x0000000000000000000000000000000000000000' %}
+
+{% block dashboard_title %}{{ 'nav.settings'|trans }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl">
+    <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'nav.settings'|trans }}</h1>
+    <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ 'settings.subtitle'|trans }}</p>
+
+    {% if payout_unset %}
+        <div class="mt-6 rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-5 flex gap-3">
+            <span class="grid h-6 w-6 shrink-0 mt-0.5 place-items-center rounded-full bg-warning-500 text-white text-xs font-bold">!</span>
+            <div class="flex-1 text-sm">
+                <p class="font-medium text-warning-700 dark:text-warning-500">{{ 'settings.payout_unset_title'|trans }}</p>
+                <p class="text-warning-700/80 dark:text-warning-500/80 mt-0.5">{{ 'settings.payout_unset_sub'|trans }}</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {# ─── Profile + business ──────────────────────────────────────── #}
+    <section class="mt-8 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
+        <header class="mb-5">
+            <h2 class="font-semibold tracking-tight">{{ 'settings.section_profile'|trans }}</h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'settings.section_profile_sub'|trans }}</p>
+        </header>
+
+        <form method="POST" action="{{ path('dashboard_settings_profile', {_locale: locale}) }}" class="space-y-4">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings-profile') }}">
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <label class="block sm:col-span-2">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.business_name'|trans }}</span>
+                    <input type="text" name="business_name" value="{{ user.businessName }}"
+                           placeholder="{{ 'settings.business_name_placeholder'|trans }}"
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                    <span class="mt-1.5 block text-xs text-slate-500">{{ 'settings.business_name_hint'|trans }}</span>
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.display_name'|trans }}</span>
+                    <input type="text" name="display_name" value="{{ user.displayName }}"
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.tax_id'|trans }}</span>
+                    <input type="text" name="tax_id" value="{{ user.taxId }}" placeholder="{{ 'settings.tax_id_placeholder'|trans }}"
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                </label>
+
+                <label class="block sm:col-span-2">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.business_address'|trans }}</span>
+                    <textarea name="business_address" rows="2" placeholder="{{ 'settings.business_address_placeholder'|trans }}"
+                              class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{ user.businessAddress }}</textarea>
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.default_currency'|trans }}</span>
+                    <select name="default_currency"
+                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        {% for c in ['USD', 'EUR'] %}
+                            <option value="{{ c }}" {{ c == user.defaultCurrency ? 'selected' : '' }}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.default_locale'|trans }}</span>
+                    <select name="default_locale"
+                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        <option value="en" {{ user.defaultLocale == 'en' ? 'selected' : '' }}>English</option>
+                        <option value="uk" {{ user.defaultLocale == 'uk' ? 'selected' : '' }}>Українська</option>
+                        <option value="es" {{ user.defaultLocale == 'es' ? 'selected' : '' }}>Español</option>
+                    </select>
+                </label>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-sm hover:shadow transition">
+                    {{ 'settings.save_profile'|trans }}
+                </button>
+            </div>
+        </form>
+    </section>
+
+    {# ─── Payout wallet ───────────────────────────────────────────── #}
+    <section class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
+        <header class="mb-5">
+            <h2 class="font-semibold tracking-tight flex items-center gap-2">
+                {{ 'settings.section_payout'|trans }}
+                {% if payout_unset %}
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-warning-50 dark:bg-warning-500/10 px-2 py-0.5 text-2xs font-medium text-warning-600">
+                        <span class="h-1.5 w-1.5 rounded-full bg-warning-500"></span>{{ 'settings.required'|trans }}
+                    </span>
+                {% endif %}
+            </h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'settings.section_payout_sub'|trans }}</p>
+        </header>
+
+        <form method="POST" action="{{ path('dashboard_settings_payout', {_locale: locale}) }}" class="space-y-4">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings-payout') }}">
+
+            <label class="block">
+                <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_address'|trans }}</span>
+                <input type="text" name="payout_address"
+                       value="{{ payout_unset ? '' : user.payoutAddress }}"
+                       placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c"
+                       autocomplete="off" spellcheck="false" required
+                       class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-sm placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                <span class="mt-1.5 block text-xs text-slate-500">{{ 'settings.payout_address_hint'|trans }}</span>
+            </label>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_chain'|trans }}</span>
+                    <select name="payout_chain_id"
+                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        {% for key, cfg in chains %}
+                            <option value="{{ cfg.chain_id }}" {{ cfg.chain_id == user.payoutChainId ? 'selected' : '' }}>
+                                {{ cfg.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_token'|trans }}</span>
+                    <select name="payout_token"
+                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                        {% for s in ['USDC', 'USDT', 'DAI'] %}
+                            <option value="{{ s }}" {{ s == user.payoutToken ? 'selected' : '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                <p class="font-medium text-slate-900 dark:text-slate-100 mb-1">{{ 'settings.payout_warning_title'|trans }}</p>
+                <p>{{ 'settings.payout_warning_body'|trans }}</p>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-sm hover:shadow transition">
+                    {{ 'settings.save_payout'|trans }}
+                </button>
+            </div>
+        </form>
+    </section>
+
+    {# ─── Account / password ──────────────────────────────────────── #}
+    <section class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
+        <header class="mb-5">
+            <h2 class="font-semibold tracking-tight">{{ 'settings.section_security'|trans }}</h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'settings.section_security_sub'|trans }}</p>
+        </header>
+
+        <div class="mb-6 grid sm:grid-cols-2 gap-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4">
+            <div>
+                <span class="block text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'auth.email'|trans }}</span>
+                <span class="block mt-1 text-sm font-medium">{{ user.email }}</span>
+                {% if user.isEmailVerified() %}
+                    <span class="mt-1 inline-flex items-center gap-1 text-xs text-success-600">
+                        <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg>
+                        {{ 'settings.email_verified'|trans }}
+                    </span>
+                {% else %}
+                    <span class="mt-1 inline-flex items-center gap-1 text-xs text-warning-600">!  {{ 'settings.email_not_verified'|trans }}</span>
+                {% endif %}
+            </div>
+            <div>
+                <span class="block text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'settings.last_login'|trans }}</span>
+                <span class="block mt-1 text-sm font-medium">
+                    {% if user.lastLoginAt %}{{ user.lastLoginAt|format_datetime('medium', 'short', locale=locale) }}{% else %}—{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ path('dashboard_settings_password', {_locale: locale}) }}" class="space-y-4">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings-password') }}">
+
+            <label class="block">
+                <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.current_password'|trans }}</span>
+                <input type="password" name="current_password" autocomplete="current-password" required
+                       class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+            </label>
+
+            <div class="grid sm:grid-cols-2 gap-4">
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.new_password'|trans }}</span>
+                    <input type="password" name="new_password" autocomplete="new-password" required minlength="12"
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                </label>
+                <label class="block">
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.new_password_confirm'|trans }}</span>
+                    <input type="password" name="new_password_confirm" autocomplete="new-password" required minlength="12"
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                </label>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-sm hover:shadow transition">
+                    {{ 'settings.save_password'|trans }}
+                </button>
+            </div>
+        </form>
+    </section>
+</div>
+{% endblock %}
