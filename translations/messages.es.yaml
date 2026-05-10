@@ -239,6 +239,24 @@ errors:
     invalid_token: 'Elige USDC, USDT o DAI.'
     current_password_wrong: 'La contraseña actual no es correcta.'
 
+payments:
+    subtitle: 'Cada Transfer recibida en tu billetera de cobro — emparejada con facturas cuando los importes coinciden, guardada como huérfana en otro caso.'
+    lifetime_received: 'Total recibido'
+    filter_all: 'Todos los pagos'
+    filter_matched: 'Con factura'
+    filter_orphan: 'Huérfanos (sin factura)'
+    filter_any_chain: 'Cualquier red'
+    empty_title: 'Aún no hay pagos'
+    empty_sub: 'En cuanto un cliente pague una factura, la Transfer en cadena aparecerá aquí en segundos — incluyendo fondos de faucet, pagos parciales, etc.'
+    orphan_label: Huérfano
+    confirmations: '%n% confirmaciones'
+    col_received: Recibido
+    col_invoice: Factura
+    col_chain: Red
+    col_amount: Importe
+    col_usd: USD
+    col_tx: Transacción
+
 flash:
     invoice_created_draft: 'Factura %number% creada como borrador.'
     invoice_sent_emailed:  'Factura %number% enviada a %email%.'

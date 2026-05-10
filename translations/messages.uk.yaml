@@ -239,6 +239,24 @@ errors:
     invalid_token: 'Обери USDC, USDT або DAI.'
     current_password_wrong: 'Поточний пароль неправильний.'
 
+payments:
+    subtitle: 'Усі on-chain переказі на твою адресу — зіставляються з інвойсами за сумою, інакше зберігаються як orphan.'
+    lifetime_received: 'Усього отримано'
+    filter_all: 'Усі платежі'
+    filter_matched: 'Прив’язано до інвойсу'
+    filter_orphan: 'Orphan (без інвойсу)'
+    filter_any_chain: 'Будь-яка мережа'
+    empty_title: 'Поки що немає платежів'
+    empty_sub: 'Щойно клієнт оплатить інвойс, on-chain переказ з’явиться тут за секунди — включно з фондами з faucet, частковими оплатами тощо.'
+    orphan_label: Orphan
+    confirmations: '%n% підтверджень'
+    col_received: Отримано
+    col_invoice: Інвойс
+    col_chain: Мережа
+    col_amount: Сума
+    col_usd: USD
+    col_tx: Транзакція
+
 flash:
     invoice_created_draft: 'Інвойс %number% створено як чернетку.'
     invoice_sent_emailed:  'Інвойс %number% надіслано на %email%.'

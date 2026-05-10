@@ -1,0 +1,130 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block dashboard_title %}{{ 'nav.payments'|trans }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+    <div>
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+            {{ 'nav.payments'|trans }} <span class="text-slate-400 dark:text-slate-600 font-normal text-xl">{{ total }}</span>
+        </h1>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ 'payments.subtitle'|trans }}</p>
+    </div>
+
+    {% if total_usd_cents > 0 %}
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-3">
+            <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'payments.lifetime_received'|trans }}</span>
+            <div class="mt-0.5 font-display text-2xl font-semibold tabular-nums tracking-tight">${{ (total_usd_cents / 100)|number_format(2, '.', ',') }}</div>
+        </div>
+    {% endif %}
+</div>
+
+{# Filter bar #}
+<form method="GET" class="mb-5 flex flex-wrap gap-2 items-center">
+    <select name="kind" class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+        <option value="" {{ kind == '' ? 'selected' : '' }}>{{ 'payments.filter_all'|trans }}</option>
+        <option value="matched" {{ kind == 'matched' ? 'selected' : '' }}>{{ 'payments.filter_matched'|trans }}</option>
+        <option value="orphan"  {{ kind == 'orphan'  ? 'selected' : '' }}>{{ 'payments.filter_orphan'|trans }}</option>
+    </select>
+
+    <select name="chain" class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+        <option value="0" {{ chain_id == 0 ? 'selected' : '' }}>{{ 'payments.filter_any_chain'|trans }}</option>
+        {% for key, cfg in all_chains %}
+            <option value="{{ cfg.chain_id }}" {{ chain_id == cfg.chain_id ? 'selected' : '' }}>{{ cfg.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 text-sm font-medium">{{ 'invoice.filter_apply'|trans }}</button>
+    {% if kind != '' or chain_id != 0 %}
+        <a href="{{ path('dashboard_payments', {_locale: locale}) }}" class="text-xs text-slate-500 dark:text-slate-400 hover:underline">{{ 'invoice.filter_clear'|trans }}</a>
+    {% endif %}
+</form>
+
+{% if payments|length == 0 %}
+    <div class="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 p-12 text-center">
+        <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 6v2M12 16v2"/></svg>
+        </div>
+        <h3 class="mt-4 font-display text-lg font-semibold tracking-tight">{{ 'payments.empty_title'|trans }}</h3>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 max-w-sm mx-auto">{{ 'payments.empty_sub'|trans }}</p>
+    </div>
+{% else %}
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-950/40">
+                    <tr class="border-b border-slate-200 dark:border-slate-800">
+                        <th class="text-left font-medium px-5 py-2.5">{{ 'payments.col_received'|trans }}</th>
+                        <th class="text-left font-medium px-5 py-2.5">{{ 'payments.col_invoice'|trans }}</th>
+                        <th class="text-left font-medium px-5 py-2.5">{{ 'payments.col_chain'|trans }}</th>
+                        <th class="text-right font-medium px-5 py-2.5">{{ 'payments.col_amount'|trans }}</th>
+                        <th class="text-right font-medium px-5 py-2.5">{{ 'payments.col_usd'|trans }}</th>
+                        <th class="text-left font-medium px-5 py-2.5">{{ 'payments.col_tx'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for p in payments %}
+                        {% set chain_cfg = null %}
+                        {% for key, cfg in all_chains %}
+                            {% if cfg.chain_id == p.chainId %}{% set chain_cfg = cfg|merge({key: key}) %}{% endif %}
+                        {% endfor %}
+                        {% set explorer_url = chain_cfg ? chain_cfg.explorer ~ '/tx/' ~ p.txHash : '#' %}
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-950/40 transition">
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <div class="text-slate-900 dark:text-slate-100">
+                                    {{ p.blockTimestamp|format_datetime('medium', 'short', locale=locale) }}
+                                </div>
+                                <div class="text-xs text-slate-500 dark:text-slate-500">{{ 'payments.confirmations'|trans({'%n%': p.confirmations}) }}</div>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                {% if p.invoice %}
+                                    <a href="{{ path('dashboard_invoice_show', {_locale: locale, uuid: p.invoice.uuid}) }}"
+                                       class="font-mono text-xs hover:text-brand-600 dark:hover:text-brand-400 transition">{{ p.invoice.number }}</a>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-xs text-slate-600 dark:text-slate-400">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                        {{ 'payments.orphan_label'|trans }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-5 py-3.5 text-slate-600 dark:text-slate-400 whitespace-nowrap">{{ chain_cfg ? chain_cfg.name : 'Chain ' ~ p.chainId }}</td>
+                            <td class="px-5 py-3.5 text-right tabular-nums whitespace-nowrap">
+                                <span class="font-medium">{{ p.amountRaw|token_amount(p.tokenDecimals) }}</span>
+                                <span class="text-xs text-slate-500 dark:text-slate-500 ml-1">{{ p.tokenSymbol }}</span>
+                            </td>
+                            <td class="px-5 py-3.5 text-right tabular-nums whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {% if p.amountUsdCents %}${{ (p.amountUsdCents / 100)|number_format(2, '.', ',') }}{% else %}<span class="text-slate-400">—</span>{% endif %}
+                            </td>
+                            <td class="px-5 py-3.5 whitespace-nowrap">
+                                <a href="{{ explorer_url }}" target="_blank" rel="noopener"
+                                   class="font-mono text-xs text-slate-500 dark:text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 transition inline-flex items-center gap-1">
+                                    {{ p.txHash|short_hash }}
+                                    <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M7 17 17 7M7 7h10v10"/></svg>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if pages > 1 %}
+        <div class="mt-5 flex items-center justify-between text-sm">
+            <span class="text-slate-500 dark:text-slate-400">{{ 'invoice.pagination'|trans({'%page%': page, '%pages%': pages, '%total%': total}) }}</span>
+            <div class="flex items-center gap-2">
+                {% if page > 1 %}
+                    <a href="?{{ {page: page - 1, kind: kind, chain: chain_id}|filter(v => v != '' and v != 0)|url_encode }}"
+                       class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">←</a>
+                {% endif %}
+                {% if page < pages %}
+                    <a href="?{{ {page: page + 1, kind: kind, chain: chain_id}|filter(v => v != '' and v != 0)|url_encode }}"
+                       class="rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">→</a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

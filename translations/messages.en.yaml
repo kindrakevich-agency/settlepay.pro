@@ -239,6 +239,24 @@ errors:
     invalid_token: 'Pick USDC, USDT, or DAI.'
     current_password_wrong: 'Your current password is incorrect.'
 
+payments:
+    subtitle: 'Every on-chain Transfer received at your payout address — matched to invoices when amounts line up, kept as orphans otherwise.'
+    lifetime_received: Lifetime received
+    filter_all: All payments
+    filter_matched: 'Matched to invoice'
+    filter_orphan: 'Orphan (no invoice)'
+    filter_any_chain: 'Any chain'
+    empty_title: 'No payments yet'
+    empty_sub: 'Once a client pays one of your invoices, the on-chain Transfer shows up here within seconds — including faucet drops, partial payments, and anything else sent to your wallet.'
+    orphan_label: Orphan
+    confirmations: '%n% confirmations'
+    col_received: Received
+    col_invoice: Invoice
+    col_chain: Chain
+    col_amount: Amount
+    col_usd: USD
+    col_tx: Transaction
+
 flash:
     invoice_created_draft: 'Invoice %number% created as draft.'
     invoice_sent_emailed:  'Invoice %number% sent to %email%.'
