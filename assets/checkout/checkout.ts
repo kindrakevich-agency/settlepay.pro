@@ -64,17 +64,25 @@ function buildWagmiConfig() {
         }})] : []),
     ];
 
+    // Pin reliable RPCs. The default http() falls back to each chain's
+    // public endpoint, but `sepolia.base.org` and friends rate-limit
+    // hard during eth_call (the simulation viem runs before sending a
+    // contract tx). Tenderly + drpc + publicnode are paid services
+    // offering generous free tiers — verified up on 2026-05-09.
+    // Override per-environment via VITE_*_RPC_URL if you have an
+    // Alchemy/QuickNode key for production.
+    const env = import.meta.env;
     return createConfig({
         chains: [base, polygon, arbitrum, optimism, baseSepolia, optimismSepolia, arbitrumSepolia],
         connectors,
         transports: {
-            [base.id]:             http(),
-            [polygon.id]:          http(),
-            [arbitrum.id]:         http(),
-            [optimism.id]:         http(),
-            [baseSepolia.id]:      http(),
-            [optimismSepolia.id]:  http(),
-            [arbitrumSepolia.id]:  http(),
+            [base.id]:             http(env.VITE_BASE_RPC_URL              || 'https://base.llamarpc.com'),
+            [polygon.id]:          http(env.VITE_POLYGON_RPC_URL           || 'https://polygon.llamarpc.com'),
+            [arbitrum.id]:         http(env.VITE_ARBITRUM_RPC_URL          || 'https://arbitrum.llamarpc.com'),
+            [optimism.id]:         http(env.VITE_OPTIMISM_RPC_URL          || 'https://optimism.llamarpc.com'),
+            [baseSepolia.id]:      http(env.VITE_BASE_SEPOLIA_RPC_URL      || 'https://base-sepolia.gateway.tenderly.co'),
+            [optimismSepolia.id]:  http(env.VITE_OP_SEPOLIA_RPC_URL        || 'https://sepolia.optimism.io'),
+            [arbitrumSepolia.id]:  http(env.VITE_ARB_SEPOLIA_RPC_URL       || 'https://arbitrum-sepolia.gateway.tenderly.co'),
         },
     });
 }
