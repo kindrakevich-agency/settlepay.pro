@@ -143,6 +143,160 @@ components_section:
     empty_title: No invoices yet
     empty_sub: "Send your first invoice in under a minute. It's free up to $1,000/month."
 
+pricing:
+    eyebrow: Pricing
+    title: 'Free for the first $1,000. Pennies after.'
+    sub: 'Start free, no card required. Upgrade only when your invoicing volume justifies it.'
+    popular: Most popular
+    seo:
+        title: 'Pricing — Settlepay'
+        description: 'Free up to $1,000/month invoiced (1% fee). Pro at $19/month with 0.5% fee and unlimited volume. Agency for teams.'
+    tier_free:
+        name: Free
+        tagline: For first invoices and side projects
+        fee: '1% per paid invoice'
+        feat_1: 'Up to $1,000 invoiced per month'
+        feat_2: 'USDC, USDT, DAI on 4 chains'
+        feat_3: 'Branded payment page'
+        feat_4: 'Email + payment confirmation'
+        feat_5: 'Multilingual checkout (en / uk / es)'
+        cta: Start free
+    tier_pro:
+        name: Pro
+        tagline: For active freelancers
+        fee: '0.5% per paid invoice'
+        feat_1: 'Everything in Free'
+        feat_2: 'Unlimited invoicing volume'
+        feat_3: 'Custom branding on payment page + emails'
+        feat_4: 'Webhooks + API access'
+        feat_5: 'PDF receipts'
+        feat_6: 'Priority support'
+        cta: Upgrade to Pro
+    tier_agency:
+        name: Agency
+        badge: Coming soon
+        tagline: For studios + small teams
+        fee: '0.5% per paid invoice'
+        feat_1: 'Everything in Pro'
+        feat_2: 'Up to 5 team seats'
+        feat_3: 'Per-client billing dashboards'
+        feat_4: 'Shared client list'
+        feat_5: 'Onboarding call + dedicated support'
+        cta: Get notified
+    fees:
+        title: 'How fees work'
+        body: 'Free has a 1% fee per paid invoice; Pro has 0.5%. Fees accumulate during the month and we bill them in fiat to your subscription card on the 1st (we never deduct from your stablecoin payments). All non-custodial — funds always go from client wallet to your wallet directly.'
+        fineprint: 'No setup fee, no minimum, cancel anytime.'
+    faq:
+        title: 'Frequently asked'
+        q1: 'Why is the fee so low compared to PayPal / Stripe?'
+        a1: 'PayPal and Stripe operate global payment infrastructure (cards, ACH, fraud prevention, chargebacks). Settlepay does none of that — your client pays from their crypto wallet to yours, with the blockchain settling the transaction. We just track which payments correspond to which invoices and notify you. Most of our cost is server, email, and support — at small scale that''s ~0.5% of average invoice value.'
+        q2: 'Do I need crypto knowledge to use Settlepay?'
+        a2: 'No. Setting up takes 5 minutes: register, paste your wallet address (from MetaMask, Coinbase Wallet, etc.), send your first invoice. Your client also doesn''t need to be a crypto expert — most of them already have a wallet from buying a coffee with their phone.'
+        q3: 'What if my client has never used crypto before?'
+        a3: 'Send them <a href="https://github.com/kindrakevich-agency/settlepay.pro/blob/main/docs/CRYPTO_BASICS.md" class="text-brand-600 hover:underline">our 5-minute beginner guide</a>. Or have them buy USDC directly with a card via Coinbase / MoonPay / Transak — takes 10 minutes the first time, instant after.'
+        q4: 'Which networks do you support?'
+        a4: 'Base, Polygon, Arbitrum, Optimism — the four cheapest EVM L2s. Average gas per payment is $0.01-0.05. We deliberately don''t support Ethereum mainnet because gas there is too expensive for invoice-size payments ($5-20 per tx).'
+        q5: 'Is this legal? Do I need to KYC my clients?'
+        a5: 'Settlepay is software, not a money transmitter — we never custody funds. Your client pays you directly, peer-to-peer. KYC requirements depend on your country''s tax law (the same as receiving payment via SWIFT). We don''t require any KYC ourselves. Consult a local accountant for tax reporting on stablecoin income.'
+        q6: 'How do I get my money out as fiat?'
+        a6: 'You receive USDC in your wallet — that''s the same USDC you can off-ramp to your bank account via Coinbase, Binance, Kraken, MoonPay, or local exchanges in your country. Most off-ramps take 1-3 days for the first transfer (KYC) and minutes after. Or skip the off-ramp and pay things directly with a Coinbase Card / Crypto.com Card.'
+    cta:
+        title: 'Ready to get paid in stablecoins?'
+
+legal:
+    last_updated: 'Last updated: %date%'
+    draft_warning: '<strong>Draft — pending counsel review.</strong> This document covers our intended practices but has not yet been reviewed by a lawyer. Treat it as informational; the final legally-binding version will be published before the public launch.'
+
+privacy:
+    title: Privacy Policy
+    seo:
+        title: 'Privacy Policy — Settlepay'
+        description: 'How Settlepay handles your data: account details, invoice contents, wallet addresses. Non-custodial; we never see private keys.'
+    intro: 'This Privacy Policy explains what data Settlepay collects, why, and how it''s used. Plain English wherever possible.'
+    s1_title: '1. What we collect'
+    s1_body: 'When you create an account and use Settlepay, we collect:'
+    s1_item_account_t: 'Account info'
+    s1_item_account_d: 'Your email, password (hashed with Argon2id; we never store the plaintext), business name, optional tax ID + business address, default currency / locale.'
+    s1_item_invoice_t: 'Invoice contents'
+    s1_item_invoice_d: 'Invoice number, line items, amounts, client name + email you enter, due date.'
+    s1_item_wallet_t: 'Public wallet address'
+    s1_item_wallet_d: 'The 0x... address you set as your payout. Public on-chain data; we never request or see your private key.'
+    s1_item_logs_t: 'Server logs'
+    s1_item_logs_d: 'Standard web access logs (IP, user agent, request path) for security and abuse prevention. Retained for 30 days.'
+    s2_title: '2. What we do NOT collect'
+    s2_body: 'Settlepay deliberately does NOT collect:'
+    s2_item_1: '<strong>Your private keys.</strong> Never. Settlepay is non-custodial — your wallet signs every transaction itself, and we have no technical ability to access your funds.'
+    s2_item_2: '<strong>KYC documents.</strong> No passport, no ID, no selfie. We are software, not a money-transmitter.'
+    s2_item_3: '<strong>Your clients'' personal data beyond what you enter in the invoice.</strong> Clients pay through a public link — we don''t require them to register or hand over identity info.'
+    s3_title: '3. Third-party services'
+    s3_body: 'To run Settlepay, we use these vendors. Each has their own privacy policy:'
+    s3_cloudflare: 'CDN + DDoS protection. Sees IPs of every visitor.'
+    s3_resend: 'Outgoing email. Sees email addresses + email contents.'
+    s3_hetzner: 'Server hosting. Stores all our database content, encrypted at rest.'
+    s3_rpc: 'Reads on-chain Transfer events to detect payments. We never send your wallet address to them; we filter logs by token contract address.'
+    s3_walletconnect: 'Mobile wallet QR connections. They see the wallet that connects, not what gets paid.'
+    s3_chain_t: 'The blockchain itself'
+    s3_chain_d: 'Public, permissionless, by definition. Anyone can see who paid whom how much. We don''t add to that.'
+    s4_title: '4. How we use your data'
+    s4_body: 'Strictly to provide the service: render your dashboard, send invoice / receipt emails, detect on-chain payments and credit them to invoices. We do not sell, rent, or share your data with advertisers. We do not run analytics that follow you across the web.'
+    s5_title: '5. Your rights'
+    s5_body: 'You can:'
+    s5_item_1: 'Export all your account data on request (account info, invoices, payments).'
+    s5_item_2: 'Delete your account permanently — we keep settled invoice records for 7 years for tax-audit purposes (anonymized) but remove your PII.'
+    s5_item_3: 'Correct any data shown in /app/settings yourself.'
+    s5_item_4: 'Contact us with any privacy concern.'
+    s5_contact: 'For all of the above, email <a href="mailto:hello@settlepay.pro">hello@settlepay.pro</a>.'
+    s6_title: '6. Cookies'
+    s6_body: 'We use one cookie: a session cookie to keep you signed in. No tracking, no advertising, no cross-site cookies.'
+    s7_title: '7. Children'
+    s7_body: 'Settlepay is intended for users 18+. We do not knowingly collect data from children.'
+    s8_title: '8. Changes to this policy'
+    s8_body: 'When we change this policy, we''ll bump the "last updated" date and email everyone with active accounts. Material changes get 30 days'' notice.'
+
+terms:
+    title: Terms of Service
+    seo:
+        title: 'Terms of Service — Settlepay'
+        description: 'Service terms for Settlepay. Software facilitator, not a money transmitter. Non-custodial. Use at your own risk.'
+    intro: 'These Terms govern your use of Settlepay. By creating an account, you agree to them.'
+    s1_title: '1. What Settlepay is'
+    s1_body: 'Settlepay is a <strong>software service</strong> that helps freelancers and small businesses send professional invoices and receive payments in stablecoins (USDC, USDT, DAI) on EVM-compatible blockchains. Settlepay is <strong>NOT</strong> a money transmitter, a custodian, a bank, an exchange, or a broker. We do not hold, transfer, or have any access to user funds. Funds move directly from your client''s wallet to yours via the public blockchain.'
+    s2_title: '2. Eligibility'
+    s2_body: 'You must:'
+    s2_item_1: 'Be at least 18 years old.'
+    s2_item_2: 'Not appear on any sanctions list (OFAC SDN, EU consolidated, UN sanctions, etc.).'
+    s2_item_3: 'Be permitted to use software like Settlepay under the laws of your country of residence.'
+    s3_title: '3. Your responsibilities'
+    s3_body: 'You are solely responsible for: keeping your account credentials safe, securing your wallet''s private keys (we have no access and cannot recover them), reporting and paying any taxes on income received, ensuring the legality of your business activities under your local jurisdiction, and the accuracy of any information you put on invoices you send.'
+    s4_title: '4. The on-chain reality'
+    s4_body: 'Cryptocurrency transactions are <strong>irreversible</strong>. Once a payment is confirmed on the blockchain, neither Settlepay nor any third party can reverse, refund, or recover it. In particular:'
+    s4_item_1: 'If you publish the wrong wallet address as your payout, payments to that address are lost — not by us, but by the immutable nature of the blockchain.'
+    s4_item_2: 'If your client sends the wrong amount, that''s between you and them — Settlepay records the discrepancy but doesn''t resolve disputes.'
+    s4_item_3: 'If your client''s wallet is compromised and someone else pays your invoice, the payment is credited to the invoice; resolving theft is between the client and law enforcement.'
+    s4_item_4: 'If a stablecoin issuer (e.g. Circle for USDC) freezes a wallet, those funds are inaccessible until the issuer unfreezes — Settlepay has no influence over that.'
+    s5_title: '5. Fees'
+    s5_body: 'Free plan: 1% per paid invoice. Pro plan: $19/month + 0.5% per paid invoice. Agency plan: $49/month + 0.5%. Fees accrue throughout the month and are billed in fiat via Stripe to your subscription card on the 1st of the following month. We never deduct fees from your incoming stablecoin payments — those flow directly to your wallet untouched.'
+    s6_title: '6. Acceptable use'
+    s6_body: 'You agree not to use Settlepay for: any illegal activity (fraud, money laundering, terrorism financing); accepting payment for goods or services prohibited in your jurisdiction; harassment, defamation, or abuse via invoice content; sending invoices to clients who haven''t agreed to be billed; or attempting to disrupt or reverse-engineer the service.'
+    s7_title: '7. Termination'
+    s7_body: 'Either of us can end this agreement at any time. We may suspend or terminate your account if you violate these terms, fail to pay accrued fees, or are added to a sanctions list. Termination doesn''t cancel any fees you already owe. Your data is exportable for 30 days after termination, then deleted (subject to legal retention requirements).'
+    s8_title: '8. Disclaimer of warranties'
+    s8_body: 'Settlepay is provided "as is", without warranty of any kind. We don''t guarantee uninterrupted service, freedom from bugs, or that any specific blockchain network or stablecoin will continue to function. We do our best, but the underlying infrastructure is outside our control.'
+    s9_title: '9. Limitation of liability'
+    s9_body: 'To the maximum extent permitted by law, Settlepay''s total liability is capped at the lesser of (a) fees you paid us in the 12 months prior to the claim, or (b) $100. We are not liable for any losses arising from blockchain network congestion, RPC provider outages, stablecoin de-peg events, smart contract bugs in token contracts, frozen funds by token issuers, or any third-party action.'
+
+docs:
+    title: Documentation
+    intro: 'Technical and getting-started resources for Settlepay.'
+    crypto_basics_title: 'Crypto basics for first-time users'
+    crypto_basics_sub: '15-minute walkthrough: install MetaMask, get free testnet ETH and USDC, pay your first invoice. No prior experience needed.'
+    tech_overview_title: 'Tech overview (README)'
+    tech_overview_sub: 'Architecture, stack (Symfony + viem + chain listener), local development with Docker, deployment to Hetzner.'
+    api_title: 'Public API reference'
+    api_sub: 'Coming with the Pro plan — programmatic invoice creation, webhooks, payment polling.'
+    contact: 'Have a question? Email <a href="mailto:hello@settlepay.pro" class="text-brand-600 hover:underline">hello@settlepay.pro</a>.'
+
 final_cta:
     title: Ready to get paid in seconds, not weeks?
     sub: 'Send your first invoice in under a minute. Free up to $1,000 invoiced per month — no credit card required.'
@@ -156,6 +310,7 @@ footer:
         docs: Docs
         status: Status
         privacy: Privacy
+        terms: Terms
 
 invoice:
     status:

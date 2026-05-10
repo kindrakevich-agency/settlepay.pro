@@ -1,0 +1,60 @@
+{% extends 'marketing/_legal_layout.html.twig' %}
+
+{% block title %}{{ 'privacy.seo.title'|trans }}{% endblock %}
+{% block meta_description %}{{ 'privacy.seo.description'|trans }}{% endblock %}
+
+{% block legal_title %}{{ 'privacy.title'|trans }}{% endblock %}
+
+{% block legal_body %}
+<p>{{ 'privacy.intro'|trans|raw }}</p>
+
+<h2>{{ 'privacy.s1_title'|trans }}</h2>
+<p>{{ 'privacy.s1_body'|trans|raw }}</p>
+<ul>
+    <li><strong>{{ 'privacy.s1_item_account_t'|trans }}</strong> — {{ 'privacy.s1_item_account_d'|trans }}</li>
+    <li><strong>{{ 'privacy.s1_item_invoice_t'|trans }}</strong> — {{ 'privacy.s1_item_invoice_d'|trans }}</li>
+    <li><strong>{{ 'privacy.s1_item_wallet_t'|trans }}</strong> — {{ 'privacy.s1_item_wallet_d'|trans }}</li>
+    <li><strong>{{ 'privacy.s1_item_logs_t'|trans }}</strong> — {{ 'privacy.s1_item_logs_d'|trans }}</li>
+</ul>
+
+<h2>{{ 'privacy.s2_title'|trans }}</h2>
+<p>{{ 'privacy.s2_body'|trans|raw }}</p>
+<ul>
+    <li>{{ 'privacy.s2_item_1'|trans|raw }}</li>
+    <li>{{ 'privacy.s2_item_2'|trans|raw }}</li>
+    <li>{{ 'privacy.s2_item_3'|trans|raw }}</li>
+</ul>
+
+<h2>{{ 'privacy.s3_title'|trans }}</h2>
+<p>{{ 'privacy.s3_body'|trans|raw }}</p>
+<ul>
+    <li><strong>Cloudflare</strong> — {{ 'privacy.s3_cloudflare'|trans }}</li>
+    <li><strong>Resend</strong> — {{ 'privacy.s3_resend'|trans }}</li>
+    <li><strong>Hetzner</strong> — {{ 'privacy.s3_hetzner'|trans }}</li>
+    <li><strong>Alchemy / QuickNode / public RPC providers</strong> — {{ 'privacy.s3_rpc'|trans }}</li>
+    <li><strong>Reown (WalletConnect)</strong> — {{ 'privacy.s3_walletconnect'|trans }}</li>
+    <li><strong>{{ 'privacy.s3_chain_t'|trans }}</strong> — {{ 'privacy.s3_chain_d'|trans }}</li>
+</ul>
+
+<h2>{{ 'privacy.s4_title'|trans }}</h2>
+<p>{{ 'privacy.s4_body'|trans|raw }}</p>
+
+<h2>{{ 'privacy.s5_title'|trans }}</h2>
+<p>{{ 'privacy.s5_body'|trans|raw }}</p>
+<ul>
+    <li>{{ 'privacy.s5_item_1'|trans }}</li>
+    <li>{{ 'privacy.s5_item_2'|trans }}</li>
+    <li>{{ 'privacy.s5_item_3'|trans }}</li>
+    <li>{{ 'privacy.s5_item_4'|trans }}</li>
+</ul>
+<p>{{ 'privacy.s5_contact'|trans|raw }}</p>
+
+<h2>{{ 'privacy.s6_title'|trans }}</h2>
+<p>{{ 'privacy.s6_body'|trans|raw }}</p>
+
+<h2>{{ 'privacy.s7_title'|trans }}</h2>
+<p>{{ 'privacy.s7_body'|trans|raw }}</p>
+
+<h2>{{ 'privacy.s8_title'|trans }}</h2>
+<p>{{ 'privacy.s8_body'|trans|raw }}</p>
+{% endblock %}

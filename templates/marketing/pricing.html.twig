@@ -1,0 +1,125 @@
+{% extends 'marketing/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block title %}{{ 'pricing.seo.title'|trans }}{% endblock %}
+{% block meta_description %}{{ 'pricing.seo.description'|trans }}{% endblock %}
+
+{% block marketing_content %}
+
+{# ─── Hero ─── #}
+<section class="relative overflow-hidden">
+    <div class="absolute inset-0" aria-hidden="true"
+         style="background-image: radial-gradient(at 50% 20%, rgba(13,148,136,0.18) 0px, transparent 50%);"></div>
+    <div class="relative mx-auto max-w-5xl px-6 pt-20 pb-12 text-center">
+        <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">{{ 'pricing.eyebrow'|trans }}</p>
+        <h1 class="mt-3 font-display text-4xl sm:text-5xl font-semibold tracking-tight">{{ 'pricing.title'|trans }}</h1>
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{{ 'pricing.sub'|trans }}</p>
+    </div>
+</section>
+
+{# ─── Tier cards ─── #}
+<section class="relative">
+    <div class="mx-auto max-w-7xl px-6 pb-20">
+        <div class="grid lg:grid-cols-3 gap-5">
+
+            {# Free #}
+            <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card flex flex-col">
+                <header>
+                    <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'pricing.tier_free.name'|trans }}</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ 'pricing.tier_free.tagline'|trans }}</p>
+                </header>
+                <div class="mt-6 mb-6">
+                    <p class="font-display text-5xl font-semibold tracking-tight tabular-nums">$0<span class="text-base text-slate-400 ml-1">/mo</span></p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'pricing.tier_free.fee'|trans }}</p>
+                </div>
+                <ul class="space-y-2.5 text-sm text-slate-700 dark:text-slate-300 flex-1">
+                    {% for k in ['feat_1', 'feat_2', 'feat_3', 'feat_4', 'feat_5'] %}
+                        <li class="flex items-start gap-2.5"><svg class="h-4 w-4 mt-0.5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>{{ ('pricing.tier_free.' ~ k)|trans }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ path('auth_register', {_locale: locale}) }}" class="mt-7 inline-flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm font-medium transition">{{ 'pricing.tier_free.cta'|trans }}</a>
+            </article>
+
+            {# Pro — featured #}
+            <article class="relative rounded-3xl border-2 border-brand-500 bg-white dark:bg-slate-900 p-7 shadow-pop flex flex-col">
+                <span class="absolute -top-3 right-6 rounded-full bg-brand-600 text-white text-xs font-semibold uppercase tracking-wide px-3 py-1">{{ 'pricing.popular'|trans }}</span>
+                <header>
+                    <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'pricing.tier_pro.name'|trans }}</h2>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ 'pricing.tier_pro.tagline'|trans }}</p>
+                </header>
+                <div class="mt-6 mb-6">
+                    <p class="font-display text-5xl font-semibold tracking-tight tabular-nums">$19<span class="text-base text-slate-400 ml-1">/mo</span></p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'pricing.tier_pro.fee'|trans }}</p>
+                </div>
+                <ul class="space-y-2.5 text-sm text-slate-700 dark:text-slate-300 flex-1">
+                    {% for k in ['feat_1', 'feat_2', 'feat_3', 'feat_4', 'feat_5', 'feat_6'] %}
+                        <li class="flex items-start gap-2.5"><svg class="h-4 w-4 mt-0.5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>{{ ('pricing.tier_pro.' ~ k)|trans }}</li>
+                    {% endfor %}
+                </ul>
+                <a href="{{ path('auth_register', {_locale: locale}) }}" class="mt-7 inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-card hover:shadow-card-hover transition">{{ 'pricing.tier_pro.cta'|trans }}</a>
+            </article>
+
+            {# Agency #}
+            <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card flex flex-col">
+                <header>
+                    <div class="flex items-center gap-2">
+                        <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'pricing.tier_agency.name'|trans }}</h2>
+                        <span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">{{ 'pricing.tier_agency.badge'|trans }}</span>
+                    </div>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ 'pricing.tier_agency.tagline'|trans }}</p>
+                </header>
+                <div class="mt-6 mb-6">
+                    <p class="font-display text-5xl font-semibold tracking-tight tabular-nums">$49<span class="text-base text-slate-400 ml-1">/mo</span></p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'pricing.tier_agency.fee'|trans }}</p>
+                </div>
+                <ul class="space-y-2.5 text-sm text-slate-700 dark:text-slate-300 flex-1">
+                    {% for k in ['feat_1', 'feat_2', 'feat_3', 'feat_4', 'feat_5'] %}
+                        <li class="flex items-start gap-2.5"><svg class="h-4 w-4 mt-0.5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>{{ ('pricing.tier_agency.' ~ k)|trans }}</li>
+                    {% endfor %}
+                </ul>
+                <button type="button" disabled class="mt-7 inline-flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-4 py-2.5 text-sm font-medium cursor-not-allowed">{{ 'pricing.tier_agency.cta'|trans }}</button>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+{# ─── Fees explainer ─── #}
+<section class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+    <div class="mx-auto max-w-3xl px-6 py-16 text-center">
+        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'pricing.fees.title'|trans }}</h2>
+        <p class="mt-4 text-slate-600 dark:text-slate-400">{{ 'pricing.fees.body'|trans }}</p>
+        <p class="mt-3 text-sm text-slate-500 dark:text-slate-500">{{ 'pricing.fees.fineprint'|trans }}</p>
+    </div>
+</section>
+
+{# ─── FAQ ─── #}
+<section class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div class="mx-auto max-w-3xl px-6 py-16">
+        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-10">{{ 'pricing.faq.title'|trans }}</h2>
+        <dl class="space-y-3">
+            {% for i in 1..6 %}
+                <details class="group rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition">
+                    <summary class="cursor-pointer list-none px-5 py-4 flex items-start justify-between gap-4 font-medium">
+                        <span>{{ ('pricing.faq.q' ~ i)|trans }}</span>
+                        <svg class="h-5 w-5 text-slate-400 group-open:rotate-180 transition shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="m6 9 6 6 6-6"/></svg>
+                    </summary>
+                    <div class="px-5 pb-4 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{{ ('pricing.faq.a' ~ i)|trans|raw }}</div>
+                </details>
+            {% endfor %}
+        </dl>
+    </div>
+</section>
+
+{# ─── Final CTA ─── #}
+<section class="border-t border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950">
+    <div class="mx-auto max-w-3xl px-6 py-16 text-center">
+        <h2 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'pricing.cta.title'|trans }}</h2>
+        <a href="{{ path('auth_register', {_locale: locale}) }}" class="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 text-sm font-medium shadow-card hover:shadow-card-hover transition">
+            {{ 'common.cta_primary'|trans }}
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+</section>
+{% endblock %}
