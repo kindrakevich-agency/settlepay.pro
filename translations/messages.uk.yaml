@@ -24,6 +24,8 @@ nav:
     docs: Документація
     pricing: Тарифи
     product: Продукт
+    language: Мова
+    toggle_menu: Відкрити меню
 
 hero:
     badge: 'Працює в Base · Polygon · Arbitrum · Optimism'

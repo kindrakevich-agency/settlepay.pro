@@ -24,6 +24,8 @@ nav:
     docs: Documentación
     pricing: Precios
     product: Producto
+    language: Idioma
+    toggle_menu: Abrir menú
 
 hero:
     badge: 'Disponible en Base · Polygon · Arbitrum · Optimism'

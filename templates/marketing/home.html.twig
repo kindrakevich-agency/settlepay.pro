@@ -31,42 +31,7 @@
 {% endblock %}
 
 {% block body %}
-{# ───────────────────────── TOP NAV ───────────────────────── #}
-<header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
-        <a href="{{ path('marketing_home') }}" aria-label="settlepay home" class="-mx-2 px-2 py-1 rounded-lg hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition">
-            {{ logo(size='md') }}
-        </a>
-
-        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400">
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#features">{{ 'nav.product'|trans }}</a>
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#dashboard">{{ 'nav.dashboard'|trans }}</a>
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="#checkout">{{ 'nav.payments'|trans }}</a>
-            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ path('marketing_pricing', {_locale: locale}) }}">{{ 'nav.pricing'|trans }}</a>
-        </nav>
-
-        <div class="flex items-center gap-2">
-            <div class="hidden sm:flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
-                {% for code in ['en', 'uk', 'es'] %}
-                    {% set active = locale == code %}
-                    <a href="{{ path('marketing_home', {_locale: code}) }}"
-                       class="rounded-md px-2 py-1 transition
-                              {{ active
-                                  ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
-                        {{ code|upper }}
-                    </a>
-                {% endfor %}
-            </div>
-            <a href="{{ path('auth_login', {_locale: locale}) }}" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
-                {{ 'common.sign_in'|trans }}
-            </a>
-            <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
-                {{ 'common.sign_up'|trans }}
-            </a>
-        </div>
-    </div>
-</header>
+{% include 'marketing/_topbar.html.twig' %}
 
 {# ───────────────────────── HERO ───────────────────────── #}
 <section class="relative overflow-hidden">

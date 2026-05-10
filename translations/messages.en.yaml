@@ -24,6 +24,8 @@ nav:
     docs: Docs
     pricing: Pricing
     product: Product
+    language: Language
+    toggle_menu: Open menu
 
 hero:
     badge: 'Live on Base · Polygon · Arbitrum · Optimism'

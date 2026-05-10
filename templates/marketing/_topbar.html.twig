@@ -1,0 +1,166 @@
+{#
+    Shared marketing topbar — used by home.html.twig AND every page that
+    extends marketing/_layout.html.twig. One source of truth so inner
+    pages and the home page never drift apart again.
+
+    Anchor links (#features, #dashboard, #checkout) are rendered as
+    absolute URLs to /{locale}/ so they work cross-page: from home the
+    browser does a hash-scroll, from inner pages it navigates home and
+    then scrolls.
+
+    Mobile menu uses the grid-rows [0fr → 1fr] CSS trick to animate height
+    without a hard-coded max-height, so the panel sizes itself naturally
+    even when translations make labels longer.
+#}
+{% from '_logo.html.twig' import logo %}
+{% set locale = app.request.locale|default('en') %}
+{% set route = app.request.attributes.get('_route') %}
+{% set route_params = app.request.attributes.get('_route_params')|default({}) %}
+{% set home_url = path('marketing_home', {_locale: locale}) %}
+
+<header class="sticky top-0 z-40 border-b border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-white/60"
+        data-topbar>
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+        <a href="{{ home_url }}" aria-label="settlepay home" class="-mx-2 px-2 py-1 rounded-lg hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition">
+            {{ logo(size='md') }}
+        </a>
+
+        {# ───── Desktop nav ───── #}
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400">
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ home_url }}#features">{{ 'nav.product'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ home_url }}#dashboard">{{ 'nav.dashboard'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ home_url }}#checkout">{{ 'nav.payments'|trans }}</a>
+            <a class="rounded-lg px-3 py-2 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition" href="{{ path('marketing_pricing', {_locale: locale}) }}">{{ 'nav.pricing'|trans }}</a>
+        </nav>
+
+        {# ───── Desktop right-side cluster ───── #}
+        <div class="flex items-center gap-2">
+            <div class="hidden sm:flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
+                {% for code in ['en', 'uk', 'es'] %}
+                    {% set active = locale == code %}
+                    {% set switch_url = route ? path(route, route_params|merge({_locale: code})) : path('marketing_home', {_locale: code}) %}
+                    <a href="{{ switch_url }}"
+                       class="rounded-md px-2 py-1 transition
+                              {{ active ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
+                        {{ code|upper }}
+                    </a>
+                {% endfor %}
+            </div>
+            <a href="{{ path('auth_login', {_locale: locale}) }}" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                {{ 'common.sign_in'|trans }}
+            </a>
+            <a href="{{ path('auth_register', {_locale: locale}) }}" class="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
+                {{ 'common.sign_up'|trans }}
+            </a>
+
+            {# ───── Hamburger (mobile only) ───── #}
+            <button type="button"
+                    class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+                    aria-controls="mobile-menu"
+                    aria-expanded="false"
+                    aria-label="{{ 'nav.toggle_menu'|trans }}"
+                    data-mobile-toggle>
+                <svg class="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-icon-menu>
+                    <line x1="3"  y1="6"  x2="21" y2="6"/>
+                    <line x1="3"  y1="12" x2="21" y2="12"/>
+                    <line x1="3"  y1="18" x2="21" y2="18"/>
+                </svg>
+                <svg class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-icon-close>
+                    <line x1="6"  y1="6"  x2="18" y2="18"/>
+                    <line x1="6"  y1="18" x2="18" y2="6"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    {# ───── Mobile panel ─────
+       grid-rows [0fr → 1fr] gives a smooth height transition without
+       hard-coding a max-height. The inner overflow-hidden wrapper is
+       what actually clips during animation. #}
+    <div id="mobile-menu"
+         class="md:hidden grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[open=true]:grid-rows-[1fr]"
+         data-open="false"
+         data-mobile-panel>
+        <div class="overflow-hidden">
+            <div class="border-t border-slate-200 dark:border-slate-800 px-6 py-4 space-y-1 bg-white dark:bg-slate-950">
+                <nav class="flex flex-col text-base font-medium text-slate-700 dark:text-slate-300">
+                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#features">{{ 'nav.product'|trans }}</a>
+                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#dashboard">{{ 'nav.dashboard'|trans }}</a>
+                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#checkout">{{ 'nav.payments'|trans }}</a>
+                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ path('marketing_pricing', {_locale: locale}) }}">{{ 'nav.pricing'|trans }}</a>
+                </nav>
+
+                <div class="my-2 h-px bg-slate-200 dark:bg-slate-800"></div>
+
+                {# Locale switcher (mobile) #}
+                <div class="px-3 py-1.5 flex items-center justify-between gap-3">
+                    <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">{{ 'nav.language'|trans }}</span>
+                    <div class="flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
+                        {% for code in ['en', 'uk', 'es'] %}
+                            {% set active = locale == code %}
+                            {% set switch_url = route ? path(route, route_params|merge({_locale: code})) : path('marketing_home', {_locale: code}) %}
+                            <a href="{{ switch_url }}"
+                               class="rounded-md px-2.5 py-1 transition
+                                      {{ active ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
+                                {{ code|upper }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="my-2 h-px bg-slate-200 dark:bg-slate-800"></div>
+
+                <div class="flex flex-col gap-2 pt-1">
+                    <a href="{{ path('auth_login', {_locale: locale}) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                        {{ 'common.sign_in'|trans }}
+                    </a>
+                    <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white shadow-card transition">
+                        {{ 'common.sign_up'|trans }}
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    (() => {
+        const root   = document.querySelector('[data-topbar]');
+        if (!root) return;
+        const btn    = root.querySelector('[data-mobile-toggle]');
+        const panel  = root.querySelector('[data-mobile-panel]');
+        const iOpen  = root.querySelector('[data-icon-menu]');
+        const iClose = root.querySelector('[data-icon-close]');
+        if (!btn || !panel) return;
+
+        const setOpen = (open) => {
+            panel.setAttribute('data-open', open ? 'true' : 'false');
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+            iOpen?.classList.toggle('hidden',  open);
+            iClose?.classList.toggle('hidden', !open);
+        };
+
+        btn.addEventListener('click', () => {
+            setOpen(panel.getAttribute('data-open') !== 'true');
+        });
+
+        // Close on link click inside the panel.
+        panel.addEventListener('click', (e) => {
+            if (e.target.closest('a')) setOpen(false);
+        });
+
+        // Close on Escape.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && panel.getAttribute('data-open') === 'true') {
+                setOpen(false);
+                btn.focus();
+            }
+        });
+
+        // Close on resize past md (768px) so an open mobile panel doesn't
+        // linger when the user rotates / resizes to desktop.
+        const mq = window.matchMedia('(min-width: 768px)');
+        mq.addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+    })();
+</script>
