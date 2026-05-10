@@ -1,8 +1,8 @@
 seo:
-    default_description: 'Settlepay is the Stripe-grade way to invoice in stablecoins. Send a professional invoice, get paid in USDC on Base, Polygon, Arbitrum, or Optimism — non-custodial, non-bank, no waiting.'
+    default_description: 'Settlepay is stablecoin invoicing with Stripe-grade UX. Send a professional invoice, get paid in USDC on Base, Polygon, Arbitrum or Optimism. Non-custodial — funds go straight from client to wallet, no banks, no waiting.'
     home:
-        title: 'Settlepay — Get paid in stablecoins. No banks. No waiting.'
-        description: 'Send invoices, receive USDC on the cheapest L2s. Non-custodial, fees from 0.5%, no KYC for clients. Built for freelancers in Ukraine, Argentina, Brazil, Nigeria and beyond.'
+        title: 'Settlepay — stablecoin invoicing for freelancers. No banks.'
+        description: 'Send invoices, receive USDC on the cheapest L2s in 10–30 seconds. Non-custodial — funds go straight from client to your wallet. Fees from 0.5%, no KYC for clients.'
         keywords: 'crypto invoicing, stablecoin invoices, USDC payments, get paid in crypto, freelance crypto invoice, Base USDC, non-custodial billing, settlepay'
         offer_description: 'Free up to $1,000 invoiced per month. 1% fee on Free, 0.5% on Pro.'
 
@@ -152,8 +152,8 @@ pricing:
     sub: 'Start free, no card required. Upgrade only when your invoicing volume justifies it.'
     popular: Most popular
     seo:
-        title: 'Pricing — Settlepay'
-        description: 'Free up to $1,000/month invoiced (1% fee). Pro at $19/month with 0.5% fee and unlimited volume. Agency for teams.'
+        title: 'Settlepay pricing — from $0/month'
+        description: 'Free up to $1,000 invoiced per month (1% per paid invoice). Pro at $19/month with 0.5% fee and unlimited volume. Agency for small studios.'
     tier_free:
         name: Free
         tagline: For first invoices and side projects
@@ -214,8 +214,8 @@ legal:
 privacy:
     title: Privacy Policy
     seo:
-        title: 'Privacy Policy — Settlepay'
-        description: 'How Settlepay handles your data: account details, invoice contents, wallet addresses. Non-custodial; we never see private keys.'
+        title: 'Settlepay privacy policy'
+        description: 'How Settlepay handles your data: account info, invoice contents, wallet addresses. Non-custodial — we never hold funds or see private keys.'
     intro: 'This Privacy Policy explains what data Settlepay collects, why, and how it''s used. Plain English wherever possible.'
     s1_title: '1. What we collect'
     s1_body: 'When you create an account and use Settlepay, we collect:'
@@ -260,8 +260,8 @@ privacy:
 terms:
     title: Terms of Service
     seo:
-        title: 'Terms of Service — Settlepay'
-        description: 'Service terms for Settlepay. Software facilitator, not a money transmitter. Non-custodial. Use at your own risk.'
+        title: 'Settlepay terms of service'
+        description: 'Settlepay is a software service, not a money transmitter. Non-custodial — we never hold funds. On-chain payments are irreversible. Use at your own risk.'
     intro: 'These Terms govern your use of Settlepay. By creating an account, you agree to them.'
     s1_title: '1. What Settlepay is'
     s1_body: 'Settlepay is a <strong>software service</strong> that helps freelancers and small businesses send professional invoices and receive payments in stablecoins (USDC, USDT, DAI) on EVM-compatible blockchains. Settlepay is <strong>NOT</strong> a money transmitter, a custodian, a bank, an exchange, or a broker. We do not hold, transfer, or have any access to user funds. Funds move directly from your client''s wallet to yours via the public blockchain.'
