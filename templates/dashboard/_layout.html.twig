@@ -95,7 +95,7 @@
                     <span class="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-{{ toneClass }}-500 text-white shrink-0 text-xs font-bold">
                         {% if type == 'success' %}✓{% elseif type == 'error' %}✕{% elseif type == 'warning' %}!{% else %}i{% endif %}
                     </span>
-                    <div class="flex-1 text-sm">{{ msg|raw }}</div>
+                    <div class="flex-1 text-sm">{{ msg|trans|raw }}</div>
                 </div>
             {% endfor %}
         {% endfor %}

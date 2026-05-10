@@ -239,6 +239,11 @@ errors:
     invalid_token: 'Elige USDC, USDT o DAI.'
     current_password_wrong: 'La contraseña actual no es correcta.'
 
+flash:
+    invoice_created_draft: 'Factura %number% creada como borrador.'
+    invoice_sent_emailed:  'Factura %number% enviada a %email%.'
+    invoice_sent_no_email: 'Factura %number% marcada como enviada. Copia el enlace de pago para compartirlo.'
+
 settings:
     subtitle: 'Edita tu perfil de negocio, dónde llegan tus stablecoins y tu contraseña.'
     payout_unset_title: 'Configura tu billetera de cobro para enviar facturas'

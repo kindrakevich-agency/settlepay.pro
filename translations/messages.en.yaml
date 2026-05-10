@@ -239,6 +239,11 @@ errors:
     invalid_token: 'Pick USDC, USDT, or DAI.'
     current_password_wrong: 'Your current password is incorrect.'
 
+flash:
+    invoice_created_draft: 'Invoice %number% created as draft.'
+    invoice_sent_emailed:  'Invoice %number% sent to %email%.'
+    invoice_sent_no_email: 'Invoice %number% marked as sent. Copy the payment link below to share it.'
+
 settings:
     subtitle: 'Edit your business profile, where stablecoins land, and your password.'
     payout_unset_title: Set your payout wallet to start sending invoices

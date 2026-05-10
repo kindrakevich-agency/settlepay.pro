@@ -239,6 +239,11 @@ errors:
     invalid_token: 'Обери USDC, USDT або DAI.'
     current_password_wrong: 'Поточний пароль неправильний.'
 
+flash:
+    invoice_created_draft: 'Інвойс %number% створено як чернетку.'
+    invoice_sent_emailed:  'Інвойс %number% надіслано на %email%.'
+    invoice_sent_no_email: 'Інвойс %number% позначено надісланим. Скопіюй посилання нижче, щоб поділитися.'
+
 settings:
     subtitle: 'Налаштуй бренд, гаманець для отримання та пароль.'
     payout_unset_title: 'Встанови гаманець-отримувач, щоб надсилати інвойси'

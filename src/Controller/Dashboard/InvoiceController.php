@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/{_locale}/app/invoices', requirements: ['_locale' => 'en|uk|es'], defaults: ['_locale' => 'en'])]
@@ -26,6 +27,7 @@ class InvoiceController extends AbstractController
         private readonly InvoiceMailer $mailer,
         private readonly ChainRegistry $chains,
         private readonly EntityManagerInterface $em,
+        private readonly TranslatorInterface $translator,
     ) {}
 
     #[Route('', name: 'dashboard_invoices', methods: ['GET'])]
@@ -139,7 +141,7 @@ class InvoiceController extends AbstractController
                     'line_items'       => $cleanItems,
                 ]);
 
-                $this->addFlash('success', sprintf('Invoice %s created as draft.', $invoice->getNumber()));
+                $this->addFlash('success', $this->translator->trans('flash.invoice_created_draft', ['%number%' => $invoice->getNumber()]));
                 return $this->redirectToRoute('dashboard_invoice_show', [
                     '_locale' => $request->getLocale(),
                     'uuid'    => $invoice->getUuid(),
@@ -191,8 +193,8 @@ class InvoiceController extends AbstractController
 
         $emailed = $this->mailer->sendInvoiceToClient($invoice);
         $this->addFlash('success', $emailed
-            ? sprintf('Invoice %s sent to %s.', $invoice->getNumber(), $invoice->getClientEmail())
-            : sprintf('Invoice %s marked sent. (No client email — copy the payment link below to share.)', $invoice->getNumber())
+            ? $this->translator->trans('flash.invoice_sent_emailed', ['%number%' => $invoice->getNumber(), '%email%' => $invoice->getClientEmail()])
+            : $this->translator->trans('flash.invoice_sent_no_email', ['%number%' => $invoice->getNumber()])
         );
 
         return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
