@@ -26,6 +26,7 @@ nav:
     product: Product
     language: Language
     toggle_menu: Open menu
+    close_menu: Close menu
 
 hero:
     badge: 'Live on Base · Polygon · Arbitrum · Optimism'

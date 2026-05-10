@@ -26,6 +26,7 @@ nav:
     product: Продукт
     language: Мова
     toggle_menu: Відкрити меню
+    close_menu: Закрити меню
 
 hero:
     badge: 'Працює в Base · Polygon · Arbitrum · Optimism'

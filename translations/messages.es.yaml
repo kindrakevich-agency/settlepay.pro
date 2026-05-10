@@ -26,6 +26,7 @@ nav:
     product: Producto
     language: Idioma
     toggle_menu: Abrir menú
+    close_menu: Cerrar menú
 
 hero:
     badge: 'Disponible en Base · Polygon · Arbitrum · Optimism'

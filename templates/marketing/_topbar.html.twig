@@ -73,79 +73,144 @@
         </div>
     </div>
 
-    {# ───── Mobile panel ─────
-       grid-rows [0fr → 1fr] gives a smooth height transition without
-       hard-coding a max-height. The inner overflow-hidden wrapper is
-       what actually clips during animation. #}
-    <div id="mobile-menu"
-         class="md:hidden grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[open=true]:grid-rows-[1fr]"
-         data-open="false"
-         data-mobile-panel>
-        <div class="overflow-hidden">
-            <div class="border-t border-slate-200 dark:border-slate-800 px-6 py-4 space-y-1 bg-white dark:bg-slate-950">
-                <nav class="flex flex-col text-base font-medium text-slate-700 dark:text-slate-300">
-                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#features">{{ 'nav.product'|trans }}</a>
-                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#dashboard">{{ 'nav.dashboard'|trans }}</a>
-                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ home_url }}#checkout">{{ 'nav.payments'|trans }}</a>
-                    <a class="rounded-lg px-3 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100 transition" href="{{ path('marketing_pricing', {_locale: locale}) }}">{{ 'nav.pricing'|trans }}</a>
-                </nav>
+</header>
 
-                <div class="my-2 h-px bg-slate-200 dark:bg-slate-800"></div>
+{# ───── Full-screen mobile menu ─────
+   Lives outside the <header> so the fixed overlay covers the entire
+   viewport (including the sticky topbar itself). The frosted-glass
+   blur over the page is achieved with backdrop-blur-2xl + a
+   semi-transparent surface — the underlying page content stays
+   slightly visible but heavily blurred.
+   Opening locks <body> scroll. Animation: 250 ms opacity + scale
+   fade-in on the surface. #}
+<div id="mobile-menu"
+     class="group/menu md:hidden fixed inset-0 z-50 opacity-0 pointer-events-none transition-opacity duration-300 ease-out
+            data-[open=true]:opacity-100 data-[open=true]:pointer-events-auto"
+     data-open="false"
+     data-mobile-panel
+     role="dialog"
+     aria-modal="true"
+     aria-label="{{ 'nav.toggle_menu'|trans }}">
 
-                {# Locale switcher (mobile) #}
-                <div class="px-3 py-1.5 flex items-center justify-between gap-3">
-                    <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">{{ 'nav.language'|trans }}</span>
-                    <div class="flex items-center rounded-lg border border-slate-200 dark:border-slate-800 p-0.5 text-xs font-medium">
-                        {% for code in ['en', 'uk', 'es'] %}
-                            {% set active = locale == code %}
-                            {% set switch_url = route ? path(route, route_params|merge({_locale: code})) : path('marketing_home', {_locale: code}) %}
-                            <a href="{{ switch_url }}"
-                               class="rounded-md px-2.5 py-1 transition
-                                      {{ active ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
-                                {{ code|upper }}
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
+    {# Frosted-glass surface — covers full viewport, blurs the page
+       behind it. bg-white/75 keeps light theme readable; the dark:
+       variants keep dark theme cohesive. Scale subtly easing into 100% on open. #}
+    <div class="absolute inset-0 bg-white/75 dark:bg-slate-950/80 backdrop-blur-2xl
+                transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+                scale-[1.02] group-data-[open=true]/menu:scale-100"></div>
 
-                <div class="my-2 h-px bg-slate-200 dark:bg-slate-800"></div>
+    {# Decorative brand glow behind the menu — same gradient palette as the hero. #}
+    <div class="absolute inset-0 pointer-events-none opacity-60" aria-hidden="true"
+         style="background-image:
+            radial-gradient(at 18% 18%, rgba(45,212,191,0.18) 0px, transparent 50%),
+            radial-gradient(at 82% 82%, rgba(13,148,136,0.14) 0px, transparent 50%);"></div>
 
-                <div class="flex flex-col gap-2 pt-1">
-                    <a href="{{ path('auth_login', {_locale: locale}) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
-                        {{ 'common.sign_in'|trans }}
+    <div class="relative flex h-full flex-col">
+        {# Top bar inside the overlay: logo + close X #}
+        <div class="flex items-center justify-between px-6 py-3.5 border-b border-slate-200/50 dark:border-slate-800/50">
+            <a href="{{ home_url }}" aria-label="settlepay home" class="-mx-2 px-2 py-1 rounded-lg hover:bg-slate-100/60 dark:hover:bg-slate-800/40 transition">
+                {{ logo(size='md') }}
+            </a>
+            <button type="button"
+                    class="inline-flex items-center justify-center rounded-lg p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-slate-950"
+                    aria-label="{{ 'nav.close_menu'|trans }}"
+                    data-mobile-close>
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                    <line x1="6" y1="18" x2="18" y2="6"/>
+                </svg>
+            </button>
+        </div>
+
+        {# Main nav — large tap targets, generous vertical rhythm #}
+        <nav class="flex-1 overflow-y-auto px-6 py-8">
+            <ul class="flex flex-col gap-1">
+                <li>
+                    <a href="{{ home_url }}#features" class="group flex items-center justify-between rounded-2xl px-4 py-4 font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-900/60 transition">
+                        {{ 'nav.product'|trans }}
+                        <svg class="h-5 w-5 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-1 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
-                    <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white shadow-card transition">
-                        {{ 'common.sign_up'|trans }}
-                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </li>
+                <li>
+                    <a href="{{ home_url }}#dashboard" class="group flex items-center justify-between rounded-2xl px-4 py-4 font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-900/60 transition">
+                        {{ 'nav.dashboard'|trans }}
+                        <svg class="h-5 w-5 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-1 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </a>
+                </li>
+                <li>
+                    <a href="{{ home_url }}#checkout" class="group flex items-center justify-between rounded-2xl px-4 py-4 font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-900/60 transition">
+                        {{ 'nav.payments'|trans }}
+                        <svg class="h-5 w-5 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-1 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ path('marketing_pricing', {_locale: locale}) }}" class="group flex items-center justify-between rounded-2xl px-4 py-4 font-display text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 hover:bg-white/60 dark:hover:bg-slate-900/60 transition">
+                        {{ 'nav.pricing'|trans }}
+                        <svg class="h-5 w-5 text-slate-400 group-hover:text-brand-600 group-hover:translate-x-1 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        {# Bottom slab: locale switcher + auth CTAs #}
+        <div class="border-t border-slate-200/50 dark:border-slate-800/50 px-6 py-6 space-y-4">
+            <div class="flex items-center justify-between gap-3">
+                <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">{{ 'nav.language'|trans }}</span>
+                <div class="flex items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-0.5 text-xs font-medium backdrop-blur">
+                    {% for code in ['en', 'uk', 'es'] %}
+                        {% set active = locale == code %}
+                        {% set switch_url = route ? path(route, route_params|merge({_locale: code})) : path('marketing_home', {_locale: code}) %}
+                        <a href="{{ switch_url }}"
+                           class="rounded-lg px-3 py-1.5 transition
+                                  {{ active ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100' }}">
+                            {{ code|upper }}
+                        </a>
+                    {% endfor %}
                 </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{{ path('auth_login', {_locale: locale}) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-white dark:hover:bg-slate-800 transition">
+                    {{ 'common.sign_in'|trans }}
+                </a>
+                <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 px-4 py-3 text-sm font-semibold text-white shadow-card transition">
+                    {{ 'common.sign_up'|trans }}
+                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
             </div>
         </div>
     </div>
-</header>
+</div>
 
 <script>
     (() => {
         const root   = document.querySelector('[data-topbar]');
-        if (!root) return;
+        const panel  = document.querySelector('[data-mobile-panel]');
+        if (!root || !panel) return;
         const btn    = root.querySelector('[data-mobile-toggle]');
-        const panel  = root.querySelector('[data-mobile-panel]');
         const iOpen  = root.querySelector('[data-icon-menu]');
         const iClose = root.querySelector('[data-icon-close]');
-        if (!btn || !panel) return;
+        const closeBtn = panel.querySelector('[data-mobile-close]');
+        if (!btn) return;
 
         const setOpen = (open) => {
             panel.setAttribute('data-open', open ? 'true' : 'false');
             btn.setAttribute('aria-expanded', open ? 'true' : 'false');
             iOpen?.classList.toggle('hidden',  open);
             iClose?.classList.toggle('hidden', !open);
+            // Lock body scroll while the overlay is up.
+            document.documentElement.style.overflow = open ? 'hidden' : '';
+            document.body.style.overflow           = open ? 'hidden' : '';
         };
 
         btn.addEventListener('click', () => {
             setOpen(panel.getAttribute('data-open') !== 'true');
         });
 
-        // Close on link click inside the panel.
+        closeBtn?.addEventListener('click', () => setOpen(false));
+
+        // Close on link click inside the overlay (so navigating to /pricing
+        // doesn't leave the menu visible if the next page is same-origin).
         panel.addEventListener('click', (e) => {
             if (e.target.closest('a')) setOpen(false);
         });
@@ -158,8 +223,8 @@
             }
         });
 
-        // Close on resize past md (768px) so an open mobile panel doesn't
-        // linger when the user rotates / resizes to desktop.
+        // Close on resize past md (768px) so an open overlay doesn't linger
+        // if the user rotates / resizes into desktop layout.
         const mq = window.matchMedia('(min-width: 768px)');
         mq.addEventListener('change', (e) => { if (e.matches) setOpen(false); });
     })();
