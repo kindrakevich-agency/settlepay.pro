@@ -144,8 +144,11 @@ jobs:
             echo "=== Restart PHP-FPM (clear opcache) ==="
             /etc/init.d/php-fpm-83 restart
 
-            echo "=== Restart messenger worker + chain listener (if installed) ==="
+            echo "=== Restart all background units (mainnet + testnet listeners + worker) ==="
+            # Glob pattern catches settle-listener.service AND settle-listener-testnet.service
+            # — fixes the stale-cache bug where the testnet listener kept running with the
+            # previous compiled-container hash baked in. See memory/gotchas.md.
+            systemctl restart 'settle-listener*.service' 2>/dev/null || echo "(listener units not yet installed)"
             systemctl restart settle-worker@1 2>/dev/null || echo "(worker unit not yet installed)"
-            systemctl restart settle-listener 2>/dev/null || echo "(listener unit not yet installed)"
 
             echo "=== Deploy complete ==="
