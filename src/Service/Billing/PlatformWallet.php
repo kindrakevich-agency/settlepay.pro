@@ -17,9 +17,9 @@ final class PlatformWallet
     private readonly ?string $address;
 
     public function __construct(
-        #[Autowire('%env(default::PLATFORM_WALLET_ADDRESS)%')] string $address = '',
+        #[Autowire('%env(default::PLATFORM_WALLET_ADDRESS)%')] ?string $address = null,
     ) {
-        $a = trim($address);
+        $a = trim((string) $address);
         // Normalize to lowercase; reject obvious zero / placeholder addresses.
         if ($a === '' || preg_match('/^0x0+$/i', $a)) {
             $this->address = null;
