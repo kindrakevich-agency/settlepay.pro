@@ -3,6 +3,7 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\User;
+use App\Repository\InvoiceRepository;
 use App\Service\Billing\BillingIntentFactory;
 use App\Service\Billing\PlatformWallet;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,9 +30,12 @@ class BillingController extends AbstractController
     public function __construct(
         private readonly BillingIntentFactory $intents,
         private readonly PlatformWallet $platformWallet,
+        private readonly InvoiceRepository $invoices,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
     ) {}
+
+    public const FREE_VOLUME_CAP_CENTS = 100000; // $1,000
 
     #[Route('', name: 'dashboard_billing', methods: ['GET'])]
     public function index(): Response
@@ -39,11 +43,16 @@ class BillingController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
+        $mtdCents = $this->invoices->monthToDateIssuedCents((int) $user->getId());
+
         return $this->render('dashboard/billing/index.html.twig', [
             'user'             => $user,
             'platform_enabled' => $this->platformWallet->isEnabled(),
             'pro_monthly_usd'  => BillingIntentFactory::PRO_MONTHLY_CENTS / 100,
             'pro_lifetime_usd' => BillingIntentFactory::PRO_LIFETIME_CENTS / 100,
+            'mtd_volume_cents' => $mtdCents,
+            'free_cap_cents'   => self::FREE_VOLUME_CAP_CENTS,
+            'cap_remaining_cents' => max(0, self::FREE_VOLUME_CAP_CENTS - $mtdCents),
         ]);
     }
 

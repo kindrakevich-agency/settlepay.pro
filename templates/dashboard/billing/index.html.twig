@@ -71,6 +71,30 @@
         {% endif %}
     </section>
 
+    {# ─── Free-plan volume meter — only shown when on Free ─── #}
+    {% if not user.pro %}
+        {% set pct = (mtd_volume_cents / free_cap_cents * 100)|round(0) %}
+        {% set tone = pct >= 100 ? 'danger' : (pct >= 80 ? 'warning' : 'brand') %}
+        <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
+                <h2 class="font-semibold tracking-tight">{{ 'billing.volume_meter_title'|trans }}</h2>
+                <span class="font-mono tabular-nums text-sm text-slate-600 dark:text-slate-400">
+                    ${{ (mtd_volume_cents / 100)|number_format(2, '.', ',') }} / ${{ (free_cap_cents / 100)|number_format(0, '.', ',') }}
+                </span>
+            </div>
+            <div class="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                <div class="h-full rounded-full bg-{{ tone }}-500 transition-all" style="width: {{ pct > 100 ? 100 : pct }}%"></div>
+            </div>
+            <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                {% if pct >= 100 %}
+                    {{ 'billing.volume_meter_full'|trans }}
+                {% else %}
+                    {{ 'billing.volume_meter_remaining'|trans({'%amount%': (cap_remaining_cents / 100)|number_format(2, '.', ',')}) }}
+                {% endif %}
+            </p>
+        </section>
+    {% endif %}
+
     {# ─── Accumulated fees ─── #}
     <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div class="flex items-center justify-between mb-3 flex-wrap gap-3">

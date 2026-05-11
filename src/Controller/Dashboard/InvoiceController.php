@@ -131,6 +131,21 @@ class InvoiceController extends AbstractController
                 $errors[] = 'errors.payout_address_unset';
             }
 
+            // Free-plan $1,000 MTD invoicing cap. Sum of THIS new invoice
+            // + everything else issued this month must not exceed $1k.
+            // Pro users (including Pro-lifetime) skip the check entirely.
+            $totalNewCents = array_sum(array_map(static fn(array $li): int =>
+                (int) round((float) bcmul((string)($li['quantity'] ?? '1.00'), (string)$li['unit_price_cents'], 6)),
+                $cleanItems
+            ));
+            if (!$user->isPro()) {
+                $cap   = 100000; // $1,000 in cents
+                $usage = $this->invoices->monthToDateIssuedCents((int) $user->getId());
+                if ($usage + $totalNewCents > $cap) {
+                    $errors[] = 'errors.free_volume_cap';
+                }
+            }
+
             if (empty($errors)) {
                 $invoice = $this->factory->create($user, [
                     'client_name'      => $form['client_name'],
@@ -250,6 +265,21 @@ class InvoiceController extends AbstractController
             }
             if (empty($form['accepted_chains'])) $errors[] = 'errors.no_chains';
             if (empty($form['accepted_tokens'])) $errors[] = 'errors.no_tokens';
+
+            // Free-plan $1k MTD cap also covers edits — recompute as
+            // (MTD - existing amount + new amount). Skip for Pro.
+            if (!$user->isPro()) {
+                $cap          = 100000;
+                $usage        = $this->invoices->monthToDateIssuedCents((int) $user->getId());
+                $totalNewCents = array_sum(array_map(static fn(array $li): int =>
+                    (int) round((float) bcmul((string)($li['quantity'] ?? '1.00'), (string)$li['unit_price_cents'], 6)),
+                    $cleanItems
+                ));
+                $projected = $usage - $invoice->getAmountCents() + $totalNewCents;
+                if ($projected > $cap) {
+                    $errors[] = 'errors.free_volume_cap';
+                }
+            }
 
             if (empty($errors)) {
                 $this->factory->update($invoice, [

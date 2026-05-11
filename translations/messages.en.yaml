@@ -417,6 +417,7 @@ errors:
     invalid_chain: 'Pick a supported network.'
     invalid_token: 'Pick USDC, USDT, or DAI.'
     current_password_wrong: 'Your current password is incorrect.'
+    free_volume_cap: "You're at the Free-plan limit of $1,000 invoiced per month. Upgrade to Pro for unlimited volume, or wait until next month."
 
 payments:
     subtitle: 'Every on-chain Transfer received at your payout address — matched to invoices when amounts line up, kept as orphans otherwise.'
@@ -599,6 +600,9 @@ billing:
     best_value: 'Best value'
     upgrade_disclaimer: 'Settlepay never auto-debits — every renewal is a fresh payment you authorize. No cards, no surprises.'
     per_month_short: 'mo'
+    volume_meter_title: 'This month — invoiced volume'
+    volume_meter_full: "You've hit the $1,000 Free-plan limit for this month. Upgrade to Pro for unlimited volume, or wait until next month."
+    volume_meter_remaining: "$%amount% left this month on Free. Upgrade to Pro for unlimited volume."
     flash:
         canceled: 'Subscription canceled. Pro access continues until %date%.'
         no_fees_owed: 'No fees outstanding right now — invoices paid on Pro accrue 0.5%, on Free 1%.'

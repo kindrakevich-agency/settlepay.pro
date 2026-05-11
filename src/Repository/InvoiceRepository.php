@@ -110,6 +110,30 @@ class InvoiceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Sum of amount_cents for invoices issued in the current calendar month
+     * (UTC), regardless of status. Used to enforce the Free-plan $1k MTD cap.
+     *
+     * Drafts count too — once you've drafted $1k worth of invoices for the
+     * current month, you can't draft more on Free until next month OR
+     * upgrade to Pro. Voided invoices are excluded.
+     */
+    public function monthToDateIssuedCents(int $userId): int
+    {
+        $monthStart = (new \DateTimeImmutable('first day of this month 00:00:00'));
+        $sum = $this->createQueryBuilder('i')
+            ->select('COALESCE(SUM(i.amountCents), 0)')
+            ->where('i.user = :uid')
+            ->andWhere('i.status <> :void')
+            ->andWhere('i.issuedAt >= :monthStart')
+            ->setParameter('uid', $userId)
+            ->setParameter('void', 'void')
+            ->setParameter('monthStart', $monthStart)
+            ->getQuery()
+            ->getSingleScalarResult();
+        return (int) $sum;
+    }
+
     /** Sum of paid amount_cents for the user since the given timestamp. */
     public function sumPaidSince(int $userId, \DateTimeInterface $since): int
     {

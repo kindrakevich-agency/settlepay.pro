@@ -415,6 +415,7 @@ errors:
     invalid_chain: 'Elige una red soportada.'
     invalid_token: 'Elige USDC, USDT o DAI.'
     current_password_wrong: 'La contraseña actual no es correcta.'
+    free_volume_cap: "Has alcanzado el límite del plan Free: $1.000 facturados al mes. Pásate a Pro para volumen ilimitado o espera al mes siguiente."
 
 payments:
     subtitle: 'Todas las transferencias en blockchain recibidas en tu billetera de cobro. Si el importe coincide con una factura, la emparejamos. Si no, queda como pago sin asignar para que lo revises.'
@@ -597,6 +598,9 @@ billing:
     best_value: 'Mejor relación calidad/precio'
     upgrade_disclaimer: 'Settlepay nunca debita automáticamente — cada renovación es un pago nuevo que tú autorizas. Sin tarjetas, sin sorpresas.'
     per_month_short: 'mes'
+    volume_meter_title: 'Este mes — volumen facturado'
+    volume_meter_full: "Llegaste al límite del plan Free: $1.000 al mes. Pásate a Pro para volumen ilimitado o espera al mes siguiente."
+    volume_meter_remaining: "Te quedan $%amount% este mes en Free. Pásate a Pro para volumen ilimitado."
     flash:
         canceled: 'Suscripción cancelada. Mantienes Pro hasta el %date%.'
         no_fees_owed: 'No tienes comisiones pendientes ahora mismo — las facturas pagadas en Pro acumulan 0,5%, en Free 1%.'
