@@ -9,13 +9,10 @@ sentry:
         # Capture every error in dev for visibility while building; in prod
         # 100% is fine at our scale (1 invoice ≈ a handful of requests).
         traces_sample_rate: 1.0
-        # Drop the most noisy stuff before it leaves the box.
-        before_send: ['@App\Service\Sentry\BeforeSendFilter', '__invoke']
-
-services:
-    App\Service\Sentry\BeforeSendFilter:
-        autowire: true
-        autoconfigure: true
+        # Drop the most noisy stuff before it leaves the box. The
+        # service is auto-discovered by App\ services autoload; sentry
+        # resolves the scalar to the service and calls __invoke().
+        before_send: '@App\Service\Sentry\BeforeSendFilter'
 
 # Wire Monolog so every $logger->error(...) lands in Sentry as well —
 # the listener daemon and the messenger workers already use the logger,
