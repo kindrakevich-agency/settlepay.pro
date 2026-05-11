@@ -70,44 +70,44 @@
          style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%), radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);"></div>
     <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80" aria-hidden="true"></div>
 
-    {# Top-center spotlight — small lamp positioned right at the top center
-       of the hero, immediately under the sticky topbar. Beam fans straight
-       down, symmetric, lighting the headline + invoice card. No cord
-       (sconce-style mounted flush against the underside of the menu bar). #}
-    <svg viewBox="0 0 900 600" aria-hidden="true" preserveAspectRatio="xMidYMin slice"
-         class="pointer-events-none absolute left-0 top-0 w-full h-[600px] z-0 select-none">
+    {# Top-center spotlight — lamp at the top edge of the hero (under the
+       sticky topbar). Beam spans the FULL hero height, smooth gradient
+       from 0% opacity at the lamp to 100% saturated amber at the very
+       bottom of the hero.
+
+       SVG is sized via inset-0 + w-full h-full so it covers the entire
+       hero regardless of how tall the hero grows. preserveAspectRatio
+       =none stretches the internal coordinates to match — fine for a
+       gradient beam (direction is preserved), the lamp shade is small
+       enough that any stretching is invisible. #}
+    <svg viewBox="0 0 900 900" preserveAspectRatio="none" aria-hidden="true"
+         class="pointer-events-none absolute inset-0 w-full h-full z-0 select-none">
         <defs>
             <radialGradient id="hero-lamp-bulb" cx="0" cy="0" r="26" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fff7ed" stop-opacity="1"/>
                 <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.65"/>
                 <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
             </radialGradient>
-            {# Vertical beam gradient — fully transparent at the bulb,
-               stays dim through the upper hero, then ramps to fully
-               opaque saturated amber at the bottom edge. The
-               brightness happens almost entirely in the last 30% of
-               the beam, so the floor of the hero reads as a clear
-               warm light pool. #}
-            <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="0" y2="540" gradientUnits="userSpaceOnUse">
+            {# Vertical beam gradient — smooth 0 → 100% across the FULL
+               beam height (y=0 to y=900). #}
+            <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="0" y2="900" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fde68a" stop-opacity="0"/>
-                <stop offset="55%"  stop-color="#fde68a" stop-opacity="0"/>
-                <stop offset="80%"  stop-color="#fcd34d" stop-opacity="0.55"/>
+                <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.18"/>
+                <stop offset="70%"  stop-color="#fcd34d" stop-opacity="0.50"/>
                 <stop offset="100%" stop-color="#f59e0b" stop-opacity="1"/>
             </linearGradient>
             <filter id="hero-lamp-blur" x="-10%" y="-10%" width="120%" height="120%">
-                <feGaussianBlur stdDeviation="14"/>
+                <feGaussianBlur stdDeviation="16"/>
             </filter>
         </defs>
 
-        {# Lamp group — origin at (450, 0): horizontal center (50% of the
-           900-wide viewBox), top edge of the hero (flush under the topbar).
-           No rotation — symmetric downward cone. Scale 0.6 preserved
-           (40% smaller than the original). #}
+        {# Lamp group — origin at (450, 0): horizontal center (50%), top edge. #}
         <g transform="translate(450 0)">
-            {# Symmetric warm cone — apex at lamp origin, fans straight down. #}
+            {# Symmetric warm cone — apex at lamp, base spans the FULL
+               hero height. Beam reaches the very bottom at y=900. #}
             <path d="M 0 0
-                     L -380 540
-                     L 380 540 Z"
+                     L -380 900
+                     L 380 900 Z"
                   fill="url(#hero-lamp-beam)"
                   filter="url(#hero-lamp-blur)"/>
 
