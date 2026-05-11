@@ -17,9 +17,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final class BlockListener
 {
-    /** Cap each eth_getLogs call so RPC providers don't reject the range. */
-    private const MAX_BATCH_BLOCKS = 500;
-
     public function __construct(
         private readonly RpcClient $rpcClient,
         private readonly EventDecoder $decoder,
@@ -29,6 +26,13 @@ final class BlockListener
         private readonly PaymentMatcher $matcher,
         private readonly LoggerInterface $logger,
         #[Autowire('%env(default::APP_ENV)%')] private readonly string $appEnv = 'prod',
+        /**
+         * Cap each eth_getLogs call so RPC providers don't reject the range.
+         * Alchemy free tier rejects > 10 blocks; PAYG / publicnode allow
+         * thousands. Override via LISTENER_MAX_BATCH_BLOCKS in .env.local.
+         */
+        #[Autowire('%env(int:LISTENER_MAX_BATCH_BLOCKS)%')]
+        private readonly int $maxBatchBlocks = 9,
     ) {}
 
     /**
@@ -53,16 +57,17 @@ final class BlockListener
         $head   = $this->rpcClient->blockNumber($rpcUrl);
         $needed = (int) ($chainCfg['required_confirmations'] ?? 5);
 
-        // First-ever cursor read: jump to head minus a buffer so we don't
-        // re-scan months of history. After that we walk forward.
+        // First-ever cursor read: jump to head minus a small buffer so we
+        // don't re-scan months of history AND don't exceed any RPC range
+        // limit on the very first tick. After that we walk forward.
         if ($cursor->getLastProcessedBlock() === 0) {
-            $cursor->setLastProcessedBlock(max(0, $head - $needed - 10));
+            $cursor->setLastProcessedBlock(max(0, $head - $needed - 1));
             $this->cursors->save($cursor);
             $this->logger->info('Bootstrapping cursor', ['chain' => $chainKey, 'start_block' => $cursor->getLastProcessedBlock()]);
         }
 
         $from = $cursor->getLastProcessedBlock() + 1;
-        $to   = min($from + self::MAX_BATCH_BLOCKS - 1, $head - $needed);
+        $to   = min($from + $this->maxBatchBlocks - 1, $head - $needed);
 
         if ($to < $from) {
             // Nothing new is confirmed yet.
