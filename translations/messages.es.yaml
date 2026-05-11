@@ -355,6 +355,25 @@ invoice:
     to: Para
     accepts: 'Acepta pagos en'
     recipient_address: 'Paga a billetera'
+    download_pdf: 'Descargar PDF'
+
+pdf:
+    invoice: Factura
+    receipt: Recibo
+    from: De
+    bill_to: 'Facturar a'
+    tax_id: 'ID fiscal'
+    issued: Emitida
+    due: Vence
+    status: Estado
+    description: Descripción
+    line_item: Descripción
+    pays_to_wallet: 'Paga a la billetera'
+    accepts: 'Acepta'
+    payment_received: 'Pago recibido'
+    notes: Notas
+    footer: 'Pagos en stablecoins vía settlepay.pro — facturación no custodial para freelancers.'
+    generated_at: 'Generado'
 
 payment:
     connect_wallet: Conectar billetera

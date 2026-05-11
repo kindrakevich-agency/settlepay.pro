@@ -1,0 +1,29 @@
+sentry:
+    # SENTRY_DSN is empty in .env by default — leaving it unset means the
+    # SDK is a no-op (no init, no overhead, no network calls). For prod
+    # set the real DSN in /www/wwwroot/settlepay.pro/.env.local.
+    dsn: '%env(SENTRY_DSN)%'
+    options:
+        environment: '%kernel.environment%'
+        release: '%env(default::APP_VERSION)%'
+        # Capture every error in dev for visibility while building; in prod
+        # 100% is fine at our scale (1 invoice ≈ a handful of requests).
+        traces_sample_rate: 1.0
+        # Drop the most noisy stuff before it leaves the box.
+        before_send: ['@App\Service\Sentry\BeforeSendFilter', '__invoke']
+
+services:
+    App\Service\Sentry\BeforeSendFilter:
+        autowire: true
+        autoconfigure: true
+
+# Wire Monolog so every $logger->error(...) lands in Sentry as well —
+# the listener daemon and the messenger workers already use the logger,
+# so this gives us coverage of background jobs for free.
+when@prod:
+    monolog:
+        handlers:
+            sentry:
+                type: sentry
+                level: error
+                hub_id: Sentry\State\HubInterface

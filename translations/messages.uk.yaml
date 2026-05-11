@@ -355,6 +355,25 @@ invoice:
     to: Кому
     accepts: 'Приймає оплату в'
     recipient_address: 'На гаманець'
+    download_pdf: 'Завантажити PDF'
+
+pdf:
+    invoice: Інвойс
+    receipt: Квитанція
+    from: Від
+    bill_to: 'Кому'
+    tax_id: 'Податковий ID'
+    issued: Виставлено
+    due: 'Термін оплати'
+    status: Статус
+    description: Опис
+    line_item: Опис
+    pays_to_wallet: 'Оплата на гаманець'
+    accepts: 'Приймає'
+    payment_received: 'Оплату отримано'
+    notes: Примітки
+    footer: 'Розрахунки у стейблкоїнах через settlepay.pro — інвойси для фрілансерів без посередників.'
+    generated_at: 'Створено'
 
 payment:
     connect_wallet: Підключити гаманець

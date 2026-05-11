@@ -357,6 +357,25 @@ invoice:
     to: To
     accepts: 'Accepts payment in'
     recipient_address: 'Pays to wallet'
+    download_pdf: 'Download PDF'
+
+pdf:
+    invoice: Invoice
+    receipt: Receipt
+    from: From
+    bill_to: 'Bill to'
+    tax_id: 'Tax ID'
+    issued: Issued
+    due: Due
+    status: Status
+    description: Description
+    line_item: Description
+    pays_to_wallet: 'Pays to wallet'
+    accepts: 'Accepts'
+    payment_received: 'Payment received'
+    notes: Notes
+    footer: 'Settled in stablecoins via settlepay.pro — non-custodial invoicing for freelancers.'
+    generated_at: 'Generated'
 
 payment:
     connect_wallet: Connect wallet

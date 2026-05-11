@@ -30,6 +30,13 @@
                          {% else %}bg-slate-400{% endif %}"></span>
             {{ ('invoice.status.' ~ status)|trans }}
         </span>
+
+        <a href="{{ path('dashboard_invoice_pdf', {_locale: locale, uuid: invoice.uuid}) }}"
+           target="_blank" rel="noopener"
+           class="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            {{ 'invoice.download_pdf'|trans }}
+        </a>
     </div>
 
     {# Action bar — varies by status #}

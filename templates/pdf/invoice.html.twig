@@ -1,0 +1,166 @@
+{# Invoice / receipt PDF.
+   Rendered by dompdf → loose CSS subset, no flexbox/grid; table-based layouts. #}
+{% set paid = invoice.status.value == 'paid' %}
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ invoice.number }}</title>
+    <style>
+        @page { margin: 28mm 22mm 22mm 22mm; }
+        body  { font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #0f172a; line-height: 1.45; }
+        h1    { font-size: 22pt; font-weight: 600; margin: 0 0 4pt 0; color: #0f172a; letter-spacing: -0.5pt; }
+        h2    { font-size: 11pt; font-weight: 600; margin: 0 0 6pt 0; text-transform: uppercase; letter-spacing: 1pt; color: #64748b; }
+        .muted { color: #64748b; }
+        .mono  { font-family: 'DejaVu Sans Mono', monospace; font-size: 9pt; }
+        .right { text-align: right; }
+        .small { font-size: 8.5pt; }
+        .badge { display: inline-block; padding: 3pt 9pt; border-radius: 14pt; font-size: 8.5pt; font-weight: 600; letter-spacing: 0.5pt; text-transform: uppercase; }
+        .badge.paid     { background: #ecfdf5; color: #059669; }
+        .badge.sent     { background: #eff6ff; color: #2563eb; }
+        .badge.draft    { background: #f1f5f9; color: #64748b; }
+        .badge.overdue  { background: #fef2f2; color: #dc2626; }
+
+        table.layout { width: 100%; border-collapse: collapse; margin: 0; padding: 0; }
+        table.layout td { vertical-align: top; padding: 0; }
+
+        table.items { width: 100%; border-collapse: collapse; margin-top: 14pt; }
+        table.items th { background: #f8fafc; color: #475569; text-align: left; font-weight: 600; padding: 8pt 9pt; border-bottom: 1pt solid #e2e8f0; font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5pt; }
+        table.items th.right { text-align: right; }
+        table.items td { padding: 8pt 9pt; border-bottom: 1pt solid #f1f5f9; }
+        table.items td.right { text-align: right; font-variant-numeric: tabular-nums; }
+        table.items tr.total td { border-bottom: none; font-weight: 600; font-size: 12pt; padding-top: 14pt; }
+
+        .header-bar { border-bottom: 2pt solid #0d9488; padding-bottom: 12pt; margin-bottom: 24pt; }
+        .brand-mark { width: 16pt; height: 16pt; background: #0d9488; display: inline-block; vertical-align: middle; border-radius: 4pt; margin-right: 6pt; }
+
+        .payment-card { border: 1pt solid #e2e8f0; background: #f8fafc; border-radius: 5pt; padding: 14pt; margin-top: 18pt; }
+        .payment-card .label { color: #64748b; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5pt; margin-bottom: 3pt; }
+        .payment-card code   { background: white; border: 1pt solid #e2e8f0; padding: 4pt 6pt; border-radius: 3pt; display: inline-block; }
+
+        .footer { margin-top: 32pt; padding-top: 12pt; border-top: 1pt solid #e2e8f0; color: #94a3b8; font-size: 8pt; }
+    </style>
+</head>
+<body>
+
+<div class="header-bar">
+    <table class="layout">
+        <tr>
+            <td>
+                <span class="brand-mark"></span>
+                <span style="font-size: 14pt; font-weight: 600; vertical-align: middle;">
+                    <span style="color: #0f172a;">settle</span><span style="color: #0d9488;">pay</span>
+                </span>
+            </td>
+            <td class="right">
+                <h1 style="margin-bottom: 0;">{{ paid ? ('pdf.receipt'|trans({}, 'messages', locale)) : ('pdf.invoice'|trans({}, 'messages', locale)) }}</h1>
+                <div class="muted">{{ invoice.number }}</div>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table class="layout">
+    <tr>
+        <td style="width: 50%; padding-right: 18pt;">
+            <h2>{{ 'pdf.from'|trans({}, 'messages', locale) }}</h2>
+            <div style="font-weight: 600; font-size: 11pt;">{{ user.businessName ?: user.email }}</div>
+            {% if user.businessAddress %}
+                <div class="muted small" style="white-space: pre-wrap;">{{ user.businessAddress }}</div>
+            {% endif %}
+            {% if user.taxId %}
+                <div class="muted small">{{ 'pdf.tax_id'|trans({}, 'messages', locale) }}: {{ user.taxId }}</div>
+            {% endif %}
+            <div class="muted small">{{ user.email }}</div>
+        </td>
+        <td style="width: 50%; padding-left: 18pt;">
+            <h2>{{ 'pdf.bill_to'|trans({}, 'messages', locale) }}</h2>
+            <div style="font-weight: 600; font-size: 11pt;">{{ invoice.clientName }}</div>
+            {% if invoice.clientEmail %}
+                <div class="muted small">{{ invoice.clientEmail }}</div>
+            {% endif %}
+            {% if invoice.clientAddress %}
+                <div class="muted small" style="white-space: pre-wrap;">{{ invoice.clientAddress }}</div>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<table class="layout" style="margin-top: 18pt;">
+    <tr>
+        <td style="width: 33%;">
+            <h2>{{ 'pdf.issued'|trans({}, 'messages', locale) }}</h2>
+            <div>{{ invoice.issuedAt|date('Y-m-d') }}</div>
+        </td>
+        <td style="width: 33%;">
+            <h2>{{ 'pdf.due'|trans({}, 'messages', locale) }}</h2>
+            <div>{{ invoice.dueDate ? invoice.dueDate|date('Y-m-d') : '—' }}</div>
+        </td>
+        <td style="width: 34%;" class="right">
+            <h2>{{ 'pdf.status'|trans({}, 'messages', locale) }}</h2>
+            <span class="badge {{ invoice.status.value }}">{{ ('invoice.status.' ~ invoice.status.value)|trans({}, 'messages', locale) }}</span>
+        </td>
+    </tr>
+</table>
+
+{% if invoice.description %}
+    <div style="margin-top: 18pt;">
+        <h2>{{ 'pdf.description'|trans({}, 'messages', locale) }}</h2>
+        <div>{{ invoice.description }}</div>
+    </div>
+{% endif %}
+
+<table class="items">
+    <thead>
+        <tr>
+            <th style="width: 56%;">{{ 'pdf.line_item'|trans({}, 'messages', locale) }}</th>
+            <th class="right" style="width: 12%;">{{ 'invoice.qty'|trans({}, 'messages', locale) }}</th>
+            <th class="right" style="width: 16%;">{{ 'invoice.unit_price'|trans({}, 'messages', locale) }}</th>
+            <th class="right" style="width: 16%;">{{ 'invoice.line_total'|trans({}, 'messages', locale) }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for li in invoice.lineItems %}
+            <tr>
+                <td>{{ li.description }}</td>
+                <td class="right">{{ li.quantity }}</td>
+                <td class="right">{{ (li.unitPriceCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+                <td class="right">{{ (li.totalCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+            </tr>
+        {% endfor %}
+        <tr class="total">
+            <td colspan="3" class="right muted">{{ 'invoice.total'|trans({}, 'messages', locale) }}</td>
+            <td class="right">{{ (invoice.amountCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+        </tr>
+    </tbody>
+</table>
+
+<div class="payment-card">
+    <div class="label">{{ 'pdf.pays_to_wallet'|trans({}, 'messages', locale) }}</div>
+    <code class="mono">{{ invoice.recipientAddress }}</code>
+    <div style="margin-top: 8pt;" class="small muted">
+        {{ 'pdf.accepts'|trans({}, 'messages', locale) }}: {{ invoice.acceptedTokens|join(', ') }}
+    </div>
+</div>
+
+{% if paid and invoice.paidAt %}
+    <div class="payment-card" style="background: #ecfdf5; border-color: #a7f3d0;">
+        <div class="label" style="color: #047857;">{{ 'pdf.payment_received'|trans({}, 'messages', locale) }}</div>
+        <div style="color: #064e3b; font-weight: 600;">{{ invoice.paidAt|date('Y-m-d H:i') }} UTC</div>
+    </div>
+{% endif %}
+
+{% if invoice.notes %}
+    <div style="margin-top: 18pt;">
+        <h2>{{ 'pdf.notes'|trans({}, 'messages', locale) }}</h2>
+        <div class="small" style="white-space: pre-wrap;">{{ invoice.notes }}</div>
+    </div>
+{% endif %}
+
+<div class="footer">
+    {{ 'pdf.footer'|trans({}, 'messages', locale) }} ·
+    {{ 'pdf.generated_at'|trans({}, 'messages', locale) }}: {{ 'now'|date('Y-m-d H:i') }} UTC
+</div>
+
+</body>
+</html>

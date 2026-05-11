@@ -8,6 +8,7 @@ use App\Repository\InvoiceRepository;
 use App\Service\Blockchain\ChainRegistry;
 use App\Service\Invoice\InvoiceFactory;
 use App\Service\Invoice\InvoiceMailer;
+use App\Service\Invoice\InvoicePdfRenderer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -25,6 +26,7 @@ class InvoiceController extends AbstractController
         private readonly InvoiceRepository $invoices,
         private readonly InvoiceFactory $factory,
         private readonly InvoiceMailer $mailer,
+        private readonly InvoicePdfRenderer $pdf,
         private readonly ChainRegistry $chains,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
@@ -167,6 +169,25 @@ class InvoiceController extends AbstractController
         }
         return $this->render('dashboard/invoices/show.html.twig', [
             'invoice' => $invoice,
+        ]);
+    }
+
+    #[Route('/{uuid}/pdf', name: 'dashboard_invoice_pdf',
+        requirements: ['uuid' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'],
+        methods: ['GET'])]
+    public function pdf(string $uuid, Request $request): Response
+    {
+        $invoice = $this->invoices->findByUuid($uuid);
+        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
+            throw $this->createNotFoundException('Invoice not found.');
+        }
+
+        $bytes = $this->pdf->render($invoice, $request->getLocale());
+
+        return new Response($bytes, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => sprintf('inline; filename="%s"', $this->pdf->filenameFor($invoice)),
+            'Cache-Control'       => 'private, no-cache',
         ]);
     }
 
