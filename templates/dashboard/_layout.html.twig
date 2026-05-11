@@ -63,10 +63,10 @@
                 <a href="{{ path('marketing_home', {_locale: locale}) }}" class="block mb-3" aria-label="settlepay home">{{ logo(size='sm') }}</a>
                 <div class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2">
                     <span class="grid h-7 w-7 place-items-center rounded-md bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-semibold shrink-0">
-                        {{ ((current_ws.businessName ?? current_ws.name ?? current_user.email))|slice(0, 2)|upper }}
+                        {{ (current_ws.businessName ?: current_ws.name ?: current_user.email)|slice(0, 2)|upper }}
                     </span>
                     <div class="min-w-0 flex-1">
-                        <div class="text-sm font-medium truncate">{{ current_ws.businessName ?? current_ws.name ?? (current_user.email|split('@')|first) }}</div>
+                        <div class="text-sm font-medium truncate">{{ current_ws.businessName ?: current_ws.name ?: (current_user.email|split('@')|first) }}</div>
                         <div class="text-xs text-slate-500 dark:text-slate-500 truncate">{{ current_user.email }}</div>
                     </div>
                 </div>
