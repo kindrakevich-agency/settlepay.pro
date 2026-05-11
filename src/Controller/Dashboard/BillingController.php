@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\InvoiceRepository;
 use App\Service\Billing\BillingIntentFactory;
 use App\Service\Billing\PlatformWallet;
+use App\Service\Workspace\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,43 +18,44 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Crypto-native billing (no Stripe — see README §Billing).
- *
- *   GET  /app/billing                     — status page
- *   POST /app/billing/upgrade/{kind}      — kind ∈ {monthly, lifetime} → create intent → redirect to /billing/pay/{uuid}
- *   POST /app/billing/pay-fees            — settle accumulated 1% / 0.5% per-invoice fees
- *   POST /app/billing/cancel              — mark plan_canceled_at, access continues until plan_renews_at
+ * Phase 2: billing is workspace-scoped; only the workspace Owner can
+ * upgrade / cancel / settle fees.
  */
 #[IsGranted('ROLE_USER')]
 #[Route('/{_locale}/app/billing', requirements: ['_locale' => 'en|uk|es'])]
 class BillingController extends AbstractController
 {
+    public const FREE_VOLUME_CAP_CENTS = 100000; // $1,000
+
     public function __construct(
         private readonly BillingIntentFactory $intents,
         private readonly PlatformWallet $platformWallet,
         private readonly InvoiceRepository $invoices,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
+        private readonly WorkspaceContext $context,
     ) {}
-
-    public const FREE_VOLUME_CAP_CENTS = 100000; // $1,000
 
     #[Route('', name: 'dashboard_billing', methods: ['GET'])]
     public function index(): Response
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
-        $mtdCents = $this->invoices->monthToDateIssuedCents((int) $user->getId());
+        $mtdCents = $this->invoices->monthToDateIssuedCents($workspace);
+        $isOwner  = $this->context->isOwner($user, $workspace);
 
         return $this->render('dashboard/billing/index.html.twig', [
-            'user'             => $user,
-            'platform_enabled' => $this->platformWallet->isEnabled(),
+            'workspace'          => $workspace,
+            'is_owner'           => $isOwner,
+            'platform_enabled'   => $this->platformWallet->isEnabled(),
             'pro_monthly_usd'    => BillingIntentFactory::PRO_MONTHLY_CENTS / 100,
             'pro_lifetime_usd'   => BillingIntentFactory::PRO_LIFETIME_CENTS / 100,
             'agency_monthly_usd' => BillingIntentFactory::AGENCY_MONTHLY_CENTS / 100,
-            'mtd_volume_cents' => $mtdCents,
-            'free_cap_cents'   => self::FREE_VOLUME_CAP_CENTS,
-            'cap_remaining_cents' => max(0, self::FREE_VOLUME_CAP_CENTS - $mtdCents),
+            'mtd_volume_cents'   => $mtdCents,
+            'free_cap_cents'     => self::FREE_VOLUME_CAP_CENTS,
+            'cap_remaining_cents'=> max(0, self::FREE_VOLUME_CAP_CENTS - $mtdCents),
         ]);
     }
 
@@ -68,11 +70,17 @@ class BillingController extends AbstractController
         }
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
+
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'billing.owner_only');
+            return $this->redirectToRoute('dashboard_billing', ['_locale' => $request->getLocale()]);
+        }
 
         $intent = match ($kind) {
-            'lifetime' => $this->intents->createProLifetime($user),
-            'agency'   => $this->intents->createAgencyMonthly($user),
-            default    => $this->intents->createProMonthly($user),
+            'lifetime' => $this->intents->createProLifetime($workspace, $user),
+            'agency'   => $this->intents->createAgencyMonthly($workspace, $user),
+            default    => $this->intents->createProMonthly($workspace, $user),
         };
 
         return $this->redirectToRoute('public_billing_checkout', [
@@ -90,8 +98,13 @@ class BillingController extends AbstractController
         }
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'billing.owner_only');
+            return $this->redirectToRoute('dashboard_billing', ['_locale' => $request->getLocale()]);
+        }
 
-        $intent = $this->intents->createFeeSettlement($user);
+        $intent = $this->intents->createFeeSettlement($workspace, $user);
         if (!$intent) {
             $this->addFlash('info', 'billing.flash.no_fees_owed');
             return $this->redirectToRoute('dashboard_billing', ['_locale' => $request->getLocale()]);
@@ -112,13 +125,17 @@ class BillingController extends AbstractController
         }
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'billing.owner_only');
+            return $this->redirectToRoute('dashboard_billing', ['_locale' => $request->getLocale()]);
+        }
 
-        // Soft cancel: keeps Pro until plan_renews_at, then drops to free.
-        if ($user->getPlan() === 'pro' && $user->getPlanRenewsAt() !== null) {
-            $user->setPlanCanceledAt(new \DateTimeImmutable());
+        if (in_array($workspace->getPlan(), ['pro', 'agency'], true) && $workspace->getPlanRenewsAt() !== null) {
+            $workspace->setPlanCanceledAt(new \DateTimeImmutable())->touch();
             $this->em->flush();
             $this->addFlash('success', $this->translator->trans('billing.flash.canceled', [
-                '%date%' => $user->getPlanRenewsAt()->format('Y-m-d'),
+                '%date%' => $workspace->getPlanRenewsAt()->format('Y-m-d'),
             ]));
         }
         return $this->redirectToRoute('dashboard_billing', ['_locale' => $request->getLocale()]);

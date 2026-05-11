@@ -3,11 +3,16 @@
 namespace App\Repository;
 
 use App\Entity\Invoice;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Invoice>
+ *
+ * Phase 2: queries are scoped to a Workspace, not a User. Members of
+ * the same workspace see the same invoices, payments, and metrics.
+ * `i.user` remains as the "created_by" column for attribution.
  */
 class InvoiceRepository extends ServiceEntityRepository
 {
@@ -63,11 +68,11 @@ class InvoiceRepository extends ServiceEntityRepository
     }
 
     /** @return Invoice[] paginated, newest first */
-    public function findByUserPaginated(int $userId, int $page = 1, int $perPage = 25, ?string $statusFilter = null, ?string $search = null): array
+    public function findByWorkspacePaginated(Workspace $workspace, int $page = 1, int $perPage = 25, ?string $statusFilter = null, ?string $search = null): array
     {
         $qb = $this->createQueryBuilder('i')
-            ->where('i.user = :uid')
-            ->setParameter('uid', $userId)
+            ->where('i.workspace = :ws')
+            ->setParameter('ws', $workspace)
             ->orderBy('i.createdAt', 'DESC')
             ->setFirstResult(max(0, ($page - 1) * $perPage))
             ->setMaxResults($perPage);
@@ -82,12 +87,12 @@ class InvoiceRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function countByUser(int $userId, ?string $statusFilter = null, ?string $search = null): int
+    public function countByWorkspace(Workspace $workspace, ?string $statusFilter = null, ?string $search = null): int
     {
         $qb = $this->createQueryBuilder('i')
             ->select('COUNT(i.id)')
-            ->where('i.user = :uid')
-            ->setParameter('uid', $userId);
+            ->where('i.workspace = :ws')
+            ->setParameter('ws', $workspace);
         if ($statusFilter !== null && $statusFilter !== '') {
             $qb->andWhere('i.status = :st')->setParameter('st', $statusFilter);
         }
@@ -99,11 +104,11 @@ class InvoiceRepository extends ServiceEntityRepository
     }
 
     /** @return Invoice[] N most recent regardless of status */
-    public function findRecent(int $userId, int $limit = 5): array
+    public function findRecent(Workspace $workspace, int $limit = 5): array
     {
         return $this->createQueryBuilder('i')
-            ->where('i.user = :uid')
-            ->setParameter('uid', $userId)
+            ->where('i.workspace = :ws')
+            ->setParameter('ws', $workspace)
             ->orderBy('i.createdAt', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
@@ -113,20 +118,16 @@ class InvoiceRepository extends ServiceEntityRepository
     /**
      * Sum of amount_cents for invoices issued in the current calendar month
      * (UTC), regardless of status. Used to enforce the Free-plan $1k MTD cap.
-     *
-     * Drafts count too — once you've drafted $1k worth of invoices for the
-     * current month, you can't draft more on Free until next month OR
-     * upgrade to Pro. Voided invoices are excluded.
      */
-    public function monthToDateIssuedCents(int $userId): int
+    public function monthToDateIssuedCents(Workspace $workspace): int
     {
         $monthStart = (new \DateTimeImmutable('first day of this month 00:00:00'));
         $sum = $this->createQueryBuilder('i')
             ->select('COALESCE(SUM(i.amountCents), 0)')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('i.status <> :void')
             ->andWhere('i.issuedAt >= :monthStart')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->setParameter('void', 'void')
             ->setParameter('monthStart', $monthStart)
             ->getQuery()
@@ -134,15 +135,15 @@ class InvoiceRepository extends ServiceEntityRepository
         return (int) $sum;
     }
 
-    /** Sum of paid amount_cents for the user since the given timestamp. */
-    public function sumPaidSince(int $userId, \DateTimeInterface $since): int
+    /** Sum of paid amount_cents for the workspace since the given timestamp. */
+    public function sumPaidSince(Workspace $workspace, \DateTimeInterface $since): int
     {
         $sum = $this->createQueryBuilder('i')
             ->select('COALESCE(SUM(i.amountCents), 0)')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('i.status = :paid')
             ->andWhere('i.paidAt >= :since')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->setParameter('paid', 'paid')
             ->setParameter('since', $since)
             ->getQuery()
@@ -151,13 +152,13 @@ class InvoiceRepository extends ServiceEntityRepository
     }
 
     /** Sum of awaiting (sent / viewed / partially_paid / overdue) amount_cents. */
-    public function sumAwaiting(int $userId): int
+    public function sumAwaiting(Workspace $workspace): int
     {
         $sum = $this->createQueryBuilder('i')
             ->select('COALESCE(SUM(i.amountCents), 0)')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('i.status IN (:open)')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->setParameter('open', ['sent', 'viewed', 'partially_paid', 'overdue'])
             ->getQuery()
             ->getSingleScalarResult();
@@ -165,16 +166,15 @@ class InvoiceRepository extends ServiceEntityRepository
     }
 
     /**
-     * Count of awaiting invoices, grouped by overdue vs not.
      * @return array{total:int, overdue:int}
      */
-    public function awaitingBreakdown(int $userId): array
+    public function awaitingBreakdown(Workspace $workspace): array
     {
         $rows = $this->createQueryBuilder('i')
             ->select('i.status, COUNT(i.id) as cnt')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('i.status IN (:open)')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->setParameter('open', ['sent', 'viewed', 'partially_paid', 'overdue'])
             ->groupBy('i.status')
             ->getQuery()
@@ -190,19 +190,16 @@ class InvoiceRepository extends ServiceEntityRepository
 
     /**
      * Average seconds between createdAt and paidAt for paid invoices.
-     * Returns null if no paid invoices yet. Computed in PHP because
-     * TIMESTAMPDIFF isn't part of standard Doctrine DQL — could be
-     * pulled in via beberlei/DoctrineExtensions later if MVP volumes
-     * exceed comfort.
+     * Returns null if no paid invoices yet.
      */
-    public function avgSettleTimeSeconds(int $userId): ?int
+    public function avgSettleTimeSeconds(Workspace $workspace): ?int
     {
         $rows = $this->createQueryBuilder('i')
             ->select('i.createdAt, i.paidAt')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('i.status = :paid')
             ->andWhere('i.paidAt IS NOT NULL')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->setParameter('paid', 'paid')
             ->setMaxResults(500)
             ->getQuery()

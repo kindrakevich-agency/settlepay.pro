@@ -4,6 +4,7 @@ namespace App\Service\Api;
 
 use App\Entity\ApiToken;
 use App\Entity\User;
+use App\Entity\Workspace;
 use App\Repository\ApiTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -33,16 +34,17 @@ class ApiTokenService
     ) {}
 
     /**
-     * Generate a new token for the user.
+     * Generate a new token scoped to a workspace, created by a user.
      *
      * @return array{plaintext: string, token: ApiToken}
      */
-    public function generate(User $user, string $name, array $scopes = ['read', 'write']): array
+    public function generate(Workspace $workspace, User $createdBy, string $name, array $scopes = ['read', 'write']): array
     {
         $plaintext = $this->makePlaintext();
 
         $token = (new ApiToken())
-            ->setUser($user)
+            ->setUser($createdBy)
+            ->setWorkspace($workspace)
             ->setName(trim($name) !== '' ? trim($name) : 'API token')
             ->setTokenPrefix(substr($plaintext, 0, self::PREFIX_LENGTH))
             ->setTokenHash(password_hash($plaintext, PASSWORD_ARGON2ID))

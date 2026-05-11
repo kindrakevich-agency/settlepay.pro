@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\ApiToken;
 use App\Entity\User;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,12 +40,12 @@ class ApiTokenRepository extends ServiceEntityRepository
     }
 
     /** @return ApiToken[] */
-    public function findActiveForUser(User $user): array
+    public function findActiveForWorkspace(Workspace $workspace): array
     {
         return $this->createQueryBuilder('t')
-            ->where('t.user = :u')
+            ->where('t.workspace = :ws')
             ->andWhere('t.revokedAt IS NULL')
-            ->setParameter('u', $user)
+            ->setParameter('ws', $workspace)
             ->orderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();

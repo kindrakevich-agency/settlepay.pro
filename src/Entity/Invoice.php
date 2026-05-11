@@ -30,9 +30,22 @@ class Invoice
     #[ORM\Column(length: 40)]
     private string $number;
 
+    /**
+     * The user who *created* this invoice (created_by attribution).
+     * Phase 2: ownership scope is on `workspace` below; this stays so
+     * teammates in the same workspace can see who issued what.
+     */
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'invoices')]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
     private User $user;
+
+    /**
+     * The workspace that owns this invoice — all members can see and
+     * manage it. NOT NULL after Phase 2 finalization migration.
+     */
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(name: 'workspace_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    private ?Workspace $workspace = null;
 
     #[ORM\Column(type: Types::STRING, length: 20, enumType: InvoiceStatus::class, options: ['default' => 'draft'])]
     private InvoiceStatus $status = InvoiceStatus::Draft;
@@ -112,6 +125,8 @@ class Invoice
     public function setNumber(string $n): self             { $this->number = $n; return $this; }
     public function getUser(): User                        { return $this->user; }
     public function setUser(User $u): self                 { $this->user = $u; return $this; }
+    public function getWorkspace(): ?Workspace             { return $this->workspace; }
+    public function setWorkspace(?Workspace $w): self      { $this->workspace = $w; return $this; }
     public function getStatus(): InvoiceStatus             { return $this->status; }
     public function setStatus(InvoiceStatus $s): self      { $this->status = $s; return $this; }
     public function getAmountCents(): int                  { return (int) $this->amountCents; }

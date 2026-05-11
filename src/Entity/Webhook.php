@@ -27,9 +27,14 @@ class Webhook
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $id = null;
 
+    /** Who registered the endpoint — kept for audit. Ownership is on `workspace`. */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private User $user;
+
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(name: 'workspace_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Workspace $workspace = null;
 
     #[ORM\Column(length: 500)]
     private string $url;
@@ -63,6 +68,8 @@ class Webhook
     public function getId(): ?string                              { return $this->id; }
     public function getUser(): User                               { return $this->user; }
     public function setUser(User $u): self                        { $this->user = $u; return $this; }
+    public function getWorkspace(): ?Workspace                    { return $this->workspace; }
+    public function setWorkspace(?Workspace $w): self             { $this->workspace = $w; return $this; }
     public function getUrl(): string                              { return $this->url; }
     public function setUrl(string $u): self                       { $this->url = $u; return $this; }
     public function getSigningSecret(): string                    { return $this->signingSecret; }

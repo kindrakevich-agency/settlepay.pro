@@ -4,6 +4,7 @@ namespace App\Controller\Dashboard;
 
 use App\Entity\User;
 use App\Repository\InvoiceRepository;
+use App\Service\Workspace\WorkspaceContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -12,7 +13,10 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 class DashboardController extends AbstractController
 {
-    public function __construct(private readonly InvoiceRepository $invoices) {}
+    public function __construct(
+        private readonly InvoiceRepository $invoices,
+        private readonly WorkspaceContext $context,
+    ) {}
 
     #[Route(
         path: '/{_locale}/app',
@@ -25,17 +29,17 @@ class DashboardController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $userId = (int) $user->getId();
+        $workspace = $this->context->current($user);
 
-        // Metrics
-        $monthStart      = new \DateTimeImmutable('first day of this month 00:00:00');
-        $paidThisMonth   = $this->invoices->sumPaidSince($userId, $monthStart);
-        $awaitingTotal   = $this->invoices->sumAwaiting($userId);
-        $awaitingBreak   = $this->invoices->awaitingBreakdown($userId);
-        $avgSettleSec    = $this->invoices->avgSettleTimeSeconds($userId);
+        $monthStart    = new \DateTimeImmutable('first day of this month 00:00:00');
+        $paidThisMonth = $this->invoices->sumPaidSince($workspace, $monthStart);
+        $awaitingTotal = $this->invoices->sumAwaiting($workspace);
+        $awaitingBreak = $this->invoices->awaitingBreakdown($workspace);
+        $avgSettleSec  = $this->invoices->avgSettleTimeSeconds($workspace);
 
         return $this->render('dashboard/home.html.twig', [
             'user'                => $user,
+            'workspace'           => $workspace,
             'verification_needed' => !$user->isEmailVerified(),
             'metrics' => [
                 'paid_this_month_cents' => $paidThisMonth,
@@ -44,8 +48,8 @@ class DashboardController extends AbstractController
                 'awaiting_overdue'      => $awaitingBreak['overdue'],
                 'avg_settle_seconds'    => $avgSettleSec,
             ],
-            'recent_invoices' => $this->invoices->findRecent($userId, 5),
-            'invoice_count'   => $this->invoices->countByUser($userId),
+            'recent_invoices' => $this->invoices->findRecent($workspace, 5),
+            'invoice_count'   => $this->invoices->countByWorkspace($workspace),
         ]);
     }
 }

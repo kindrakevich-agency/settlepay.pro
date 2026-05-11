@@ -36,10 +36,15 @@ final class InvoicePdfRenderer
         $opts->set('chroot', \dirname(__DIR__, 3) . '/public');
 
         $dompdf = new Dompdf($opts);
+        // Phase 2: prefer workspace (business unit) for business name /
+        // address / tax id / branding. Fall back to creator user when an
+        // invoice predates the migration backfill.
+        $merchant = $invoice->getWorkspace() ?? $invoice->getUser();
         $html   = $this->twig->render('pdf/invoice.html.twig', [
-            'invoice' => $invoice,
-            'user'    => $invoice->getUser(),
-            'locale'  => $locale,
+            'invoice'  => $invoice,
+            'user'     => $invoice->getUser(),   // creator — kept for legacy `user.email` etc.
+            'merchant' => $merchant,
+            'locale'   => $locale,
         ]);
 
         $dompdf->loadHtml($html, 'UTF-8');

@@ -129,8 +129,14 @@ final class PaymentMatcher
             }
             // Fire Pro-tier webhooks (invoice.paid + payment.received) —
             // dispatching enqueues, so failure here can't break the match.
+            // Phase 2: dispatch is workspace-scoped.
             try {
-                $this->webhooks->dispatch($matched->getUser(), Webhook::EVENT_INVOICE_PAID, [
+                $workspace = $matched->getWorkspace();
+                if (!$workspace) {
+                    // Defensive: pre-Phase-2 rows may exist without workspace yet.
+                    throw new \LogicException('Invoice without workspace; skipping webhook');
+                }
+                $this->webhooks->dispatch($workspace, Webhook::EVENT_INVOICE_PAID, [
                     'invoice' => [
                         'uuid'         => $matched->getUuid(),
                         'number'       => $matched->getNumber(),
@@ -140,7 +146,7 @@ final class PaymentMatcher
                         'paid_at'      => $matched->getPaidAt()?->format(DATE_RFC3339),
                     ],
                 ]);
-                $this->webhooks->dispatch($matched->getUser(), Webhook::EVENT_PAYMENT_RECEIVED, [
+                $this->webhooks->dispatch($workspace, Webhook::EVENT_PAYMENT_RECEIVED, [
                     'payment' => [
                         'id'            => (int) $payment->getId(),
                         'invoice_uuid'  => $matched->getUuid(),

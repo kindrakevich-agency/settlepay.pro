@@ -31,7 +31,7 @@
         table.items td.right { text-align: right; font-variant-numeric: tabular-nums; }
         table.items tr.total td { border-bottom: none; font-weight: 600; font-size: 12pt; padding-top: 14pt; }
 
-        {% set _brand = user.brandColor ?: '#0d9488' %}
+        {% set _brand = merchant.brandColor ?: '#0d9488' %}
         .header-bar { border-bottom: 2pt solid {{ _brand }}; padding-bottom: 12pt; margin-bottom: 24pt; }
         .brand-mark { width: 16pt; height: 16pt; background: {{ _brand }}; display: inline-block; vertical-align: middle; border-radius: 4pt; margin-right: 6pt; }
 
@@ -48,9 +48,9 @@
     <table class="layout">
         <tr>
             <td>
-                {% if user.brandLogoPath %}
+                {% if merchant.brandLogoPath %}
                     {# dompdf will load the file relative to its chroot (= public/) — keep the path no leading slash. #}
-                    <img src="{{ user.brandLogoPath }}" alt="{{ user.businessName }}" style="height: 22pt; vertical-align: middle;">
+                    <img src="{{ merchant.brandLogoPath }}" alt="{{ merchant.businessName }}" style="height: 22pt; vertical-align: middle;">
                 {% else %}
                     <span class="brand-mark"></span>
                     <span style="font-size: 14pt; font-weight: 600; vertical-align: middle;">
@@ -70,12 +70,12 @@
     <tr>
         <td style="width: 50%; padding-right: 18pt;">
             <h2>{{ 'pdf.from'|trans({}, 'messages', locale) }}</h2>
-            <div style="font-weight: 600; font-size: 11pt;">{{ user.businessName ?: user.email }}</div>
-            {% if user.businessAddress %}
-                <div class="muted small" style="white-space: pre-wrap;">{{ user.businessAddress }}</div>
+            <div style="font-weight: 600; font-size: 11pt;">{{ merchant.businessName ?: user.email }}</div>
+            {% if merchant.businessAddress %}
+                <div class="muted small" style="white-space: pre-wrap;">{{ merchant.businessAddress }}</div>
             {% endif %}
-            {% if user.taxId %}
-                <div class="muted small">{{ 'pdf.tax_id'|trans({}, 'messages', locale) }}: {{ user.taxId }}</div>
+            {% if merchant.taxId %}
+                <div class="muted small">{{ 'pdf.tax_id'|trans({}, 'messages', locale) }}: {{ merchant.taxId }}</div>
             {% endif %}
             <div class="muted small">{{ user.email }}</div>
         </td>

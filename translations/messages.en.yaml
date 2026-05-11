@@ -461,6 +461,9 @@ settings:
     section_branding_sub: 'Logo and accent color shown on the payment page, emails, and PDF receipts.'
     section_team: 'Team'
     section_team_sub: 'Invite teammates to share invoices and payments. Up to 5 seats on the Agency plan.'
+    owner_only_hint: 'owner only'
+    payout_member_readonly: 'Only the workspace Owner can change payout settings. Ask them to update if anything looks wrong.'
+    payout_owner_only: 'Only the workspace Owner can update payout settings.'
     business_name: 'Business name'
     business_name_placeholder: "e.g. Vitalii's Studio"
     business_name_hint: 'Appears as the sender on invoice emails and as the merchant on the payment page.'
@@ -613,6 +616,7 @@ billing:
     volume_meter_title: 'This month — invoiced volume'
     volume_meter_full: "You've hit the $1,000 Free-plan limit for this month. Upgrade to Pro for unlimited volume, or wait until next month."
     volume_meter_remaining: "$%amount% left this month on Free. Upgrade to Pro for unlimited volume."
+    owner_only: 'Only the workspace Owner can change billing.'
     flash:
         canceled: 'Subscription canceled. Pro access continues until %date%.'
         no_fees_owed: 'No fees outstanding right now — invoices paid on Pro accrue 0.5%, on Free 1%.'
@@ -655,6 +659,7 @@ api_tokens:
     copy: 'Copy'
     copied: 'Copied'
     free_plan_required: 'API access is a Pro feature. Upgrade to mint tokens and call the API from your own tools.'
+    owner_only: 'Only the workspace Owner can mint or revoke API tokens.'
     docs_title: 'Use it like any modern REST API:'
     flash:
         created: 'Token created. Copy it now — we won’t show it again.'
@@ -676,6 +681,7 @@ webhooks:
     secret_title: 'Signing secret — copy it now'
     secret_warning: 'This is the only time we’ll show the secret. Use it to verify the HMAC-SHA256 signature on incoming requests.'
     free_plan_required: 'Webhooks are a Pro feature. Upgrade to start receiving event callbacks.'
+    owner_only: 'Only the workspace Owner can manage webhooks.'
     invalid_url: 'Enter a valid https:// URL.'
     no_events: 'Pick at least one event type.'
     docs_title: 'Each request includes a signature header:'
@@ -751,6 +757,7 @@ branding:
     title: 'Custom branding'
     subtitle: 'Replace the Settlepay mark with your own logo and pick an accent color. Shown on the payment page, invoice + receipt emails, and the PDF receipt.'
     free_plan_required: 'Custom branding is a Pro feature. Upgrade to put your own logo and color on every client-facing surface.'
+    owner_only: 'Only the workspace Owner can change branding.'
     is_set: 'Custom branding active.'
     not_set: 'Using the default Settlepay mark.'
     preview_title: 'Preview'

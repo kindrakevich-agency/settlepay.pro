@@ -4,6 +4,7 @@ namespace App\Service\Billing;
 
 use App\Entity\BillingIntent;
 use App\Entity\User;
+use App\Entity\Workspace;
 use App\Enum\BillingIntentKind;
 use App\Repository\BillingIntentRepository;
 use App\Service\Blockchain\ChainRegistry;
@@ -44,30 +45,30 @@ final class BillingIntentFactory
         private readonly bool $allowTestnets = false,
     ) {}
 
-    public function createProMonthly(User $user): BillingIntent
+    public function createProMonthly(Workspace $workspace, User $by): BillingIntent
     {
-        return $this->build($user, BillingIntentKind::ProMonthly, self::PRO_MONTHLY_CENTS);
+        return $this->build($workspace, $by, BillingIntentKind::ProMonthly, self::PRO_MONTHLY_CENTS);
     }
 
-    public function createProLifetime(User $user): BillingIntent
+    public function createProLifetime(Workspace $workspace, User $by): BillingIntent
     {
-        return $this->build($user, BillingIntentKind::ProLifetime, self::PRO_LIFETIME_CENTS);
+        return $this->build($workspace, $by, BillingIntentKind::ProLifetime, self::PRO_LIFETIME_CENTS);
     }
 
-    public function createAgencyMonthly(User $user): BillingIntent
+    public function createAgencyMonthly(Workspace $workspace, User $by): BillingIntent
     {
-        return $this->build($user, BillingIntentKind::AgencyMonthly, self::AGENCY_MONTHLY_CENTS);
+        return $this->build($workspace, $by, BillingIntentKind::AgencyMonthly, self::AGENCY_MONTHLY_CENTS);
     }
 
-    public function createFeeSettlement(User $user): ?BillingIntent
+    public function createFeeSettlement(Workspace $workspace, User $by): ?BillingIntent
     {
-        if ($user->getFeesOwedCents() <= 0) {
+        if ($workspace->getFeesOwedCents() <= 0) {
             return null;
         }
-        return $this->build($user, BillingIntentKind::FeeSettlement, $user->getFeesOwedCents());
+        return $this->build($workspace, $by, BillingIntentKind::FeeSettlement, $workspace->getFeesOwedCents());
     }
 
-    private function build(User $user, BillingIntentKind $kind, int $amountCents): BillingIntent
+    private function build(Workspace $workspace, User $by, BillingIntentKind $kind, int $amountCents): BillingIntent
     {
         if (!$this->platformWallet->isEnabled()) {
             throw new \LogicException('PLATFORM_WALLET_ADDRESS is not configured — billing intent cannot be created.');
@@ -82,20 +83,21 @@ final class BillingIntentFactory
         ));
 
         $intent = (new BillingIntent())
-            ->setUser($user)
+            ->setUser($by)
+            ->setWorkspace($workspace)
             ->setKind($kind)
             ->setAmountCents($amountCents)
             ->setCurrency('USD')
             ->setAcceptedChains($chains)
             ->setAcceptedTokens(['USDC'])
             ->setRecipientAddress((string) $this->platformWallet->getAddress())
-            // Lock the intent to the user's own payout wallet. This is what
-            // lets the platform wallet ALSO be the user's payout wallet —
+            // Lock the intent to the workspace's payout wallet. This is what
+            // lets the platform wallet ALSO be the workspace's payout wallet —
             // the listener will only match this billing intent when the
-            // on-chain `from` is the user's wallet (self-payment), so
+            // on-chain `from` is the workspace wallet (self-payment), so
             // client-side invoice payments (different `from`) fall through
             // to the invoice flow. See BlockListener::tick().
-            ->setExpectedPayerAddress($user->getPayoutAddress());
+            ->setExpectedPayerAddress($workspace->getPayoutAddress());
 
         $this->intents->save($intent);
         return $intent;

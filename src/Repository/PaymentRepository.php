@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Payment;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -39,16 +40,15 @@ class PaymentRepository extends ServiceEntityRepository
     }
 
     /**
-     * Returns payments visible to a given user — both matched (linked to
-     * one of their invoices) and orphan (sent to their current payout
-     * address but no invoice matched).
+     * Returns payments visible to a workspace — both matched (linked to
+     * one of its invoices) and orphan (sent to the workspace's current
+     * payout address but no invoice matched).
      *
-     * @param string $payoutAddress lower-cased EVM address
      * @return Payment[]
      */
-    public function findForUserPaginated(int $userId, string $payoutAddress, int $page = 1, int $perPage = 25, ?string $kind = null, ?int $chainId = null): array
+    public function findForWorkspacePaginated(Workspace $workspace, int $page = 1, int $perPage = 25, ?string $kind = null, ?int $chainId = null): array
     {
-        $qb = $this->qbForUser($userId, $payoutAddress, $kind, $chainId);
+        $qb = $this->qbForWorkspace($workspace, $kind, $chainId);
         return $qb
             ->orderBy('p.confirmedAt', 'DESC')
             ->addOrderBy('p.createdAt', 'DESC')
@@ -58,36 +58,36 @@ class PaymentRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countForUser(int $userId, string $payoutAddress, ?string $kind = null, ?int $chainId = null): int
+    public function countForWorkspace(Workspace $workspace, ?string $kind = null, ?int $chainId = null): int
     {
-        $qb = $this->qbForUser($userId, $payoutAddress, $kind, $chainId);
+        $qb = $this->qbForWorkspace($workspace, $kind, $chainId);
         return (int) $qb->select('COUNT(p.id)')->getQuery()->getSingleScalarResult();
     }
 
     /**
-     * Aggregate: total USD value confirmed for the user (matched only).
+     * Aggregate: total USD value confirmed for the workspace (matched only).
      * Orphan payments aren't credited to any invoice so we don't sum them.
      */
-    public function sumMatchedUsdCentsForUser(int $userId): int
+    public function sumMatchedUsdCentsForWorkspace(Workspace $workspace): int
     {
         $sum = $this->createQueryBuilder('p')
             ->select('COALESCE(SUM(p.amountUsdCents), 0)')
             ->leftJoin('p.invoice', 'i')
-            ->where('i.user = :uid')
+            ->where('i.workspace = :ws')
             ->andWhere('p.amountUsdCents IS NOT NULL')
-            ->setParameter('uid', $userId)
+            ->setParameter('ws', $workspace)
             ->getQuery()
             ->getSingleScalarResult();
         return (int) $sum;
     }
 
-    private function qbForUser(int $userId, string $payoutAddress, ?string $kind, ?int $chainId): \Doctrine\ORM\QueryBuilder
+    private function qbForWorkspace(Workspace $workspace, ?string $kind, ?int $chainId): \Doctrine\ORM\QueryBuilder
     {
         $qb = $this->createQueryBuilder('p')
             ->leftJoin('p.invoice', 'i')
-            ->where('i.user = :uid OR (p.invoice IS NULL AND p.recipientAddress = :addr)')
-            ->setParameter('uid', $userId)
-            ->setParameter('addr', strtolower($payoutAddress));
+            ->where('i.workspace = :ws OR (p.invoice IS NULL AND p.recipientAddress = :addr)')
+            ->setParameter('ws', $workspace)
+            ->setParameter('addr', strtolower($workspace->getPayoutAddress()));
 
         if ($kind === 'matched') {
             $qb->andWhere('p.invoice IS NOT NULL');

@@ -10,6 +10,7 @@ use App\Repository\InvoiceRepository;
 use App\Service\Invoice\InvoiceFactory;
 use App\Service\Invoice\InvoiceMailer;
 use App\Service\Notification\WebhookDispatcher;
+use App\Service\Workspace\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,6 +30,7 @@ class InvoiceController extends AbstractController
         private readonly InvoiceMailer $mailer,
         private readonly EntityManagerInterface $em,
         private readonly WebhookDispatcher $webhooks,
+        private readonly WorkspaceContext $context,
     ) {}
 
     #[Route('', name: 'api_invoices_list', methods: ['GET'])]
@@ -36,15 +38,15 @@ class InvoiceController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $userId = (int) $user->getId();
+        $workspace = $this->context->current($user);
 
         $limit  = min(100, max(1, (int) $request->query->get('limit', 25)));
         $page   = max(1, (int) $request->query->get('page', 1));
         $status = (string) $request->query->get('status', '') ?: null;
         $search = (string) $request->query->get('q', '') ?: null;
 
-        $items = $this->invoices->findByUserPaginated($userId, $page, $limit, $status, $search);
-        $total = $this->invoices->countByUser($userId, $status, $search);
+        $items = $this->invoices->findByWorkspacePaginated($workspace, $page, $limit, $status, $search);
+        $total = $this->invoices->countByWorkspace($workspace, $status, $search);
 
         return ApiResponse::ok(
             array_map([ApiResponse::class, 'invoiceToArray'], $items),
@@ -57,8 +59,9 @@ class InvoiceController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
-        if ($user->getPayoutAddress() === '0x0000000000000000000000000000000000000000') {
+        if ($workspace->getPayoutAddress() === '0x0000000000000000000000000000000000000000') {
             return ApiResponse::error('payout.unset', 'Set a payout wallet before creating invoices.', 422);
         }
 
@@ -69,8 +72,6 @@ class InvoiceController extends AbstractController
         if (empty($body['client_name'])) {
             return ApiResponse::error('invoice.missing_client_name', 'client_name is required.', 422);
         }
-
-        // Accept either {line_items: [...]} OR a flat {amount_cents,description}.
         if (empty($body['line_items']) && isset($body['amount_cents'])) {
             $body['line_items'] = [[
                 'description'      => (string) ($body['description'] ?? $body['client_name']),
@@ -83,18 +84,17 @@ class InvoiceController extends AbstractController
         }
 
         try {
-            $invoice = $this->factory->create($user, $body);
+            $invoice = $this->factory->create($workspace, $user, $body);
         } catch (\Throwable $e) {
             return ApiResponse::error('invoice.create_failed', $e->getMessage(), 422);
         }
 
-        // Optional: ?send=1 or {"send": true} → also dispatch the email + invoice.sent webhook.
         $autoSend = (bool) ($body['send'] ?? $request->query->getBoolean('send'));
         if ($autoSend) {
             $invoice->setStatus(InvoiceStatus::Sent)->touch();
             $this->em->flush();
             try {
-                $this->webhooks->dispatch($user, Webhook::EVENT_INVOICE_SENT, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
+                $this->webhooks->dispatch($workspace, Webhook::EVENT_INVOICE_SENT, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
             } catch (\Throwable) { /* non-fatal */ }
             $this->mailer->sendInvoiceToClient($invoice);
         }
@@ -165,9 +165,11 @@ class InvoiceController extends AbstractController
         $invoice->setStatus(InvoiceStatus::Sent)->touch();
         $this->em->flush();
 
-        try {
-            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_SENT, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
-        } catch (\Throwable) { /* non-fatal */ }
+        if ($invoice->getWorkspace()) {
+            try {
+                $this->webhooks->dispatch($invoice->getWorkspace(), Webhook::EVENT_INVOICE_SENT, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
+            } catch (\Throwable) { /* non-fatal */ }
+        }
 
         $emailed = $this->mailer->sendInvoiceToClient($invoice);
         return ApiResponse::ok(ApiResponse::invoiceToArray($invoice), ['emailed' => $emailed]);
@@ -185,21 +187,26 @@ class InvoiceController extends AbstractController
         $invoice->setStatus(InvoiceStatus::Void)->touch();
         $this->em->flush();
 
-        try {
-            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_VOIDED, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
-        } catch (\Throwable) { /* non-fatal */ }
+        if ($invoice->getWorkspace()) {
+            try {
+                $this->webhooks->dispatch($invoice->getWorkspace(), Webhook::EVENT_INVOICE_VOIDED, ['invoice' => ApiResponse::invoiceToArray($invoice)]);
+            } catch (\Throwable) { /* non-fatal */ }
+        }
 
         return ApiResponse::ok(ApiResponse::invoiceToArray($invoice));
     }
 
-    /** Returns the Invoice if owned by the caller, otherwise an error JsonResponse. */
     private function fetchOwnedOrFail(string $uuid): Invoice|JsonResponse
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $workspace = $this->context->current($user);
+
         $invoice = $this->invoices->findByUuid($uuid);
         if (!$invoice) {
             return ApiResponse::error('invoice.not_found', 'Invoice not found.', 404);
         }
-        if ($invoice->getUser()->getId() !== $this->getUser()->getId()) {
+        if ($invoice->getWorkspace()?->getId() !== $workspace->getId()) {
             return ApiResponse::error('invoice.not_found', 'Invoice not found.', 404);
         }
         return $invoice;

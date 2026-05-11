@@ -38,7 +38,7 @@
         </div>
     {% endif %}
 
-    {% if not user.pro %}
+    {% if not workspace.pro %}
         <div class="rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4">
             <p class="text-sm font-medium text-warning-700 dark:text-warning-500">{{ 'webhooks.free_plan_required'|trans }}</p>
             <a href="{{ path('dashboard_billing', {_locale: locale}) }}"
@@ -48,7 +48,7 @@
         </div>
     {% endif %}
 
-    {% if user.pro %}
+    {% if workspace.pro %}
         <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
             <h2 class="font-semibold tracking-tight">{{ 'webhooks.add_title'|trans }}</h2>
             <form method="POST" action="{{ path('dashboard_webhooks_create', {_locale: locale}) }}" class="mt-4 space-y-4">

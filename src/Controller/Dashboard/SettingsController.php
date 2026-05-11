@@ -5,6 +5,7 @@ namespace App\Controller\Dashboard;
 use App\Entity\User;
 use App\Service\Auth\AddressValidator;
 use App\Service\Blockchain\ChainRegistry;
+use App\Service\Workspace\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -14,6 +15,15 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+/**
+ * Phase 2:
+ *   - "Profile" splits in two:
+ *       • User-level fields (display_name, default_locale, password) live on the User.
+ *       • Business-level fields (business_name, business_address, tax_id,
+ *         default_currency) live on the active Workspace — only the Owner
+ *         can edit them. Members see them read-only.
+ *   - Payout wallet is workspace-level, Owner-only.
+ */
 #[IsGranted('ROLE_USER')]
 class SettingsController extends AbstractController
 {
@@ -22,6 +32,7 @@ class SettingsController extends AbstractController
         private readonly UserPasswordHasherInterface $hasher,
         private readonly AddressValidator $addressValidator,
         private readonly ChainRegistry $chains,
+        private readonly WorkspaceContext $context,
     ) {}
 
     #[Route(
@@ -33,9 +44,15 @@ class SettingsController extends AbstractController
     )]
     public function index(): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
+        $workspace = $this->context->current($user);
+
         return $this->render('dashboard/settings.html.twig', [
-            'user'    => $this->getUser(),
-            'chains'  => $this->chains->getMainnets() + $this->chains->getTestnets(),
+            'user'      => $user,
+            'workspace' => $workspace,
+            'is_owner'  => $this->context->isOwner($user, $workspace),
+            'chains'    => $this->chains->getMainnets() + $this->chains->getTestnets(),
         ]);
     }
 
@@ -50,20 +67,28 @@ class SettingsController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
         if (!$this->isCsrfTokenValid('settings-profile', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
             return $this->redirectToRoute('dashboard_settings', ['_locale' => $request->getLocale()]);
         }
 
+        // User-level — every member can edit their own display name + locale.
         $user
             ->setDisplayName($this->trimOrNull($request->request->get('display_name')))
-            ->setBusinessName($this->trimOrNull($request->request->get('business_name')))
-            ->setBusinessAddress($this->trimOrNull($request->request->get('business_address')))
-            ->setTaxId($this->trimOrNull($request->request->get('tax_id')))
-            ->setDefaultCurrency(strtoupper((string) $request->request->get('default_currency', 'USD')))
             ->setDefaultLocale((string) $request->request->get('default_locale', 'en'))
             ->touch();
+
+        // Workspace-level — Owner only.
+        if ($this->context->isOwner($user, $workspace)) {
+            $workspace
+                ->setBusinessName($this->trimOrNull($request->request->get('business_name')))
+                ->setBusinessAddress($this->trimOrNull($request->request->get('business_address')))
+                ->setTaxId($this->trimOrNull($request->request->get('tax_id')))
+                ->setDefaultCurrency(strtoupper((string) $request->request->get('default_currency', 'USD')))
+                ->touch();
+        }
 
         $this->em->flush();
         $this->addFlash('success', 'settings.profile_saved');
@@ -81,9 +106,14 @@ class SettingsController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
         if (!$this->isCsrfTokenValid('settings-payout', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
+            return $this->redirectToRoute('dashboard_settings', ['_locale' => $request->getLocale()]);
+        }
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'settings.payout_owner_only');
             return $this->redirectToRoute('dashboard_settings', ['_locale' => $request->getLocale()]);
         }
 
@@ -98,7 +128,6 @@ class SettingsController extends AbstractController
         $chainId = (int) $request->request->get('payout_chain_id', 0);
         $token   = strtoupper((string) $request->request->get('payout_token', 'USDC'));
 
-        // Sanity-check: chain must be allowlisted, token must be valid for it
         $chainCfg = $this->chains->getChainById($chainId);
         if (!$chainCfg) {
             $this->addFlash('error', 'errors.invalid_chain');
@@ -109,7 +138,7 @@ class SettingsController extends AbstractController
             return $this->redirectToRoute('dashboard_settings', ['_locale' => $request->getLocale()]);
         }
 
-        $user
+        $workspace
             ->setPayoutAddress($address)
             ->setPayoutChainId($chainId)
             ->setPayoutToken($token)

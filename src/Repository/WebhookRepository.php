@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\Entity\Webhook;
+use App\Entity\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -18,30 +19,30 @@ class WebhookRepository extends ServiceEntityRepository
     }
 
     /** @return Webhook[] */
-    public function findActiveForUser(User $user): array
+    public function findActiveForWorkspace(Workspace $workspace): array
     {
         return $this->createQueryBuilder('w')
-            ->where('w.user = :u')
-            ->setParameter('u', $user)
+            ->where('w.workspace = :ws')
+            ->setParameter('ws', $workspace)
             ->orderBy('w.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     /**
-     * All active webhooks for a user that subscribe to the given event.
+     * All active webhooks for a workspace that subscribe to the given event.
      * The events array is filtered in PHP because DQL has no native
      * JSON_CONTAINS function (see gotchas).
      *
      * @return Webhook[]
      */
-    public function findSubscribersFor(User $user, string $event): array
+    public function findSubscribersFor(Workspace $workspace, string $event): array
     {
         /** @var Webhook[] $candidates */
         $candidates = $this->createQueryBuilder('w')
-            ->where('w.user = :u')
+            ->where('w.workspace = :ws')
             ->andWhere('w.isActive = :true')
-            ->setParameter('u', $user)
+            ->setParameter('ws', $workspace)
             ->setParameter('true', true)
             ->getQuery()
             ->getResult();

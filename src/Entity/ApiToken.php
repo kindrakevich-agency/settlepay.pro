@@ -27,9 +27,14 @@ class ApiToken
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $id = null;
 
+    /** Who minted the token. Ownership/scoping uses `workspace`. */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private User $user;
+
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(name: 'workspace_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Workspace $workspace = null;
 
     /** Human-readable label set by the user, e.g. "Zapier integration". */
     #[ORM\Column(length: 80)]
@@ -67,6 +72,8 @@ class ApiToken
     public function getId(): ?string                              { return $this->id; }
     public function getUser(): User                               { return $this->user; }
     public function setUser(User $u): self                        { $this->user = $u; return $this; }
+    public function getWorkspace(): ?Workspace                    { return $this->workspace; }
+    public function setWorkspace(?Workspace $w): self             { $this->workspace = $w; return $this; }
     public function getName(): string                             { return $this->name; }
     public function setName(string $n): self                      { $this->name = $n; return $this; }
     public function getTokenPrefix(): string                      { return $this->tokenPrefix; }

@@ -17,7 +17,7 @@
         <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ 'branding.subtitle'|trans }}</p>
     </div>
 
-    {% if not user.pro %}
+    {% if not workspace.pro %}
         <div class="rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4">
             <p class="text-sm font-medium text-warning-700 dark:text-warning-500">{{ 'branding.free_plan_required'|trans }}</p>
             <a href="{{ path('dashboard_billing', {_locale: locale}) }}"
@@ -34,28 +34,28 @@
 
         <div class="mt-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-6">
             <div class="flex items-center gap-3">
-                {% if user.brandLogoPath %}
-                    <img src="/{{ user.brandLogoPath }}" alt="{{ user.businessName }}" class="h-10 w-10 rounded-lg object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                {% if workspace.brandLogoPath %}
+                    <img src="/{{ workspace.brandLogoPath }}" alt="{{ workspace.businessName }}" class="h-10 w-10 rounded-lg object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
                 {% else %}
                     <span class="grid h-10 w-10 place-items-center rounded-lg text-white text-sm font-semibold"
-                          style="background-color: {{ user.brandColor ?: '#0d9488' }}">
-                        {{ (user.businessName|default(user.email))|slice(0, 2)|upper }}
+                          style="background-color: {{ workspace.brandColor ?: '#0d9488' }}">
+                        {{ (workspace.businessName|default(user.email))|slice(0, 2)|upper }}
                     </span>
                 {% endif %}
                 <div>
-                    <div class="font-semibold">{{ user.businessName ?: (user.email|split('@')|first) }}</div>
+                    <div class="font-semibold">{{ workspace.businessName ?: (user.email|split('@')|first) }}</div>
                     <div class="text-xs text-slate-500">{{ 'branding.preview_invoice_label'|trans }}</div>
                 </div>
             </div>
             <button type="button"
                     class="mt-5 inline-flex items-center justify-center rounded-xl text-white px-4 py-2.5 text-sm font-medium"
-                    style="background-color: {{ user.brandColor ?: '#0d9488' }}">
+                    style="background-color: {{ workspace.brandColor ?: '#0d9488' }}">
                 {{ 'invoice.pay_now'|trans }}
             </button>
         </div>
     </section>
 
-    {% if user.pro %}
+    {% if workspace.pro %}
         <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
             <form method="POST" action="{{ path('dashboard_branding_save', {_locale: locale}) }}"
                   enctype="multipart/form-data" class="space-y-5">
@@ -65,10 +65,10 @@
                     <label for="brand_color" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'branding.color_label'|trans }}</label>
                     <div class="flex items-center gap-3">
                         <input type="color" name="brand_color" id="brand_color"
-                               value="{{ user.brandColor ?: '#0d9488' }}"
+                               value="{{ workspace.brandColor ?: '#0d9488' }}"
                                class="h-10 w-16 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer">
                         <input type="text" pattern="^#[0-9a-fA-F]{6}$" maxlength="7"
-                               value="{{ user.brandColor ?: '#0d9488' }}"
+                               value="{{ workspace.brandColor ?: '#0d9488' }}"
                                oninput="document.getElementById('brand_color').value=this.value"
                                class="px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 font-mono text-sm w-32 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
                     </div>
@@ -95,7 +95,7 @@
                 </div>
             </form>
 
-            {% if user.brandLogoPath %}
+            {% if workspace.brandLogoPath %}
                 <form method="POST" action="{{ path('dashboard_branding_remove', {_locale: locale}) }}"
                       onsubmit="return confirm('{{ 'branding.confirm_remove_logo'|trans|escape('js') }}')"
                       class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">

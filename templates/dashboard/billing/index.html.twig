@@ -23,10 +23,10 @@
     <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
             <h2 class="font-semibold tracking-tight">{{ 'billing.current_plan'|trans }}</h2>
-            {% if user.pro %}
+            {% if workspace.pro %}
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 px-2.5 py-0.5 text-xs font-medium">
                     <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
-                    {{ user.proLifetime ? 'billing.plan_pro_lifetime'|trans : 'billing.plan_pro_monthly'|trans }}
+                    {{ workspace.proLifetime ? 'billing.plan_pro_lifetime'|trans : 'billing.plan_pro_monthly'|trans }}
                 </span>
             {% else %}
                 <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 text-xs font-medium">
@@ -39,26 +39,26 @@
         <div class="grid sm:grid-cols-3 gap-4 text-sm">
             <div>
                 <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'billing.label_fee_rate'|trans }}</div>
-                <div class="mt-1 font-mono tabular-nums">{{ user.pro ? '0.5%' : '1%' }}</div>
+                <div class="mt-1 font-mono tabular-nums">{{ workspace.pro ? '0.5%' : '1%' }}</div>
             </div>
             <div>
                 <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'billing.label_volume'|trans }}</div>
-                <div class="mt-1">{{ user.pro ? 'billing.unlimited'|trans : 'billing.volume_free'|trans }}</div>
+                <div class="mt-1">{{ workspace.pro ? 'billing.unlimited'|trans : 'billing.volume_free'|trans }}</div>
             </div>
             <div>
                 <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">{{ 'billing.label_renews'|trans }}</div>
                 <div class="mt-1">
-                    {% if user.proLifetime %}{{ 'billing.lifetime'|trans }}
-                    {% elseif user.pro and user.planRenewsAt %}{{ user.planRenewsAt|date('Y-m-d') }}
+                    {% if workspace.proLifetime %}{{ 'billing.lifetime'|trans }}
+                    {% elseif workspace.pro and workspace.planRenewsAt %}{{ workspace.planRenewsAt|date('Y-m-d') }}
                     {% else %}—{% endif %}
                 </div>
             </div>
         </div>
 
-        {% if user.pro and user.planRenewsAt %}
-            {% if user.planCanceledAt %}
+        {% if workspace.pro and workspace.planRenewsAt %}
+            {% if workspace.planCanceledAt %}
                 <div class="mt-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 p-3 text-xs text-slate-600 dark:text-slate-400">
-                    {{ 'billing.canceled_notice'|trans({'%date%': user.planRenewsAt|date('Y-m-d')}) }}
+                    {{ 'billing.canceled_notice'|trans({'%date%': workspace.planRenewsAt|date('Y-m-d')}) }}
                 </div>
             {% else %}
                 <form method="POST" action="{{ path('dashboard_billing_cancel', {_locale: locale}) }}" class="mt-4" onsubmit="return confirm('{{ 'billing.confirm_cancel'|trans|escape('js') }}')">
@@ -72,7 +72,7 @@
     </section>
 
     {# ─── Free-plan volume meter — only shown when on Free ─── #}
-    {% if not user.pro %}
+    {% if not workspace.pro %}
         {% set pct = (mtd_volume_cents / free_cap_cents * 100)|round(0) %}
         {% set tone = pct >= 100 ? 'danger' : (pct >= 80 ? 'warning' : 'brand') %}
         <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
@@ -99,21 +99,21 @@
     <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div class="flex items-center justify-between mb-3 flex-wrap gap-3">
             <h2 class="font-semibold tracking-tight">{{ 'billing.fees_owed'|trans }}</h2>
-            <span class="font-mono tabular-nums text-2xl font-semibold">${{ (user.feesOwedCents / 100)|number_format(2, '.', ',') }}</span>
+            <span class="font-mono tabular-nums text-2xl font-semibold">${{ (workspace.feesOwedCents / 100)|number_format(2, '.', ',') }}</span>
         </div>
         <p class="text-xs text-slate-500 dark:text-slate-400">{{ 'billing.fees_owed_explainer'|trans }}</p>
-        {% if user.feesOwedCents > 0 %}
+        {% if workspace.feesOwedCents > 0 %}
             <form method="POST" action="{{ path('dashboard_billing_pay_fees', {_locale: locale}) }}" class="mt-4">
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('billing-pay-fees') }}">
                 <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition">
-                    {{ 'billing.pay_fees_now'|trans({'%amount%': (user.feesOwedCents / 100)|number_format(2, '.', ',')}) }}
+                    {{ 'billing.pay_fees_now'|trans({'%amount%': (workspace.feesOwedCents / 100)|number_format(2, '.', ',')}) }}
                 </button>
             </form>
         {% endif %}
     </section>
 
     {# ─── Upgrade options (only show when not lifetime) ─── #}
-    {% if not user.proLifetime %}
+    {% if not workspace.proLifetime %}
         <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-brand-50/80 to-white dark:from-brand-950/30 dark:to-slate-900 p-6">
             <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'billing.upgrade_title'|trans }}</h2>
             <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ 'billing.upgrade_sub'|trans }}</p>
@@ -129,7 +129,7 @@
                     </div>
                     <p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ 'billing.monthly_blurb'|trans }}</p>
                     <button type="submit" class="mt-5 w-full rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium transition">
-                        {{ user.pro ? 'billing.renew_monthly'|trans : 'billing.upgrade_monthly'|trans }}
+                        {{ workspace.pro ? 'billing.renew_monthly'|trans : 'billing.upgrade_monthly'|trans }}
                     </button>
                 </form>
 
@@ -161,7 +161,7 @@
                         <p class="mt-1 font-display text-2xl font-semibold tracking-tight">${{ agency_monthly_usd }} <span class="text-sm font-normal text-slate-500">{{ 'billing.per_month'|trans }}</span></p>
                     </div>
                     <button type="submit" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-2 text-sm font-medium transition">
-                        {{ user.plan == 'agency' ? 'billing.renew_agency'|trans : 'billing.upgrade_agency'|trans }}
+                        {{ workspace.plan == 'agency' ? 'billing.renew_agency'|trans : 'billing.upgrade_agency'|trans }}
                     </button>
                 </div>
                 <p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ 'billing.agency_blurb'|trans }}</p>

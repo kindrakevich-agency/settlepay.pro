@@ -459,6 +459,9 @@ settings:
     section_branding_sub: 'Logo y color de acento que aparecen en la página de pago, los correos y los recibos en PDF.'
     section_team: 'Equipo'
     section_team_sub: 'Invita a compañeros a compartir facturas y pagos. Hasta 5 plazas en el plan Agency.'
+    owner_only_hint: 'solo owner'
+    payout_member_readonly: 'Solo el Owner del espacio puede cambiar los ajustes de cobro. Pídele que actualice si algo no cuadra.'
+    payout_owner_only: 'Solo el Owner del espacio puede modificar los ajustes de cobro.'
     business_name: 'Nombre del negocio'
     business_name_placeholder: 'p. ej. Estudio de Vitalii'
     business_name_hint: 'Aparece como remitente del correo de la factura y como comerciante en la página de pago.'
@@ -611,6 +614,7 @@ billing:
     volume_meter_title: 'Este mes — volumen facturado'
     volume_meter_full: "Llegaste al límite del plan Free: $1.000 al mes. Pásate a Pro para volumen ilimitado o espera al mes siguiente."
     volume_meter_remaining: "Te quedan $%amount% este mes en Free. Pásate a Pro para volumen ilimitado."
+    owner_only: 'Solo el Owner del espacio puede cambiar la facturación.'
     flash:
         canceled: 'Suscripción cancelada. Mantienes Pro hasta el %date%.'
         no_fees_owed: 'No tienes comisiones pendientes ahora mismo — las facturas pagadas en Pro acumulan 0,5%, en Free 1%.'
@@ -653,6 +657,7 @@ api_tokens:
     copy: 'Copiar'
     copied: 'Copiado'
     free_plan_required: 'El acceso a la API es una función Pro. Actualiza para emitir tokens y usar la API desde tus herramientas.'
+    owner_only: 'Solo el Owner del espacio puede emitir o revocar tokens de API.'
     docs_title: 'Úsalo como cualquier API REST moderna:'
     flash:
         created: 'Token creado. Cópialo ahora — no volveremos a mostrarlo.'
@@ -674,6 +679,7 @@ webhooks:
     secret_title: 'Secreto de firma — cópialo ahora'
     secret_warning: 'Esta es la única vez que mostraremos el secreto. Úsalo para verificar la firma HMAC-SHA256 de las solicitudes entrantes.'
     free_plan_required: 'Los webhooks son una función Pro. Actualiza para empezar a recibir notificaciones.'
+    owner_only: 'Solo el Owner del espacio puede gestionar los webhooks.'
     invalid_url: 'Introduce una URL https:// válida.'
     no_events: 'Selecciona al menos un evento.'
     docs_title: 'Cada solicitud incluye una cabecera de firma:'
@@ -749,6 +755,7 @@ branding:
     title: 'Personalización de marca'
     subtitle: 'Sustituye el logo de Settlepay por el tuyo y elige un color de acento. Aparece en la página de pago, en los correos de factura y recibo, y en el PDF.'
     free_plan_required: 'La personalización de marca es una función Pro. Actualiza para mostrar tu propio logo y color en todas las pantallas que ve el cliente.'
+    owner_only: 'Solo el Owner del espacio puede cambiar la marca.'
     is_set: 'Marca personalizada activa.'
     not_set: 'Se usa el logo por defecto de Settlepay.'
     preview_title: 'Vista previa'

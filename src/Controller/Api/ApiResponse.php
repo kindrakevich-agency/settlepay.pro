@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Entity\User;
+use App\Entity\Workspace;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
@@ -30,25 +31,37 @@ final class ApiResponse
         return new JsonResponse(['error' => $error], $status);
     }
 
-    public static function userToArray(User $u): array
+    public static function userToArray(User $u, ?Workspace $workspace = null, bool $isOwner = false): array
     {
         return [
-            'uuid'             => $u->getUuid(),
-            'email'            => $u->getEmail(),
-            'display_name'     => $u->getDisplayName(),
-            'business_name'    => $u->getBusinessName(),
-            'business_address' => $u->getBusinessAddress(),
-            'tax_id'           => $u->getTaxId(),
-            'default_currency' => $u->getDefaultCurrency(),
-            'default_locale'   => $u->getDefaultLocale(),
-            'payout_address'   => $u->getPayoutAddress(),
-            'payout_chain_id'  => $u->getPayoutChainId(),
-            'payout_token'     => $u->getPayoutToken(),
-            'plan'             => $u->getPlan(),
-            'is_pro'           => $u->isPro(),
-            'plan_renews_at'   => $u->getPlanRenewsAt()?->format(DATE_RFC3339),
-            'fees_owed_cents'  => $u->getFeesOwedCents(),
-            'created_at'       => $u->getCreatedAt()->format(DATE_RFC3339),
+            'uuid'           => $u->getUuid(),
+            'email'          => $u->getEmail(),
+            'display_name'   => $u->getDisplayName(),
+            'default_locale' => $u->getDefaultLocale(),
+            'created_at'     => $u->getCreatedAt()->format(DATE_RFC3339),
+            'workspace'      => $workspace ? self::workspaceToArray($workspace, $isOwner) : null,
+        ];
+    }
+
+    public static function workspaceToArray(Workspace $w, bool $isOwner): array
+    {
+        return [
+            'uuid'             => $w->getUuid(),
+            'name'             => $w->getName(),
+            'role'             => $isOwner ? 'owner' : 'member',
+            'plan'             => $w->getPlan(),
+            'is_pro'           => $w->isPro(),
+            'is_agency'        => $w->isAgency(),
+            'plan_renews_at'   => $w->getPlanRenewsAt()?->format(DATE_RFC3339),
+            'fees_owed_cents'  => $w->getFeesOwedCents(),
+            'business_name'    => $w->getBusinessName(),
+            'business_address' => $w->getBusinessAddress(),
+            'tax_id'           => $w->getTaxId(),
+            'default_currency' => $w->getDefaultCurrency(),
+            'payout_address'   => $w->getPayoutAddress(),
+            'payout_chain_id'  => $w->getPayoutChainId(),
+            'payout_token'     => $w->getPayoutToken(),
+            'seat_limit'       => $w->getSeatLimit(),
         ];
     }
 
@@ -86,6 +99,7 @@ final class ApiResponse
             'metadata'          => $i->getMetadata(),
             'created_at'        => $i->getCreatedAt()->format(DATE_RFC3339),
             'updated_at'        => $i->getUpdatedAt()->format(DATE_RFC3339),
+            'created_by'        => $i->getUser()->getEmail(),
             'pay_url'           => sprintf('/pay/%s', $i->getUuid()),
         ];
     }

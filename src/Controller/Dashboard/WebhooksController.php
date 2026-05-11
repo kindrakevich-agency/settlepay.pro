@@ -5,6 +5,7 @@ namespace App\Controller\Dashboard;
 use App\Entity\User;
 use App\Entity\Webhook;
 use App\Repository\WebhookRepository;
+use App\Service\Workspace\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,11 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
- * Pro-tier webhook management.
- *
- *   GET    /app/settings/webhooks                 list + create form
- *   POST   /app/settings/webhooks                 create (Pro only)
- *   POST   /app/settings/webhooks/{id}/delete     delete
+ * Pro-tier webhook management — Owner-only, workspace-scoped.
  */
 #[IsGranted('ROLE_USER')]
 #[Route('/{_locale}/app/settings/webhooks', requirements: ['_locale' => 'en|uk|es'], defaults: ['_locale' => 'en'])]
@@ -28,6 +25,7 @@ class WebhooksController extends AbstractController
     public function __construct(
         private readonly WebhookRepository $repo,
         private readonly EntityManagerInterface $em,
+        private readonly WorkspaceContext $context,
     ) {}
 
     #[Route('', name: 'dashboard_webhooks', methods: ['GET'])]
@@ -35,13 +33,14 @@ class WebhooksController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
-        // One-time secret is flashed on creation and shown ONCE.
         $justCreated = $request->getSession()->getFlashBag()->get('webhook_secret');
 
         return $this->render('dashboard/settings/webhooks.html.twig', [
-            'user'         => $user,
-            'webhooks'     => $this->repo->findActiveForUser($user),
+            'workspace'    => $workspace,
+            'is_owner'     => $this->context->isOwner($user, $workspace),
+            'webhooks'     => $this->repo->findActiveForWorkspace($workspace),
             'all_events'   => Webhook::ALL_EVENTS,
             'just_created' => $justCreated[0] ?? null,
         ]);
@@ -52,14 +51,18 @@ class WebhooksController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
         if (!$this->isCsrfTokenValid('webhook-create', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
             return $this->redirectToRoute('dashboard_webhooks', ['_locale' => $request->getLocale()]);
         }
-
-        if (!$user->isPro()) {
+        if (!$workspace->isPro()) {
             $this->addFlash('error', 'webhooks.free_plan_required');
+            return $this->redirectToRoute('dashboard_webhooks', ['_locale' => $request->getLocale()]);
+        }
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'webhooks.owner_only');
             return $this->redirectToRoute('dashboard_webhooks', ['_locale' => $request->getLocale()]);
         }
 
@@ -82,6 +85,7 @@ class WebhooksController extends AbstractController
 
         $webhook = (new Webhook())
             ->setUser($user)
+            ->setWorkspace($workspace)
             ->setUrl($url)
             ->setSigningSecret($secret)
             ->setEvents($events)
@@ -100,14 +104,19 @@ class WebhooksController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
         if (!$this->isCsrfTokenValid('webhook-delete', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
             return $this->redirectToRoute('dashboard_webhooks', ['_locale' => $request->getLocale()]);
         }
+        if (!$this->context->isOwner($user, $workspace)) {
+            $this->addFlash('error', 'webhooks.owner_only');
+            return $this->redirectToRoute('dashboard_webhooks', ['_locale' => $request->getLocale()]);
+        }
 
         $webhook = $this->repo->find($id);
-        if (!$webhook || $webhook->getUser()->getId() !== $user->getId()) {
+        if (!$webhook || $webhook->getWorkspace()?->getId() !== $workspace->getId()) {
             throw new NotFoundHttpException();
         }
         $this->em->remove($webhook);

@@ -2,8 +2,8 @@
 
 namespace App\Service\Notification;
 
-use App\Entity\User;
 use App\Entity\WebhookDelivery;
+use App\Entity\Workspace;
 use App\Message\DeliverWebhookMessage;
 use App\Repository\WebhookRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,9 +26,9 @@ class WebhookDispatcher
     /**
      * @param array<string, mixed> $payload
      */
-    public function dispatch(User $user, string $event, array $payload): void
+    public function dispatch(Workspace $workspace, string $event, array $payload): void
     {
-        $subscribers = $this->webhooks->findSubscribersFor($user, $event);
+        $subscribers = $this->webhooks->findSubscribersFor($workspace, $event);
         if (!$subscribers) {
             return;
         }

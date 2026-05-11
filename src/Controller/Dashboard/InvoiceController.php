@@ -2,6 +2,7 @@
 
 namespace App\Controller\Dashboard;
 
+use App\Entity\Invoice;
 use App\Entity\User;
 use App\Entity\Webhook;
 use App\Enum\InvoiceStatus;
@@ -11,6 +12,7 @@ use App\Service\Invoice\InvoiceFactory;
 use App\Service\Invoice\InvoiceMailer;
 use App\Service\Invoice\InvoicePdfRenderer;
 use App\Service\Notification\WebhookDispatcher;
+use App\Service\Workspace\WorkspaceContext;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -33,10 +35,11 @@ class InvoiceController extends AbstractController
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
         private readonly WebhookDispatcher $webhooks,
+        private readonly WorkspaceContext $context,
     ) {}
 
     /** Compact wire-format payload used by every invoice-* webhook event. */
-    private function invoicePayload(\App\Entity\Invoice $invoice): array
+    private function invoicePayload(Invoice $invoice): array
     {
         return [
             'uuid'             => $invoice->getUuid(),
@@ -60,7 +63,7 @@ class InvoiceController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $userId = (int) $user->getId();
+        $workspace = $this->context->current($user);
 
         $page    = max(1, (int) $request->query->get('page', 1));
         $perPage = 25;
@@ -69,13 +72,13 @@ class InvoiceController extends AbstractController
         $statusFilter = $status !== '' ? $status : null;
         $searchFilter = $search !== '' ? $search : null;
 
-        $items   = $this->invoices->findByUserPaginated($userId, $page, $perPage, $statusFilter, $searchFilter);
-        $total   = $this->invoices->countByUser($userId, $statusFilter, $searchFilter);
+        $items   = $this->invoices->findByWorkspacePaginated($workspace, $page, $perPage, $statusFilter, $searchFilter);
+        $total   = $this->invoices->countByWorkspace($workspace, $statusFilter, $searchFilter);
         $pages   = max(1, (int) ceil($total / $perPage));
 
         return $this->render('dashboard/invoices/index.html.twig', [
             'invoices'      => $items,
-            'invoice_count' => $this->invoices->countByUser($userId),
+            'invoice_count' => $this->invoices->countByWorkspace($workspace),
             'total'         => $total,
             'page'          => $page,
             'pages'         => $pages,
@@ -90,6 +93,7 @@ class InvoiceController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $workspace = $this->context->current($user);
 
         $errors = [];
         $form   = [
@@ -97,9 +101,9 @@ class InvoiceController extends AbstractController
             'client_email'   => '',
             'description'    => '',
             'due_date'       => (new \DateTimeImmutable('+14 days'))->format('Y-m-d'),
-            'currency'       => $user->getDefaultCurrency(),
-            'accepted_chains'=> [(int) $user->getPayoutChainId()],
-            'accepted_tokens'=> [$user->getPayoutToken()],
+            'currency'       => $workspace->getDefaultCurrency(),
+            'accepted_chains'=> [$workspace->getPayoutChainId()],
+            'accepted_tokens'=> [$workspace->getPayoutToken()],
             'line_items'     => [
                 ['description' => '', 'quantity' => '1', 'unit_price' => ''],
             ],
@@ -110,16 +114,14 @@ class InvoiceController extends AbstractController
                 $errors[] = 'errors.csrf_invalid';
             }
 
-            // Read posted values
-            $form['client_name']   = trim((string) $request->request->get('client_name', ''));
-            $form['client_email']  = trim((string) $request->request->get('client_email', ''));
-            $form['description']   = trim((string) $request->request->get('description', ''));
-            $form['due_date']      = (string) $request->request->get('due_date', '');
-            $form['currency']      = strtoupper((string) $request->request->get('currency', 'USD'));
+            $form['client_name']     = trim((string) $request->request->get('client_name', ''));
+            $form['client_email']    = trim((string) $request->request->get('client_email', ''));
+            $form['description']     = trim((string) $request->request->get('description', ''));
+            $form['due_date']        = (string) $request->request->get('due_date', '');
+            $form['currency']        = strtoupper((string) $request->request->get('currency', 'USD'));
             $form['accepted_chains'] = array_map('intval', (array) $request->request->all('accepted_chains'));
             $form['accepted_tokens'] = array_map('strtoupper', (array) $request->request->all('accepted_tokens'));
 
-            // Line items
             $rawItems = (array) $request->request->all('line_items');
             $form['line_items'] = [];
             $cleanItems = [];
@@ -143,34 +145,31 @@ class InvoiceController extends AbstractController
             if (empty($form['line_items']) || count($cleanItems) === 0) {
                 $errors[] = 'errors.no_line_items';
             }
-
             if ($form['client_name'] === '')  $errors[] = 'errors.client_name_required';
             if ($form['client_email'] !== '' && !filter_var($form['client_email'], FILTER_VALIDATE_EMAIL)) {
                 $errors[] = 'errors.invalid_email';
             }
             if (empty($form['accepted_chains'])) $errors[] = 'errors.no_chains';
             if (empty($form['accepted_tokens'])) $errors[] = 'errors.no_tokens';
-            if ($user->getPayoutAddress() === '0x0000000000000000000000000000000000000000') {
+            if ($workspace->getPayoutAddress() === '0x0000000000000000000000000000000000000000') {
                 $errors[] = 'errors.payout_address_unset';
             }
 
-            // Free-plan $1,000 MTD invoicing cap. Sum of THIS new invoice
-            // + everything else issued this month must not exceed $1k.
-            // Pro users (including Pro-lifetime) skip the check entirely.
+            // Free-plan $1k MTD cap (workspace-scoped).
             $totalNewCents = array_sum(array_map(static fn(array $li): int =>
                 (int) round((float) bcmul((string)($li['quantity'] ?? '1.00'), (string)$li['unit_price_cents'], 6)),
                 $cleanItems
             ));
-            if (!$user->isPro()) {
-                $cap   = 100000; // $1,000 in cents
-                $usage = $this->invoices->monthToDateIssuedCents((int) $user->getId());
+            if (!$workspace->isPro()) {
+                $cap   = 100000;
+                $usage = $this->invoices->monthToDateIssuedCents($workspace);
                 if ($usage + $totalNewCents > $cap) {
                     $errors[] = 'errors.free_volume_cap';
                 }
             }
 
             if (empty($errors)) {
-                $invoice = $this->factory->create($user, [
+                $invoice = $this->factory->create($workspace, $user, [
                     'client_name'      => $form['client_name'],
                     'client_email'     => $form['client_email'] ?: null,
                     'description'      => $form['description'] ?: null,
@@ -201,10 +200,7 @@ class InvoiceController extends AbstractController
         methods: ['GET'])]
     public function show(string $uuid): Response
     {
-        $invoice = $this->invoices->findByUuid($uuid);
-        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
-            throw $this->createNotFoundException('Invoice not found.');
-        }
+        $invoice = $this->fetchInWorkspaceOrNotFound($uuid);
         return $this->render('dashboard/invoices/show.html.twig', [
             'invoice' => $invoice,
         ]);
@@ -217,17 +213,15 @@ class InvoiceController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
-        $invoice = $this->invoices->findByUuid($uuid);
-        if (!$invoice || $invoice->getUser() !== $user) {
-            throw $this->createNotFoundException('Invoice not found.');
-        }
+        $workspace = $this->context->current($user);
+        $invoice = $this->fetchInWorkspaceOrNotFound($uuid);
+
         if ($invoice->getStatus() !== InvoiceStatus::Draft) {
             $this->addFlash('warning', 'errors.invoice_already_sent');
             return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
         }
 
         $errors = [];
-        // Pre-fill the form with existing values on first GET.
         $form = [
             'client_name'     => $invoice->getClientName(),
             'client_email'    => $invoice->getClientEmail() ?? '',
@@ -289,12 +283,10 @@ class InvoiceController extends AbstractController
             if (empty($form['accepted_chains'])) $errors[] = 'errors.no_chains';
             if (empty($form['accepted_tokens'])) $errors[] = 'errors.no_tokens';
 
-            // Free-plan $1k MTD cap also covers edits — recompute as
-            // (MTD - existing amount + new amount). Skip for Pro.
-            if (!$user->isPro()) {
-                $cap          = 100000;
-                $usage        = $this->invoices->monthToDateIssuedCents((int) $user->getId());
-                $totalNewCents = array_sum(array_map(static fn(array $li): int =>
+            if (!$workspace->isPro()) {
+                $cap            = 100000;
+                $usage          = $this->invoices->monthToDateIssuedCents($workspace);
+                $totalNewCents  = array_sum(array_map(static fn(array $li): int =>
                     (int) round((float) bcmul((string)($li['quantity'] ?? '1.00'), (string)$li['unit_price_cents'], 6)),
                     $cleanItems
                 ));
@@ -333,15 +325,11 @@ class InvoiceController extends AbstractController
         methods: ['POST'])]
     public function void(string $uuid, Request $request): RedirectResponse
     {
-        $invoice = $this->invoices->findByUuid($uuid);
-        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
-            throw $this->createNotFoundException('Invoice not found.');
-        }
+        $invoice = $this->fetchInWorkspaceOrNotFound($uuid);
         if (!$this->isCsrfTokenValid('invoice-void', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
             return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
         }
-        // Void allowed only on drafts + sent + viewed. Paid / overdue / already-void invoices can't be voided.
         if (!in_array($invoice->getStatus(), [InvoiceStatus::Draft, InvoiceStatus::Sent, InvoiceStatus::Viewed], true)) {
             $this->addFlash('warning', 'errors.cannot_void_after_paid');
             return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
@@ -350,11 +338,13 @@ class InvoiceController extends AbstractController
         $invoice->setStatus(InvoiceStatus::Void)->touch();
         $this->em->flush();
 
-        try {
-            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_VOIDED, [
-                'invoice' => $this->invoicePayload($invoice),
-            ]);
-        } catch (\Throwable) { /* non-fatal */ }
+        if ($invoice->getWorkspace()) {
+            try {
+                $this->webhooks->dispatch($invoice->getWorkspace(), Webhook::EVENT_INVOICE_VOIDED, [
+                    'invoice' => $this->invoicePayload($invoice),
+                ]);
+            } catch (\Throwable) { /* non-fatal */ }
+        }
 
         $this->addFlash('success', $this->translator->trans('flash.invoice_voided', ['%number%' => $invoice->getNumber()]));
         return $this->redirectToRoute('dashboard_invoices', ['_locale' => $request->getLocale()]);
@@ -365,11 +355,7 @@ class InvoiceController extends AbstractController
         methods: ['GET'])]
     public function pdf(string $uuid, Request $request): Response
     {
-        $invoice = $this->invoices->findByUuid($uuid);
-        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
-            throw $this->createNotFoundException('Invoice not found.');
-        }
-
+        $invoice = $this->fetchInWorkspaceOrNotFound($uuid);
         $bytes = $this->pdf->render($invoice, $request->getLocale());
 
         return new Response($bytes, 200, [
@@ -384,10 +370,7 @@ class InvoiceController extends AbstractController
         methods: ['POST'])]
     public function send(string $uuid, Request $request): RedirectResponse
     {
-        $invoice = $this->invoices->findByUuid($uuid);
-        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
-            throw $this->createNotFoundException('Invoice not found.');
-        }
+        $invoice = $this->fetchInWorkspaceOrNotFound($uuid);
         if (!$this->isCsrfTokenValid('invoice-send', (string) $request->request->get('_csrf_token'))) {
             $this->addFlash('error', 'errors.csrf_invalid');
             return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
@@ -400,11 +383,13 @@ class InvoiceController extends AbstractController
         $invoice->setStatus(InvoiceStatus::Sent)->touch();
         $this->em->flush();
 
-        try {
-            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_SENT, [
-                'invoice' => $this->invoicePayload($invoice),
-            ]);
-        } catch (\Throwable) { /* non-fatal */ }
+        if ($invoice->getWorkspace()) {
+            try {
+                $this->webhooks->dispatch($invoice->getWorkspace(), Webhook::EVENT_INVOICE_SENT, [
+                    'invoice' => $this->invoicePayload($invoice),
+                ]);
+            } catch (\Throwable) { /* non-fatal */ }
+        }
 
         $emailed = $this->mailer->sendInvoiceToClient($invoice);
         $this->addFlash('success', $emailed
@@ -413,5 +398,23 @@ class InvoiceController extends AbstractController
         );
 
         return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
+    }
+
+    /**
+     * Fetch an invoice by uuid, but only if it belongs to the caller's
+     * current workspace. Throws 404 otherwise so we don't leak existence
+     * of invoices in other workspaces.
+     */
+    private function fetchInWorkspaceOrNotFound(string $uuid): Invoice
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $workspace = $this->context->current($user);
+
+        $invoice = $this->invoices->findByUuid($uuid);
+        if (!$invoice || $invoice->getWorkspace()?->getId() !== $workspace->getId()) {
+            throw $this->createNotFoundException('Invoice not found.');
+        }
+        return $invoice;
     }
 }

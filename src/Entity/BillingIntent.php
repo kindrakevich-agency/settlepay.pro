@@ -32,9 +32,14 @@ class BillingIntent
     #[ORM\Column(type: Types::BIGINT, options: ['unsigned' => true])]
     private ?string $id = null;
 
+    /** Who clicked Upgrade — kept for audit. Ownership is on `workspace`. */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private User $user;
+
+    #[ORM\ManyToOne(targetEntity: Workspace::class)]
+    #[ORM\JoinColumn(name: 'workspace_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
+    private ?Workspace $workspace = null;
 
     /** Public-facing identifier — the /billing/pay/{uuid} URL uses this. */
     #[ORM\Column(length: 36, unique: true)]
@@ -107,6 +112,8 @@ class BillingIntent
     public function getUuid(): string                             { return $this->uuid; }
     public function getUser(): User                               { return $this->user; }
     public function setUser(User $user): self                     { $this->user = $user; return $this; }
+    public function getWorkspace(): ?Workspace                    { return $this->workspace; }
+    public function setWorkspace(?Workspace $w): self             { $this->workspace = $w; return $this; }
     public function getKind(): BillingIntentKind                  { return $this->kind; }
     public function setKind(BillingIntentKind $k): self           { $this->kind = $k; return $this; }
     public function getStatus(): BillingIntentStatus              { return $this->status; }

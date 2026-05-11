@@ -5,26 +5,24 @@ namespace App\Service\Billing;
 use App\Entity\BillingIntent;
 use App\Entity\FeePayment;
 use App\Entity\Invoice;
-use App\Entity\User;
 use App\Enum\BillingIntentKind;
-use App\Enum\BillingIntentStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Applies the side effects of a successful billing payment on the user's
- * account: extend Pro plan, mark lifetime, or clear accumulated fees.
+ * Applies the side effects of a successful billing payment on the
+ * workspace: extend Pro/Agency plan, mark lifetime, or clear
+ * accumulated fees.
  *
  * Called from BillingPaymentMatcher *after* the FeePayment row is saved
  * and the BillingIntent has been marked Paid.
  *
- * Also exposes accrueFee() — invoked by PaymentMatcher whenever a
- * freelancer's invoice gets matched, so per-paid-invoice fees accumulate
- * on users.fees_owed_cents.
+ * Also exposes accrueInvoiceFee() — invoked by PaymentMatcher whenever
+ * an invoice gets matched, so per-paid-invoice fees accumulate on the
+ * workspace.fees_owed_cents.
  */
 final class SubscriptionManager
 {
-    /** Pro plan extension period when a pro_monthly payment is received. */
     private const MONTHLY_PERIOD = 'P30D';
 
     public function __construct(
@@ -33,86 +31,73 @@ final class SubscriptionManager
     ) {}
 
     /**
-     * Apply the effect of a paid intent on the user account.
+     * Apply the effect of a paid intent on the workspace.
      * The caller has already linked $payment to $intent and flipped
      * $intent status to Paid.
      */
     public function applyPaidIntent(BillingIntent $intent, FeePayment $payment): void
     {
-        $user = $intent->getUser();
+        $workspace = $intent->getWorkspace();
+        if (!$workspace) {
+            $this->logger->error('BillingIntent has no workspace — cannot apply', [
+                'intent_uuid' => $intent->getUuid(),
+            ]);
+            return;
+        }
 
         switch ($intent->getKind()) {
             case BillingIntentKind::ProMonthly:
-                // Start from max(now, current renewsAt) so a user who renews
-                // early gets the full 30 days added, not just to "now + 30".
-                $base = $user->getPlanRenewsAt();
+                $base  = $workspace->getPlanRenewsAt();
                 $start = ($base !== null && $base > new \DateTimeImmutable())
                     ? \DateTimeImmutable::createFromInterface($base)
                     : new \DateTimeImmutable();
-                $user->setPlan('pro')
+                $workspace->setPlan('pro')
                     ->setPlanRenewsAt($start->add(new \DateInterval(self::MONTHLY_PERIOD)))
-                    ->setPlanCanceledAt(null);
-                foreach ($user->getOwnedWorkspaces() as $w) {
-                    $w->setPlan('pro')->setPlanRenewsAt($user->getPlanRenewsAt())->setPlanCanceledAt(null)->touch();
-                }
+                    ->setPlanCanceledAt(null)
+                    ->touch();
                 $this->logger->info('Pro plan extended', [
-                    'user_id'    => $user->getId(),
-                    'renews_at'  => $user->getPlanRenewsAt()?->format(\DATE_ATOM),
-                    'intent_uuid'=> $intent->getUuid(),
+                    'workspace_id' => $workspace->getId(),
+                    'renews_at'    => $workspace->getPlanRenewsAt()?->format(\DATE_ATOM),
+                    'intent_uuid'  => $intent->getUuid(),
                 ]);
                 break;
 
             case BillingIntentKind::ProLifetime:
-                $user->setPlan('pro')
+                $workspace->setPlan('pro')
                     ->setPlanRenewsAt(null)
-                    ->setPlanCanceledAt(null);
-                foreach ($user->getOwnedWorkspaces() as $w) {
-                    $w->setPlan('pro')->setPlanRenewsAt(null)->setPlanCanceledAt(null)->touch();
-                }
+                    ->setPlanCanceledAt(null)
+                    ->touch();
                 $this->logger->info('Pro lifetime activated', [
-                    'user_id'    => $user->getId(),
-                    'intent_uuid'=> $intent->getUuid(),
+                    'workspace_id' => $workspace->getId(),
+                    'intent_uuid'  => $intent->getUuid(),
                 ]);
                 break;
 
             case BillingIntentKind::AgencyMonthly:
-                // Same renewal logic as Pro monthly, plus bumps the workspace
-                // seat_limit to 5 so the owner can immediately invite teammates.
-                $base = $user->getPlanRenewsAt();
+                $base  = $workspace->getPlanRenewsAt();
                 $start = ($base !== null && $base > new \DateTimeImmutable())
                     ? \DateTimeImmutable::createFromInterface($base)
                     : new \DateTimeImmutable();
-                $user->setPlan('agency')
+                $workspace->setPlan('agency')
                     ->setPlanRenewsAt($start->add(new \DateInterval(self::MONTHLY_PERIOD)))
-                    ->setPlanCanceledAt(null);
-
-                // Mirror onto the user's owned workspace(s). Phase 1 keeps
-                // user.plan as the source of truth, but workspace.plan +
-                // seat_limit drive seat enforcement, so they MUST agree.
-                foreach ($user->getOwnedWorkspaces() as $workspace) {
-                    $workspace->setPlan('agency')
-                        ->setPlanRenewsAt($user->getPlanRenewsAt())
-                        ->setPlanCanceledAt(null)
-                        ->setSeatLimit(5)
-                        ->touch();
-                }
+                    ->setPlanCanceledAt(null)
+                    ->setSeatLimit(5)
+                    ->touch();
                 $this->logger->info('Agency plan extended', [
-                    'user_id'    => $user->getId(),
-                    'renews_at'  => $user->getPlanRenewsAt()?->format(\DATE_ATOM),
-                    'intent_uuid'=> $intent->getUuid(),
+                    'workspace_id' => $workspace->getId(),
+                    'renews_at'    => $workspace->getPlanRenewsAt()?->format(\DATE_ATOM),
+                    'intent_uuid'  => $intent->getUuid(),
                 ]);
                 break;
 
             case BillingIntentKind::FeeSettlement:
-                // Reduce fees_owed_cents by the amount paid. Clamp at 0 so
-                // overpayments don't create a negative balance.
-                $applied = min($user->getFeesOwedCents(), $intent->getAmountCents());
-                $user->setFeesOwedCents(max(0, $user->getFeesOwedCents() - $applied));
+                $applied = min($workspace->getFeesOwedCents(), $intent->getAmountCents());
+                $workspace->setFeesOwedCents(max(0, $workspace->getFeesOwedCents() - $applied))->touch();
                 $this->logger->info('Fees settled', [
-                    'user_id'      => $user->getId(),
-                    'applied_cents'=> $applied,
-                    'remaining'    => $user->getFeesOwedCents(),
-                    'intent_uuid'  => $intent->getUuid(),
+                    'workspace_id'  => $workspace->getId(),
+                    'applied_cents' => $applied,
+                    'remaining'     => $workspace->getFeesOwedCents(),
+                    'intent_uuid'   => $intent->getUuid(),
                 ]);
                 break;
         }
@@ -121,29 +106,31 @@ final class SubscriptionManager
     }
 
     /**
-     * Add the per-invoice percentage fee to the freelancer's owed-balance
-     * when an invoice is matched. Called from PaymentMatcher right after
-     * the invoice status flip.
-     *
-     * Free plan: 1% (100 bps). Pro: 0.5% (50 bps).
+     * Add the per-invoice percentage fee to the workspace's owed-balance
+     * when an invoice is matched. Free plan: 1% (100 bps). Pro/Agency: 0.5% (50 bps).
      */
     public function accrueInvoiceFee(Invoice $invoice): int
     {
-        $user = $invoice->getUser();
-        $rateBps = $user->feeRateBps();
-        // floor(amount * bps / 10000). Integer math throughout.
+        $workspace = $invoice->getWorkspace();
+        if (!$workspace) {
+            $this->logger->warning('Invoice has no workspace; cannot accrue fee', [
+                'invoice_uuid' => $invoice->getUuid(),
+            ]);
+            return 0;
+        }
+        $rateBps  = $workspace->feeRateBps();
         $feeCents = intdiv($invoice->getAmountCents() * $rateBps, 10000);
         if ($feeCents <= 0) {
             return 0;
         }
-        $user->addFeesOwedCents($feeCents);
+        $workspace->addFeesOwedCents($feeCents)->touch();
         $this->em->flush();
         $this->logger->info('Per-invoice fee accrued', [
-            'user_id'       => $user->getId(),
+            'workspace_id'  => $workspace->getId(),
             'invoice_no'    => $invoice->getNumber(),
             'fee_cents'     => $feeCents,
-            'new_owed_cents'=> $user->getFeesOwedCents(),
-            'plan'          => $user->getPlan(),
+            'new_owed_cents'=> $workspace->getFeesOwedCents(),
+            'plan'          => $workspace->getPlan(),
         ]);
         return $feeCents;
     }

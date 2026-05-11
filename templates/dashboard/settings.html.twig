@@ -1,7 +1,7 @@
 {% extends 'dashboard/_layout.html.twig' %}
 
 {% set locale = app.request.locale|default('en') %}
-{% set payout_unset = user.payoutAddress == '0x0000000000000000000000000000000000000000' %}
+{% set payout_unset = workspace.payoutAddress == '0x0000000000000000000000000000000000000000' %}
 
 {% block dashboard_title %}{{ 'nav.settings'|trans }}{% endblock %}
 
@@ -32,10 +32,11 @@
 
             <div class="grid sm:grid-cols-2 gap-4">
                 <label class="block sm:col-span-2">
-                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.business_name'|trans }}</span>
-                    <input type="text" name="business_name" value="{{ user.businessName }}"
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.business_name'|trans }}{% if not is_owner %} <span class="text-xs text-slate-400">({{ 'settings.owner_only_hint'|trans }})</span>{% endif %}</span>
+                    <input type="text" name="business_name" value="{{ workspace.businessName }}"
                            placeholder="{{ 'settings.business_name_placeholder'|trans }}"
-                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                           {{ is_owner ? '' : 'readonly' }}
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition {{ is_owner ? '' : 'opacity-60 cursor-not-allowed' }}">
                     <span class="mt-1.5 block text-xs text-slate-500">{{ 'settings.business_name_hint'|trans }}</span>
                 </label>
 
@@ -47,22 +48,24 @@
 
                 <label class="block">
                     <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.tax_id'|trans }}</span>
-                    <input type="text" name="tax_id" value="{{ user.taxId }}" placeholder="{{ 'settings.tax_id_placeholder'|trans }}"
-                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
+                    <input type="text" name="tax_id" value="{{ workspace.taxId }}" placeholder="{{ 'settings.tax_id_placeholder'|trans }}"
+                           {{ is_owner ? '' : 'readonly' }}
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition {{ is_owner ? '' : 'opacity-60 cursor-not-allowed' }}">
                 </label>
 
                 <label class="block sm:col-span-2">
                     <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.business_address'|trans }}</span>
                     <textarea name="business_address" rows="2" placeholder="{{ 'settings.business_address_placeholder'|trans }}"
-                              class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">{{ user.businessAddress }}</textarea>
+                              {{ is_owner ? '' : 'readonly' }}
+                              class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition {{ is_owner ? '' : 'opacity-60 cursor-not-allowed' }}">{{ workspace.businessAddress }}</textarea>
                 </label>
 
                 <label class="block">
                     <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.default_currency'|trans }}</span>
-                    <select name="default_currency"
-                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
+                    <select name="default_currency" {{ is_owner ? '' : 'disabled' }}
+                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 {{ is_owner ? '' : 'opacity-60' }}">
                         {% for c in ['USD', 'EUR'] %}
-                            <option value="{{ c }}" {{ c == user.defaultCurrency ? 'selected' : '' }}>{{ c }}</option>
+                            <option value="{{ c }}" {{ c == workspace.defaultCurrency ? 'selected' : '' }}>{{ c }}</option>
                         {% endfor %}
                     </select>
                 </label>
@@ -100,54 +103,62 @@
             <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'settings.section_payout_sub'|trans }}</p>
         </header>
 
-        <form method="POST" action="{{ path('dashboard_settings_payout', {_locale: locale}) }}" class="space-y-4">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings-payout') }}">
+            {% if not is_owner %}
+                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 mb-4 text-xs text-slate-600 dark:text-slate-400">
+                    {{ 'settings.payout_member_readonly'|trans }}
+                </div>
+            {% endif %}
 
-            <label class="block">
-                <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_address'|trans }}</span>
-                <input type="text" name="payout_address"
-                       value="{{ payout_unset ? '' : user.payoutAddress }}"
-                       placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c"
-                       autocomplete="off" spellcheck="false" required
-                       class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-sm placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition">
-                <span class="mt-1.5 block text-xs text-slate-500">{{ 'settings.payout_address_hint'|trans }}</span>
-            </label>
-
-            <div class="grid sm:grid-cols-2 gap-4">
-                <label class="block">
-                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_chain'|trans }}</span>
-                    <select name="payout_chain_id"
-                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                        {% for key, cfg in chains %}
-                            <option value="{{ cfg.chain_id }}" {{ cfg.chain_id == user.payoutChainId ? 'selected' : '' }}>
-                                {{ cfg.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </label>
+            <form method="POST" action="{{ path('dashboard_settings_payout', {_locale: locale}) }}" class="space-y-4">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('settings-payout') }}">
 
                 <label class="block">
-                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_token'|trans }}</span>
-                    <select name="payout_token"
-                            class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700">
-                        {% for s in ['USDC', 'USDT', 'DAI'] %}
-                            <option value="{{ s }}" {{ s == user.payoutToken ? 'selected' : '' }}>{{ s }}</option>
-                        {% endfor %}
-                    </select>
+                    <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_address'|trans }}</span>
+                    <input type="text" name="payout_address"
+                           value="{{ payout_unset ? '' : workspace.payoutAddress }}"
+                           placeholder="0x742d35Cc6634C0532925a3b844Bc9e7595f8Bf2c"
+                           autocomplete="off" spellcheck="false" {{ is_owner ? 'required' : 'readonly' }}
+                           class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 font-mono text-sm placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition {{ is_owner ? '' : 'opacity-60 cursor-not-allowed' }}">
+                    <span class="mt-1.5 block text-xs text-slate-500">{{ 'settings.payout_address_hint'|trans }}</span>
                 </label>
-            </div>
 
-            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                <p class="font-medium text-slate-900 dark:text-slate-100 mb-1">{{ 'settings.payout_warning_title'|trans }}</p>
-                <p>{{ 'settings.payout_warning_body'|trans }}</p>
-            </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <label class="block">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_chain'|trans }}</span>
+                        <select name="payout_chain_id" {{ is_owner ? '' : 'disabled' }}
+                                class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 {{ is_owner ? '' : 'opacity-60' }}">
+                            {% for key, cfg in chains %}
+                                <option value="{{ cfg.chain_id }}" {{ cfg.chain_id == workspace.payoutChainId ? 'selected' : '' }}>
+                                    {{ cfg.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </label>
 
-            <div class="flex justify-end pt-2">
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-sm hover:shadow transition">
-                    {{ 'settings.save_payout'|trans }}
-                </button>
-            </div>
-        </form>
+                    <label class="block">
+                        <span class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{{ 'settings.payout_token'|trans }}</span>
+                        <select name="payout_token" {{ is_owner ? '' : 'disabled' }}
+                                class="block w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 {{ is_owner ? '' : 'opacity-60' }}">
+                            {% for s in ['USDC', 'USDT', 'DAI'] %}
+                                <option value="{{ s }}" {{ s == workspace.payoutToken ? 'selected' : '' }}>{{ s }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+
+                <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    <p class="font-medium text-slate-900 dark:text-slate-100 mb-1">{{ 'settings.payout_warning_title'|trans }}</p>
+                    <p>{{ 'settings.payout_warning_body'|trans }}</p>
+                </div>
+
+                {% if is_owner %}
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white px-4 py-2.5 text-sm font-medium shadow-sm hover:shadow transition">
+                            {{ 'settings.save_payout'|trans }}
+                        </button>
+                    </div>
+                {% endif %}
+            </form>
     </section>
 
     {# ─── Account / password ──────────────────────────────────────── #}
@@ -223,7 +234,7 @@
                 <p class="text-sm font-medium">{{ 'team.title'|trans }}</p>
                 <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ 'team.short_blurb'|trans }}</p>
             </div>
-            {% if user.plan != 'agency' %}
+            {% if workspace.plan != 'agency' %}
                 <span class="inline-flex items-center rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">Agency</span>
             {% endif %}
         </a>
@@ -237,21 +248,21 @@
         </header>
         <a href="{{ path('dashboard_branding', {_locale: locale}) }}"
            class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition flex items-center gap-3">
-            {% if user.brandLogoPath %}
-                <img src="/{{ user.brandLogoPath }}" alt="{{ user.businessName }}" class="h-10 w-10 rounded-lg object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            {% if workspace.brandLogoPath %}
+                <img src="/{{ workspace.brandLogoPath }}" alt="{{ workspace.businessName }}" class="h-10 w-10 rounded-lg object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             {% else %}
                 <span class="grid h-10 w-10 place-items-center rounded-lg text-white text-sm font-semibold"
-                      style="background-color: {{ user.brandColor ?: '#0d9488' }}">
-                    {{ (user.businessName|default(user.email))|slice(0, 2)|upper }}
+                      style="background-color: {{ workspace.brandColor ?: '#0d9488' }}">
+                    {{ (workspace.businessName|default(user.email))|slice(0, 2)|upper }}
                 </span>
             {% endif %}
             <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium">{{ 'branding.title'|trans }}</p>
                 <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-                    {% if user.brandColor or user.brandLogoPath %}{{ 'branding.is_set'|trans }}{% else %}{{ 'branding.not_set'|trans }}{% endif %}
+                    {% if workspace.brandColor or workspace.brandLogoPath %}{{ 'branding.is_set'|trans }}{% else %}{{ 'branding.not_set'|trans }}{% endif %}
                 </p>
             </div>
-            {% if not user.pro %}
+            {% if not workspace.pro %}
                 <span class="inline-flex items-center rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">Pro</span>
             {% endif %}
         </a>
@@ -269,7 +280,7 @@
                class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition">
                 <div class="flex items-center justify-between">
                     <p class="text-sm font-medium">{{ 'api_tokens.title'|trans }}</p>
-                    {% if not user.pro %}
+                    {% if not workspace.pro %}
                         <span class="inline-flex items-center rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">Pro</span>
                     {% endif %}
                 </div>
@@ -280,7 +291,7 @@
                class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition">
                 <div class="flex items-center justify-between">
                     <p class="text-sm font-medium">{{ 'webhooks.title'|trans }}</p>
-                    {% if not user.pro %}
+                    {% if not workspace.pro %}
                         <span class="inline-flex items-center rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">Pro</span>
                     {% endif %}
                 </div>

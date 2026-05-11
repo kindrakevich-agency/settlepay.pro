@@ -3,6 +3,7 @@
 namespace App\Service\Branding;
 
 use App\Entity\User;
+use App\Entity\Workspace;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -58,6 +59,42 @@ class BrandingUploader
     public function delete(User $user): void
     {
         $path = $user->getBrandLogoPath();
+        if (!$path) return;
+        $abs = $this->projectDir . '/public/' . ltrim($path, '/');
+        if (is_file($abs)) {
+            @unlink($abs);
+        }
+    }
+
+    /**
+     * Phase 2 helpers: workspace-scoped storage. Path now uses the
+     * workspace UUID rather than the user UUID so a logo follows the
+     * business, not a single teammate.
+     *
+     * @return string Relative path stored on workspace.brand_logo_path
+     */
+    public function storeForWorkspace(Workspace $workspace, UploadedFile $file): string
+    {
+        if ($file->getSize() > self::MAX_BYTES) {
+            throw new \InvalidArgumentException('branding.logo_too_large');
+        }
+        $mime = (string) $file->getMimeType();
+        if (!isset(self::ALLOWED_MIMES[$mime])) {
+            throw new \InvalidArgumentException('branding.logo_unsupported_type');
+        }
+        $ext = self::ALLOWED_MIMES[$mime];
+        $dir = $this->projectDir . '/public/uploads/branding';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $name = 'ws-' . $workspace->getUuid() . '.' . $ext;
+        $file->move($dir, $name);
+        return 'uploads/branding/' . $name;
+    }
+
+    public function deleteWorkspaceLogo(Workspace $workspace): void
+    {
+        $path = $workspace->getBrandLogoPath();
         if (!$path) return;
         $abs = $this->projectDir . '/public/' . ltrim($path, '/');
         if (is_file($abs)) {
