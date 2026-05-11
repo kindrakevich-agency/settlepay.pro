@@ -146,8 +146,21 @@ final class BlockListener
                 $blockTimestamps[$blockNumber] = $this->rpcClient->blockTimestamp($rpcUrl, $blockNumber);
             }
 
-            // Route by recipient: platform wallet → billing flow; otherwise
-            // → invoice flow. Same Transfer event, two destinations.
+            // Routing — supports platform_wallet === user.payout_address:
+            //
+            //   1. If the recipient is the platform wallet, TRY billing first.
+            //      BillingPaymentMatcher only matches when the `from` address
+            //      matches the intent's expected_payer (set to the user's own
+            //      payout wallet at intent-creation time). So self-payments
+            //      (Pro renewals, fee settlements) match here.
+            //   2. If billing returns null, fall through to invoice flow.
+            //      Client payments to the SAME wallet (different `from`) end
+            //      up here and match an open invoice as usual.
+            //   3. If recipient isn't the platform wallet, only invoice flow.
+            //
+            // This is what makes dual-purpose wallets work — same address
+            // serves both invoice-receive and platform-fee-receive roles.
+            $payment = null;
             if ($platformAddr !== null && $decoded['to'] === $platformAddr) {
                 $payment = $this->billingMatcher->process(
                     chainId:        $chainId,
@@ -156,7 +169,8 @@ final class BlockListener
                     confirmations:  $needed,
                     blockTimestamp: $blockTimestamps[$blockNumber],
                 );
-            } else {
+            }
+            if ($payment === null) {
                 $payment = $this->matcher->process(
                     chainId:        $chainId,
                     transfer:       $decoded,

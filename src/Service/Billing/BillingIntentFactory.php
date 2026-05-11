@@ -68,7 +68,14 @@ final class BillingIntentFactory
             ->setCurrency('USD')
             ->setAcceptedChains($chains)
             ->setAcceptedTokens(['USDC'])
-            ->setRecipientAddress((string) $this->platformWallet->getAddress());
+            ->setRecipientAddress((string) $this->platformWallet->getAddress())
+            // Lock the intent to the user's own payout wallet. This is what
+            // lets the platform wallet ALSO be the user's payout wallet —
+            // the listener will only match this billing intent when the
+            // on-chain `from` is the user's wallet (self-payment), so
+            // client-side invoice payments (different `from`) fall through
+            // to the invoice flow. See BlockListener::tick().
+            ->setExpectedPayerAddress($user->getPayoutAddress());
 
         $this->intents->save($intent);
         return $intent;

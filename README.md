@@ -652,6 +652,8 @@ PLATFORM_WALLET_ADDRESS=0x... # the wallet Settlepay receives subscriptions + fe
 
 If unset, the dashboard `/app/billing` page shows a "platform wallet not configured" warning and intent creation throws — preventing orphan payments to a placeholder.
 
+**Same wallet as your invoice payout is fine.** The listener disambiguates by the on-chain `from` address: billing intents are locked to your own payout wallet as `expected_payer_address`, so self-payments (your Pro renewals, your fee settlements) match the billing flow, and client invoice payments (different `from`) fall through to the invoice flow.
+
 ### Architectural note
 
 Settlepay still **writes nothing on-chain**. The platform-side fee collection is exactly the same pattern as invoice payments: read incoming Transfers, match by amount + chain, update state. This keeps the system under the "software facilitator, not money transmitter" framing in CLAUDE.md.
