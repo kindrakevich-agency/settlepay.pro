@@ -41,6 +41,7 @@ if (sentryDsn) {
         dsn: sentryDsn,
         environment: import.meta.env.MODE,
         tracesSampleRate: 0.1, // 10% — checkout traffic is the highest-volume page
+        sendDefaultPii: true,  // includes IP — helpful for chain/region-specific bugs
         beforeSend(event, hint) {
             const msg = String((hint?.originalException as Error | undefined)?.message ?? '');
             // MetaMask cancellations + wallet-not-installed are user state, not bugs.
