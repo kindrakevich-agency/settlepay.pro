@@ -151,7 +151,9 @@ function setCtaDisabled(disabled: boolean) {
 function showStatus({ text, progressPct, txHash, tone }: { text: string; progressPct?: number; txHash?: string; tone?: 'pending' | 'success' | 'error' }) {
     const wrap = $('#settlepay-status');
     if (!wrap) return;
+    const t = tone || 'pending';
     wrap.classList.remove('hidden');
+    wrap.setAttribute('data-tone', t);
 
     // Reset tone classes so they don't accumulate across state changes.
     wrap.className = wrap.className
@@ -163,8 +165,22 @@ function showStatus({ text, progressPct, txHash, tone }: { text: string; progres
         pending: 'border-brand-200 dark:border-brand-700/50 bg-brand-50/60 dark:bg-brand-500/10',
         success: 'border-success-200 dark:border-success-500/30 bg-success-50 dark:bg-success-500/10',
         error:   'border-danger-200 dark:border-danger-500/30 bg-danger-50 dark:bg-danger-500/10',
-    }[tone || 'pending'];
+    }[t];
     wrap.classList.add(...toneClasses.split(' '));
+
+    // Swap the leading icon: spinner only while pending; check on success; X on error.
+    // Three SVGs live in the template; we toggle hidden on each based on tone.
+    const iconPending = $('[data-status-icon-pending]');
+    const iconSuccess = $('[data-status-icon-success]');
+    const iconError   = $('[data-status-icon-error]');
+    iconPending?.classList.toggle('hidden', t !== 'pending');
+    iconSuccess?.classList.toggle('hidden', t !== 'success');
+    iconError?.classList.toggle('hidden',   t !== 'error');
+
+    // On success the progress bar is meaningless — collapse it so the panel
+    // doesn't look like it's still loading.
+    const progressWrap = $('[data-status-progress-wrap]');
+    progressWrap?.classList.toggle('hidden', t === 'success' || t === 'error');
 
     const txt = $('[data-status-text]'); if (txt) txt.textContent = text;
     const bar = $<HTMLElement>('[data-status-bar]');
