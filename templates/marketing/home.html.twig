@@ -455,6 +455,83 @@
 </section>
 
 
+{# ───────────────────────── AGENCY TEASER ───────────────────────── #}
+<section id="agency" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div class="mx-auto max-w-6xl px-6 py-20 lg:py-24">
+        <div class="grid lg:grid-cols-[1.1fr_1fr] gap-10 items-center">
+            <div>
+                <p class="text-sm font-medium text-brand-600 dark:text-brand-400 uppercase tracking-wide">{{ 'agency_teaser.eyebrow'|trans }}</p>
+                <h2 class="mt-3 font-display text-3xl sm:text-4xl font-semibold tracking-tight">{{ 'agency_teaser.title'|trans }}</h2>
+                <p class="mt-4 text-base text-slate-600 dark:text-slate-400 max-w-xl">{{ 'agency_teaser.sub'|trans }}</p>
+
+                <ul class="mt-6 space-y-2.5 text-sm text-slate-700 dark:text-slate-300">
+                    {% for n in 1..4 %}
+                        <li class="flex items-start gap-2.5">
+                            <svg class="h-4 w-4 mt-0.5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>
+                            {{ ('agency_teaser.feat_' ~ n)|trans }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="{{ path('marketing_agency', {_locale: locale}) }}"
+                       class="inline-flex items-center gap-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-3 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-100 transition">
+                        {{ 'agency_teaser.cta_primary'|trans }}
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="{{ path('marketing_pricing', {_locale: locale}) }}"
+                       class="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 px-5 py-3 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                        {{ 'agency_teaser.cta_secondary'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            {# Visual: a team card grid suggesting 10 seats, with owner highlight #}
+            <aside class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 p-6 shadow-card">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <p class="text-sm font-semibold">{{ 'agency_teaser.workspace_demo'|trans }}</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-500">{{ 'agency_teaser.workspace_seats'|trans({'%used%': 7, '%limit%': 10}) }}</p>
+                    </div>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 px-2.5 py-0.5 text-xs font-medium">
+                        <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
+                        Agency
+                    </span>
+                </div>
+
+                <ul class="space-y-2">
+                    {% set demo_members = [
+                        {name: 'Vitalii K.',     role_key: 'agency_teaser.role_owner',  initials: 'VK', tone: 'brand'},
+                        {name: 'Anna B.',        role_key: 'agency_teaser.role_member', initials: 'AB'},
+                        {name: 'Marcus L.',      role_key: 'agency_teaser.role_member', initials: 'ML'},
+                        {name: 'Sofia R.',       role_key: 'agency_teaser.role_member', initials: 'SR'},
+                        {name: 'Yuki T.',        role_key: 'agency_teaser.role_member', initials: 'YT'},
+                        {name: 'Diego C.',       role_key: 'agency_teaser.role_member', initials: 'DC'},
+                        {name: 'Olha M.',        role_key: 'agency_teaser.role_member', initials: 'OM'}
+                    ] %}
+                    {% for m in demo_members %}
+                        <li class="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2">
+                            <span class="grid h-9 w-9 place-items-center rounded-lg text-xs font-semibold
+                                         {% if m.tone is defined %}bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400
+                                         {% else %}bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300{% endif %}">
+                                {{ m.initials }}
+                            </span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium truncate">{{ m.name }}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-500">{{ m.role_key|trans }}</p>
+                            </div>
+                        </li>
+                    {% endfor %}
+                    <li class="flex items-center gap-3 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 px-3 py-2 text-xs text-slate-500 dark:text-slate-500">
+                        <span class="grid h-9 w-9 place-items-center rounded-lg text-slate-400">+</span>
+                        {{ 'agency_teaser.seats_remaining'|trans({'%count%': 3}) }}
+                    </li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+</section>
+
 {# ───────────────────────── FINAL CTA ───────────────────────── #}
 <section id="pricing" class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
     <div class="mx-auto max-w-4xl px-6 py-20 lg:py-28 text-center">

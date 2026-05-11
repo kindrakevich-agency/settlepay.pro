@@ -26,6 +26,7 @@ nav:
     help: Help
     docs: Docs
     pricing: Pricing
+    agency: Agency
     product: Product
     language: Language
     toggle_menu: Open menu
@@ -188,7 +189,7 @@ pricing:
         tagline: For studios + small teams
         fee: '0.5% per paid invoice'
         feat_1: 'Everything in Pro'
-        feat_2: 'Up to 5 team seats'
+        feat_2: 'Up to 10 team seats'
         feat_3: 'Shared invoices, payments & client list'
         feat_4: 'Email invite flow for teammates'
         feat_5: 'Owner-controlled billing + branding'
@@ -286,7 +287,7 @@ terms:
     s4_item_3: 'If your client''s wallet is compromised and someone else pays your invoice, the payment is credited to the invoice; resolving theft is between the client and law enforcement.'
     s4_item_4: 'If a stablecoin issuer (e.g. Circle for USDC) freezes a wallet, those funds are inaccessible until the issuer unfreezes — Settlepay has no influence over that.'
     s5_title: '5. Fees'
-    s5_body: 'Free plan: 1% per paid invoice. Pro plan: $19 USDC per 30 days + 0.5% per paid invoice. Agency plan: $49 USDC per 30 days + 0.5%, includes 5 seats. All amounts are denominated in USDC. Per-invoice fees accrue on your account and you settle them in USDC to the Settlepay platform wallet whenever you choose, from your Billing page. We never auto-debit, take custody of your funds, or deduct fees from your incoming stablecoin payments — those flow directly from your client''s wallet to yours, untouched.'
+    s5_body: 'Free plan: 1% per paid invoice. Pro plan: $19 USDC per 30 days + 0.5% per paid invoice. Agency plan: $49 USDC per 30 days + 0.5%, includes 10 seats. All amounts are denominated in USDC. Per-invoice fees accrue on your account and you settle them in USDC to the Settlepay platform wallet whenever you choose, from your Billing page. We never auto-debit, take custody of your funds, or deduct fees from your incoming stablecoin payments — those flow directly from your client''s wallet to yours, untouched.'
     s6_title: '6. Acceptable use'
     s6_body: 'You agree not to use Settlepay for: any illegal activity (fraud, money laundering, terrorism financing); accepting payment for goods or services prohibited in your jurisdiction; harassment, defamation, or abuse via invoice content; sending invoices to clients who haven''t agreed to be billed; or attempting to disrupt or reverse-engineer the service.'
     s7_title: '7. Termination'
@@ -307,6 +308,7 @@ footer:
     copyright: '© 2026 settlepay.pro · all rights reserved'
     links:
         pricing: Pricing
+        agency: Agency
         docs: Docs
         status: Status
         privacy: Privacy
@@ -461,7 +463,7 @@ settings:
     section_branding: 'Branding'
     section_branding_sub: 'Logo and accent color shown on the payment page, emails, and PDF receipts.'
     section_team: 'Team'
-    section_team_sub: 'Invite teammates to share invoices and payments. Up to 5 seats on the Agency plan.'
+    section_team_sub: 'Invite teammates to share invoices and payments. Up to 10 seats on the Agency plan.'
     owner_only_hint: 'owner only'
     payout_member_readonly: 'Only the workspace Owner can change payout settings. Ask them to update if anything looks wrong.'
     payout_owner_only: 'Only the workspace Owner can update payout settings.'
@@ -608,8 +610,8 @@ billing:
     renew_monthly: 'Renew — pay $19 in USDC'
     upgrade_lifetime: 'Get Lifetime — pay $299 in USDC'
     best_value: 'Best value'
-    agency_label: 'Agency · 5 seats'
-    agency_blurb: 'Invite up to 4 teammates to share invoices, payments, and branding. Same crypto-native, non-custodial flow.'
+    agency_label: 'Agency · 10 seats'
+    agency_blurb: 'Invite up to 9 teammates to share invoices, payments, and branding. Same crypto-native, non-custodial flow.'
     upgrade_agency: 'Upgrade — pay $49 in USDC'
     renew_agency: 'Renew Agency — pay $49 in USDC'
     upgrade_disclaimer: 'Settlepay never auto-debits — every renewal is a fresh payment you authorize. No cards, no surprises.'
@@ -626,7 +628,7 @@ billing:
         id: Reference
         kind_monthly: 'Pro · monthly upgrade'
         kind_lifetime: 'Pro · lifetime upgrade'
-        kind_agency: 'Agency · monthly · 5 seats'
+        kind_agency: 'Agency · monthly · 10 seats'
         kind_fees: 'Settle accumulated fees'
         send_to: 'Send USDC to this wallet'
         on_any_of: 'Any of these networks'
@@ -781,10 +783,10 @@ branding:
 team:
     title: 'Team'
     short_blurb: 'Manage workspace members and invitations.'
-    subtitle: 'Members of %workspace% share invoices, payments, and billing. Up to 5 seats on the Agency plan.'
+    subtitle: 'Members of %workspace% share invoices, payments, and billing. Up to 10 seats on the Agency plan.'
     seats: 'Seats used'
     upgrade_to_agency: 'Upgrade to Agency'
-    agency_plan_required: 'Team management is part of the Agency plan ($49/mo, 5 seats). Upgrade to invite teammates.'
+    agency_plan_required: 'Team management is part of the Agency plan ($49/mo, 10 seats). Upgrade to invite teammates.'
     invite_title: 'Invite a teammate'
     invite_hint: 'They will receive an email with a link to accept. The link is valid for 14 days.'
     email_placeholder: 'teammate@example.com'
@@ -865,7 +867,7 @@ help:
         q1: 'How do fees work?'
         a1: 'Free plan: 1% per paid invoice. Pro and Agency: 0.5%. Fees accumulate on your <strong>workspace</strong>, not deducted from incoming payments — those flow directly to your wallet. Settle the accumulated balance in USDC from the <a href="/en/app/billing" class="text-brand-600 hover:underline">Billing</a> page whenever you choose. No auto-debit. No cards.'
         q2: 'How are subscriptions paid?'
-        a2: 'Pro is $19 USDC per 30 days OR $299 USDC lifetime. Agency is $49 USDC per 30 days (5 seats included). All paid in USDC to our platform wallet — same listener that matches your invoice payments also matches subscription payments. Every renewal is a fresh transaction you authorize; no auto-debit.'
+        a2: 'Pro is $19 USDC per 30 days OR $299 USDC lifetime. Agency is $49 USDC per 30 days (10 seats included). All paid in USDC to our platform wallet — same listener that matches your invoice payments also matches subscription payments. Every renewal is a fresh transaction you authorize; no auto-debit.'
         q3: 'How fast does payment confirm?'
         a3: 'Most L2 transactions confirm in 2–10 seconds. We wait for additional confirmations before flipping the invoice to <em>paid</em>: 5 on Base/Arbitrum/Optimism, 30 on Polygon (Polygon has slightly higher reorg risk). End-to-end you''re looking at 10–60 seconds.'
         q4: 'What if my client has never used crypto?'
@@ -877,7 +879,7 @@ help:
         q7: 'How do API tokens and webhooks work?'
         a7: 'Pro and Agency plans get programmatic access. Mint a token in <a href="/en/app/settings/api-tokens" class="text-brand-600 hover:underline">Settings → API tokens</a> and call <code>/api/v1/invoices</code> etc. Register webhook endpoints in <a href="/en/app/settings/webhooks" class="text-brand-600 hover:underline">Settings → Webhooks</a> — we POST HMAC-signed JSON when invoices are sent, paid, or voided. Full reference at <a href="/en/docs" class="text-brand-600 hover:underline">/docs</a>.'
         q8: 'How does the Agency plan work?'
-        a8: 'Agency owners can invite up to 4 teammates by email. All members share the same invoices, payments, branding, and billing. Owner-only: payout settings, plan upgrades, branding changes, API tokens, webhooks. Members can create + send + void their own invoices.'
+        a8: 'Agency owners can invite up to 9 teammates by email. All members share the same invoices, payments, branding, and billing. Owner-only: payout settings, plan upgrades, branding changes, API tokens, webhooks. Members can create + send + void their own invoices.'
         q9: 'Can I get my money out as fiat?'
         a9: 'Yes. You receive USDC in your own wallet — same USDC you can off-ramp to a bank account via Coinbase, Binance, Kraken, MoonPay, or local exchanges in your country. Usually 1–3 days for the first transfer (KYC at the exchange) and minutes after.'
         q10: 'Is this legal? Do I need to KYC my clients?'
@@ -900,3 +902,87 @@ help:
         body: 'Email <a href="mailto:hello@settlepay.pro" class="text-brand-600 hover:underline">hello@settlepay.pro</a> — we usually reply within a day. For bugs or feature requests, open a GitHub issue.'
         email_button: 'Email us'
         github_button: 'GitHub issues'
+
+agency_teaser:
+    eyebrow: 'For agencies & studios'
+    title: "Built for teams that bill together."
+    sub: 'Invite up to 10 teammates to a shared workspace. Same crypto-native flow, same Stripe-grade UX — but with a real owner / member model and one consolidated billing.'
+    feat_1: 'Shared invoice + payment pool across the whole team'
+    feat_2: 'Email invitations with role-based access (Owner / Member)'
+    feat_3: 'Owner-only controls for billing, payout, branding'
+    feat_4: 'Custom logo + color on every invoice, page, and email'
+    cta_primary: 'Learn more about Agency'
+    cta_secondary: 'See pricing'
+    workspace_demo: "Vitalii's Studio"
+    workspace_seats: '%used% / %limit% seats used'
+    role_owner: 'Owner · billing + members'
+    role_member: 'Member · creates invoices'
+    seats_remaining: '%count% seats remaining'
+
+agency:
+    seo:
+        title: 'Settlepay for agencies — shared crypto invoicing for studios'
+        description: 'Invite up to 10 teammates to a shared workspace. Stablecoin invoicing with owner-controlled billing, custom branding, and one consolidated fee. $49 USDC / 30 days, 0.5% per paid invoice.'
+    eyebrow: 'Agency tier'
+    hero:
+        title: "Crypto invoicing for the whole studio."
+        sub: 'A shared workspace where 10 teammates send invoices, take payment in stablecoins, and roll up to one Owner-managed plan. Owner controls billing + branding; members focus on the work.'
+        cta_primary: 'Start your Agency — $49 in USDC'
+        cta_secondary: 'How it works'
+        trust: 'Non-custodial · 0.5% per paid invoice · 10 seats · Cancel anytime'
+    how:
+        eyebrow: 'How it works'
+        title: 'One workspace. Ten seats. Zero spreadsheets.'
+        sub: 'Owner upgrades to Agency, invites teammates by email, and from then on every invoice anyone sends lives in the same pool. No more chasing PDFs in Slack.'
+        step1_title: 'You upgrade the workspace.'
+        step1_body: 'Pay $49 in USDC. Plan flips to Agency, seat cap jumps to 10. Same wallet, same listener — just a different DB flag.'
+        step2_title: 'Invite teammates by email.'
+        step2_body: "Settings → Team → enter their address. They get a 14-day signed invite link. Sign up with the matching email and they're in."
+        step3_title: "Everyone bills from one pool."
+        step3_body: 'Any member can create + send invoices. All payments land in the workspace payout wallet. Fees roll up to one balance the Owner settles in USDC.'
+    features:
+        eyebrow: 'Built for shared work'
+        title: 'Studio-grade controls without the studio-grade price.'
+        f1_title: 'Roles that actually matter'
+        f1_body: "Owner controls billing, payout, branding, API tokens, webhooks. Members can create + send + void their own invoices. Members can't accidentally drain the wallet."
+        f2_title: 'One wallet, one balance'
+        f2_body: 'All workspace invoices snapshot the same payout address. Per-invoice fees accumulate on the workspace, not per-user. One settle button.'
+        f3_title: 'Brand on every surface'
+        f3_body: 'Upload a logo, pick an accent color. Applied to the public payment page, PDF receipts, and invoice/receipt emails — automatically, for every invoice anyone on the team sends.'
+        f4_title: 'Webhooks + REST API'
+        f4_body: 'Wire up Slack notifications, accounting sync, custom dashboards. Workspace-scoped tokens mean the integration sees the same data the team does — no special handling.'
+        f5_title: 'Non-custodial, like always'
+        f5_body: "Funds move directly from your clients' wallets to your workspace wallet. We never touch the money — Owner or Member sees the same on-chain trail."
+        f6_title: 'Soft cancel, no surprises'
+        f6_body: 'Cancel any time from Billing. Agency access continues until the period ends. No prorated refunds, no auto-renewal traps. Pay only when you want to.'
+    pricing:
+        badge: 'Includes 10 seats'
+        name: 'Agency · $49 USDC / 30 days'
+        tagline: 'For studios and small teams'
+        feat_1: '10 team seats included'
+        feat_2: '0.5% per paid invoice'
+        feat_3: 'Unlimited invoicing volume'
+        feat_4: 'Custom branding (logo + color)'
+        feat_5: 'Webhooks + REST API access'
+        feat_6: 'PDF receipts in 3 languages'
+        disclaimer: 'Pay in USDC to the Settlepay platform wallet. No cards, no Stripe, no auto-debit. Every renewal is a fresh payment you authorize.'
+        cta: 'Upgrade — $49 in USDC'
+    faq:
+        title: 'Agency questions'
+        q1: 'How many seats do I get?'
+        a1: '10 seats total — that''s the Owner plus 9 invited teammates. Enough for a 1–10-person studio. No per-seat overage.'
+        q2: 'Can a member see another member''s invoices?'
+        a2: 'Yes. Every member of the workspace sees every invoice, every payment, every webhook log. Agency tier is for teams that ALREADY trust each other to share a financial pool.'
+        q3: 'What can a Member NOT do?'
+        a3: 'Members can''t change billing, payout, branding, API tokens, or webhooks. They can create + send + void their own invoices. The Owner controls the wallet + plan.'
+        q4: 'How are fees split between teammates?'
+        a4: "They aren't split. Fees accumulate on the workspace's single balance and the Owner settles them in USDC. Internal cost allocation (which invoice is whose) is up to you — `created_by` is recorded on every invoice for attribution."
+        q5: 'Can I remove a teammate?'
+        a5: 'Yes — Owner clicks Remove in Settings → Team. They lose dashboard access immediately. Invoices they created stay in the workspace (created_by stays attributed).'
+        q6: 'What happens if I cancel?'
+        a6: 'Soft cancel: your team keeps Agency access until the current 30-day period ends, then drops to Free. Members above the Free seat cap (1) get auto-disabled if you don''t renew. No data is deleted — re-upgrade and they''re back.'
+    cta:
+        title: 'Ready to bring the studio in?'
+        sub: 'Upgrade once. Invite the team. Everything else stays exactly the same.'
+        primary: 'Upgrade to Agency'
+        secondary: 'Compare all plans'

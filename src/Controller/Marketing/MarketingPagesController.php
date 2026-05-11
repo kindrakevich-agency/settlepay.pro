@@ -25,6 +25,12 @@ class MarketingPagesController extends AbstractController
         return $this->render('marketing/pricing.html.twig');
     }
 
+    #[Route(path: '/{_locale}/agency', name: 'marketing_agency', requirements: self::LOCALE_REQUIREMENTS, methods: ['GET'])]
+    public function agency(): Response
+    {
+        return $this->render('marketing/agency.html.twig');
+    }
+
     #[Route(path: '/{_locale}/privacy', name: 'marketing_privacy', requirements: self::LOCALE_REQUIREMENTS, methods: ['GET'])]
     public function privacy(): Response
     {

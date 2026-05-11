@@ -1138,7 +1138,7 @@ export default {
 | Free | $0 | 1.0% | Up to $1,000 invoiced/month, all 4 chains, USDC/USDT/DAI |
 | Pro | $19 USDC / 30 days | 0.5% | Unlimited volume, custom branding, API access, webhooks |
 | Pro · Lifetime | $299 USDC one-time | 0.5% | All of Pro, forever (no renewal) |
-| Agency | $49 USDC / 30 days | 0.5% | Pro + multi-user (5 seats), email invite flow, shared invoices/payments/billing |
+| Agency | $49 USDC / 30 days | 0.5% | Pro + multi-user (10 seats), email invite flow, shared invoices/payments/billing |
 
 **How fees are taken** (Phase 2 model — workspace as the ownership unit):
 

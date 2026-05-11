@@ -51,7 +51,7 @@ Six steps from invoice to settled, end-to-end in under a minute. Two architectur
 1. **Symfony writes nothing on-chain. It only reads.** All transactions are signed in the client's browser by their own wallet. This keeps Settlepay out of money-transmitter regulation territory and dramatically simplifies the codebase.
 2. **Funds move directly from client wallet → workspace payout wallet.** We never custody. The listener watches `Transfer` events on the workspace's payout address, matches them to open invoices by amount + token, and updates the database — that's it.
 
-A workspace is the unit of "the business" — it owns invoices, payments, billing state, branding, and payout settings. Solo freelancers get exactly one workspace where they are the sole Owner. Agency-tier accounts can invite teammates (up to 5 seats) so multiple users share the same invoice pool.
+A workspace is the unit of "the business" — it owns invoices, payments, billing state, branding, and payout settings. Solo freelancers get exactly one workspace where they are the sole Owner. Agency-tier accounts can invite teammates (up to 10 seats) so multiple users share the same invoice pool.
 
 ---
 

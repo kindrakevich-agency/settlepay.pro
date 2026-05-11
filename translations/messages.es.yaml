@@ -26,6 +26,7 @@ nav:
     help: Ayuda
     docs: Documentación
     pricing: Precios
+    agency: Agency
     product: Producto
     language: Idioma
     toggle_menu: Abrir menú
@@ -188,7 +189,7 @@ pricing:
         tagline: Para estudios y equipos pequeños
         fee: '0,5% por factura cobrada'
         feat_1: 'Todo lo del plan Pro'
-        feat_2: 'Hasta 5 plazas en el equipo'
+        feat_2: 'Hasta 10 plazas en el equipo'
         feat_3: 'Facturas, pagos y lista de clientes compartidos'
         feat_4: 'Invitaciones a compañeros por email'
         feat_5: 'El owner controla facturación y marca'
@@ -285,7 +286,7 @@ terms:
     s4_item_3: 'Si la billetera del cliente fue comprometida y otra persona paga tu factura, el pago igual se acredita. La resolución del robo es entre el cliente y las autoridades.'
     s4_item_4: 'Si el emisor de un stablecoin (por ejemplo, Circle para USDC) congela una billetera, esos fondos quedan inaccesibles hasta que el emisor los libere. Settlepay no tiene ninguna influencia sobre eso.'
     s5_title: '5. Comisiones'
-    s5_body: 'Plan Free: 1% por factura cobrada. Plan Pro: $19 USDC cada 30 días + 0,5% por factura cobrada. Plan Agency: $49 USDC cada 30 días + 0,5%, 5 plazas incluidas. Todos los importes en USDC. Las comisiones por factura se acumulan en tu cuenta y las liquidas en USDC a la billetera de Settlepay cuando quieras, desde la página de Facturación. Nunca debitamos automáticamente, ni custodiamos tus fondos, ni descontamos comisiones de los stablecoins entrantes — esos van directos de la billetera del cliente a la tuya.'
+    s5_body: 'Plan Free: 1% por factura cobrada. Plan Pro: $19 USDC cada 30 días + 0,5% por factura cobrada. Plan Agency: $49 USDC cada 30 días + 0,5%, 10 plazas incluidas. Todos los importes en USDC. Las comisiones por factura se acumulan en tu cuenta y las liquidas en USDC a la billetera de Settlepay cuando quieras, desde la página de Facturación. Nunca debitamos automáticamente, ni custodiamos tus fondos, ni descontamos comisiones de los stablecoins entrantes — esos van directos de la billetera del cliente a la tuya.'
     s6_title: '6. Uso aceptable'
     s6_body: 'Aceptas no usar Settlepay para: actividades ilegales (fraude, blanqueo de capitales, financiación del terrorismo); cobrar por bienes o servicios prohibidos en tu jurisdicción; acoso, difamación o abuso a través del contenido de las facturas; enviar facturas a clientes que no han aceptado ser facturados; o cualquier intento de interrumpir el servicio o aplicarle ingeniería inversa.'
     s7_title: '7. Fin del servicio'
@@ -305,6 +306,7 @@ footer:
     copyright: '© 2026 settlepay.pro · todos los derechos reservados'
     links:
         pricing: Precios
+        agency: Agency
         docs: Documentación
         status: Estado
         privacy: Privacidad
@@ -459,7 +461,7 @@ settings:
     section_branding: 'Personalización de marca'
     section_branding_sub: 'Logo y color de acento que aparecen en la página de pago, los correos y los recibos en PDF.'
     section_team: 'Equipo'
-    section_team_sub: 'Invita a compañeros a compartir facturas y pagos. Hasta 5 plazas en el plan Agency.'
+    section_team_sub: 'Invita a compañeros a compartir facturas y pagos. Hasta 10 plazas en el plan Agency.'
     owner_only_hint: 'solo owner'
     payout_member_readonly: 'Solo el Owner del espacio puede cambiar los ajustes de cobro. Pídele que actualice si algo no cuadra.'
     payout_owner_only: 'Solo el Owner del espacio puede modificar los ajustes de cobro.'
@@ -605,8 +607,8 @@ billing:
     upgrade_monthly: 'Pásate a Pro — paga $19 en USDC'
     renew_monthly: 'Renovar — paga $19 en USDC'
     upgrade_lifetime: 'Comprar de por vida — $299 en USDC'
-    agency_label: 'Agency · 5 plazas'
-    agency_blurb: 'Invita hasta 4 compañeros a compartir facturas, pagos y marca. Mismo flujo cripto-nativo, sin custodia.'
+    agency_label: 'Agency · 10 plazas'
+    agency_blurb: 'Invita hasta 9 compañeros a compartir facturas, pagos y marca. Mismo flujo cripto-nativo, sin custodia.'
     upgrade_agency: 'Pasarme a Agency — $49 en USDC'
     renew_agency: 'Renovar Agency — $49 en USDC'
     best_value: 'Mejor relación calidad/precio'
@@ -624,7 +626,7 @@ billing:
         id: Referencia
         kind_monthly: 'Pro · renovación mensual'
         kind_lifetime: 'Pro · de por vida'
-        kind_agency: 'Agency · mensual · 5 plazas'
+        kind_agency: 'Agency · mensual · 10 plazas'
         kind_fees: 'Liquidar comisiones acumuladas'
         send_to: 'Envía USDC a esta billetera'
         on_any_of: 'Cualquiera de estas redes'
@@ -779,10 +781,10 @@ branding:
 team:
     title: 'Equipo'
     short_blurb: 'Gestiona los miembros del espacio y las invitaciones.'
-    subtitle: 'Los miembros de %workspace% comparten facturas, pagos y facturación. Hasta 5 plazas en Agency.'
+    subtitle: 'Los miembros de %workspace% comparten facturas, pagos y facturación. Hasta 10 plazas en Agency.'
     seats: 'Plazas usadas'
     upgrade_to_agency: 'Pasar a Agency'
-    agency_plan_required: 'La gestión del equipo forma parte del plan Agency ($49/mes, 5 plazas). Actualiza para invitar a tu equipo.'
+    agency_plan_required: 'La gestión del equipo forma parte del plan Agency ($49/mes, 10 plazas). Actualiza para invitar a tu equipo.'
     invite_title: 'Invitar a un compañero'
     invite_hint: 'Recibirá un email con un enlace para aceptar. El enlace dura 14 días.'
     email_placeholder: 'compañero@example.com'
@@ -863,7 +865,7 @@ help:
         q1: '¿Cómo funcionan las comisiones?'
         a1: 'Free: 1% por factura cobrada. Pro y Agency: 0,5%. Las comisiones se acumulan en tu <strong>espacio de trabajo</strong>, no se descuentan de los pagos entrantes — esos van directo a tu billetera. Liquidas el saldo acumulado en USDC desde la página de <a href="/es/app/billing" class="text-brand-600 hover:underline">Facturación</a> cuando quieras. Sin débito automático. Sin tarjetas.'
         q2: '¿Cómo se pagan las suscripciones?'
-        a2: 'Pro: $19 USDC cada 30 días O $299 USDC de por vida. Agency: $49 USDC cada 30 días (5 plazas). Todo en USDC a nuestra billetera — el mismo listener que empareja tus pagos de facturas también empareja los de suscripción. Cada renovación es una transacción nueva que tú autorizas; sin débitos automáticos.'
+        a2: 'Pro: $19 USDC cada 30 días O $299 USDC de por vida. Agency: $49 USDC cada 30 días (10 plazas). Todo en USDC a nuestra billetera — el mismo listener que empareja tus pagos de facturas también empareja los de suscripción. Cada renovación es una transacción nueva que tú autorizas; sin débitos automáticos.'
         q3: '¿En cuánto se confirma un pago?'
         a3: 'Las transacciones en L2 suelen confirmarse en 2–10 s. Esperamos confirmaciones adicionales antes de marcar la factura como <em>pagada</em>: 5 en Base/Arbitrum/Optimism, 30 en Polygon (más riesgo de reorg). En total: 10–60 segundos del pago a la notificación.'
         q4: '¿Y si mi cliente nunca usó cripto?'
@@ -875,7 +877,7 @@ help:
         q7: '¿Cómo funcionan los tokens de API y los webhooks?'
         a7: 'Pro y Agency tienen acceso programático. Genera un token en <a href="/es/app/settings/api-tokens" class="text-brand-600 hover:underline">Ajustes → Tokens de API</a> y llama a <code>/api/v1/invoices</code>, etc. Registra endpoints en <a href="/es/app/settings/webhooks" class="text-brand-600 hover:underline">Ajustes → Webhooks</a> — enviamos JSON firmado con HMAC cuando las facturas se envían, pagan o anulan. Referencia completa en <a href="/es/docs" class="text-brand-600 hover:underline">/docs</a>.'
         q8: '¿Cómo funciona el plan Agency?'
-        a8: 'El Owner de Agency puede invitar hasta 4 compañeros por correo. Todos los miembros comparten facturas, pagos, marca y facturación. Solo el Owner: ajustes de cobro, cambios de plan, marca, tokens de API y webhooks. Los miembros: crean, envían y anulan sus propias facturas.'
+        a8: 'El Owner de Agency puede invitar hasta 9 compañeros por correo. Todos los miembros comparten facturas, pagos, marca y facturación. Solo el Owner: ajustes de cobro, cambios de plan, marca, tokens de API y webhooks. Los miembros: crean, envían y anulan sus propias facturas.'
         q9: '¿Puedo convertir a fiat?'
         a9: 'Sí. Recibes USDC en tu billetera — el mismo USDC puedes pasarlo a una cuenta bancaria vía Coinbase, Binance, Kraken, MoonPay o exchanges locales. La primera vez 1–3 días (KYC del exchange), después minutos.'
         q10: '¿Es legal? ¿Tengo que hacer KYC a mis clientes?'
@@ -898,3 +900,87 @@ help:
         body: 'Escríbenos a <a href="mailto:hello@settlepay.pro" class="text-brand-600 hover:underline">hello@settlepay.pro</a> — solemos responder en un día. Bugs y peticiones de features: abre un issue en GitHub.'
         email_button: 'Escríbenos'
         github_button: 'GitHub issues'
+
+agency_teaser:
+    eyebrow: 'Para agencias y estudios'
+    title: 'Hecho para equipos que facturan juntos.'
+    sub: 'Invita hasta 10 compañeros a un espacio compartido. Mismo flujo cripto-nativo, misma UX al nivel de Stripe — pero con un modelo real owner / member y una sola facturación consolidada.'
+    feat_1: 'Pool compartido de facturas y pagos para todo el equipo'
+    feat_2: 'Invitaciones por email con roles (Owner / Member)'
+    feat_3: 'Solo el Owner controla facturación, cobro y marca'
+    feat_4: 'Logo + color en cada factura, página y correo'
+    cta_primary: 'Saber más sobre Agency'
+    cta_secondary: 'Ver precios'
+    workspace_demo: 'Estudio de Vitalii'
+    workspace_seats: '%used% / %limit% plazas usadas'
+    role_owner: 'Owner · facturación + miembros'
+    role_member: 'Miembro · crea facturas'
+    seats_remaining: 'Quedan %count% plazas'
+
+agency:
+    seo:
+        title: 'Settlepay para agencias — facturación cripto compartida'
+        description: 'Invita hasta 10 compañeros a un espacio compartido. Facturación en stablecoins con facturación controlada por el Owner, marca personalizada y una sola comisión consolidada. $49 USDC cada 30 días, 0,5% por factura cobrada.'
+    eyebrow: 'Plan Agency'
+    hero:
+        title: 'Facturación cripto para todo el estudio.'
+        sub: 'Un espacio compartido donde 10 compañeros envían facturas, cobran en stablecoins y todo se consolida en un plan gestionado por el Owner. El Owner controla facturación y marca; los miembros se centran en el trabajo.'
+        cta_primary: 'Iniciar Agency — $49 en USDC'
+        cta_secondary: 'Cómo funciona'
+        trust: 'Sin custodia · 0,5% por factura · 10 plazas · Cancela cuando quieras'
+    how:
+        eyebrow: 'Cómo funciona'
+        title: 'Un espacio. Diez plazas. Cero hojas de cálculo.'
+        sub: 'El Owner pasa a Agency, invita a sus compañeros por correo, y desde ese momento cada factura que cualquiera envíe vive en el mismo pool. Se acabó perseguir PDFs por Slack.'
+        step1_title: 'Tú actualizas el espacio.'
+        step1_body: 'Pagas $49 en USDC. El plan pasa a Agency, el límite de plazas sube a 10. Misma billetera, mismo listener — solo un flag distinto en la BD.'
+        step2_title: 'Invitas por email.'
+        step2_body: 'Ajustes → Equipo → su correo. Reciben un enlace firmado válido 14 días. Se registran con ese mismo correo y ya están dentro.'
+        step3_title: 'Todos facturan desde un solo pool.'
+        step3_body: 'Cualquier miembro puede crear y enviar facturas. Todos los pagos llegan a la billetera del espacio. Las comisiones se acumulan en un saldo único que el Owner liquida en USDC.'
+    features:
+        eyebrow: 'Para trabajar en equipo'
+        title: 'Controles de estudio sin precio de estudio.'
+        f1_title: 'Roles que importan de verdad'
+        f1_body: 'El Owner controla facturación, cobro, marca, tokens de API y webhooks. Los miembros pueden crear, enviar y anular sus propias facturas. Un miembro no va a tocar la billetera por accidente.'
+        f2_title: 'Una billetera, un saldo'
+        f2_body: 'Todas las facturas del espacio apuntan a la misma dirección. Las comisiones se acumulan en el espacio, no por persona. Un solo botón de liquidación.'
+        f3_title: 'Marca en todas las superficies'
+        f3_body: 'Sube un logo, elige un color de acento. Se aplica a la página de pago, los recibos PDF y los correos — automáticamente, para cada factura que cualquiera del equipo envíe.'
+        f4_title: 'Webhooks + REST API'
+        f4_body: 'Conecta Slack, contabilidad, dashboards a medida. Los tokens son del espacio, así que la integración ve los mismos datos que el equipo — sin casos especiales.'
+        f5_title: 'Sin custodia, como siempre'
+        f5_body: 'Los fondos van directos de las billeteras de tus clientes a la del espacio. Nunca tocamos el dinero — Owner o miembro ven el mismo rastro on-chain.'
+        f6_title: 'Cancelación suave, sin sorpresas'
+        f6_body: 'Cancela cuando quieras desde Facturación. El acceso a Agency dura hasta el final del periodo. Sin reembolsos prorrateados, sin renovaciones automáticas. Pagas cuando tú quieres.'
+    pricing:
+        badge: 'Incluye 10 plazas'
+        name: 'Agency · $49 USDC cada 30 días'
+        tagline: 'Para estudios y equipos pequeños'
+        feat_1: '10 plazas incluidas'
+        feat_2: '0,5% por factura cobrada'
+        feat_3: 'Volumen ilimitado'
+        feat_4: 'Marca personalizada (logo + color)'
+        feat_5: 'Webhooks + API REST'
+        feat_6: 'Recibos PDF en 3 idiomas'
+        disclaimer: 'Pago en USDC a la billetera de Settlepay. Sin tarjetas, sin Stripe, sin débito automático. Cada renovación es un pago nuevo que tú autorizas.'
+        cta: 'Pasar — $49 en USDC'
+    faq:
+        title: 'Preguntas sobre Agency'
+        q1: '¿Cuántas plazas tengo?'
+        a1: '10 plazas en total — el Owner más 9 compañeros invitados. Suficiente para un estudio de 1–10 personas. Sin coste por plaza extra.'
+        q2: '¿Un miembro ve las facturas de los demás?'
+        a2: 'Sí. Cada miembro del espacio ve todas las facturas, pagos y logs de webhooks. Agency es para equipos que YA confían entre ellos para compartir un pool financiero.'
+        q3: '¿Qué NO puede hacer un miembro?'
+        a3: 'No puede cambiar facturación, cobro, marca, tokens de API ni webhooks. Sí puede crear, enviar y anular sus propias facturas. El Owner controla la billetera y el plan.'
+        q4: '¿Cómo se reparten las comisiones entre compañeros?'
+        a4: 'No se reparten. Las comisiones se acumulan en el saldo único del espacio y el Owner las liquida en USDC. La asignación interna (qué factura es de quién) la haces tú — cada factura guarda `created_by` para atribución.'
+        q5: '¿Puedo quitar a un compañero?'
+        a5: 'Sí — el Owner pulsa Quitar en Ajustes → Equipo. Pierde acceso al panel al instante. Las facturas que creó siguen en el espacio (la atribución created_by se mantiene).'
+        q6: '¿Qué pasa si cancelo?'
+        a6: 'Cancelación suave: el equipo conserva acceso Agency hasta el final del periodo de 30 días, después pasa a Free. Los miembros por encima del límite Free (1) se desactivan automáticamente si no renuevas. No se borran datos — renueva y vuelven.'
+    cta:
+        title: '¿Listo para meter al estudio?'
+        sub: 'Actualiza una vez. Invita al equipo. Todo lo demás sigue exactamente igual.'
+        primary: 'Pasar a Agency'
+        secondary: 'Comparar todos los planes'

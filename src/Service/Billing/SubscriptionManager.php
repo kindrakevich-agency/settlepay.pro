@@ -81,7 +81,7 @@ final class SubscriptionManager
                 $workspace->setPlan('agency')
                     ->setPlanRenewsAt($start->add(new \DateInterval(self::MONTHLY_PERIOD)))
                     ->setPlanCanceledAt(null)
-                    ->setSeatLimit(5)
+                    ->setSeatLimit(10)   // Bumped from 5 to 10 — see /agency landing
                     ->touch();
                 $this->logger->info('Agency plan extended', [
                     'workspace_id' => $workspace->getId(),
