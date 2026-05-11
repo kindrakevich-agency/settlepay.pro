@@ -1,189 +1,115 @@
 {#
-    Settlepay logo — custom SVG mark + custom-drawn wordmark.
+    Settlepay logo v3 — chunky angular S + display-weight wordmark.
 
-    The whole logo is one SVG. No system font, no fallback to Inter
-    or Tailwind classes for the letterforms — every glyph is a hand-
-    drawn monoline path.
+    The mark is a stark angular S — three thick horizontal bars + two
+    vertical connectors, all sharp 90° corners, filled solid with a
+    teal gradient. No strokes, no curves, no container box. The shape
+    reads as S immediately at any size and stays sharp at favicon
+    dimensions because it has zero curves to anti-alias.
 
-    Construction rules used across all letters:
-      • Single stroke width: 5px (in the 32-unit coordinate system that's ~16% of x-height — bold but not heavy)
-      • Round line caps + round joins everywhere
-      • Bowl curves use cubic beziers for elegance
-      • Each letter sits on the baseline at y=42, with x-height to y=22
-      • Ascenders ('t', 'l') reach y=14
-      • Descenders ('p', 'y') drop to y=54
+    The wordmark is SVG `<text>` in Inter Display 800 (the heaviest cut
+    of the family already on the site), tracking tightened to -0.025em
+    so the letters lock together like a logotype. Renders crisply
+    through the browser's font engine — no hand-drawn letterform
+    proportions to second-guess.
 
-    The `s` is a miniature of the brand mark (no coin termini — it's
-    an inline letter, not a standalone glyph). The `y` finishes with
-    a subtle curl that echoes the same S-curve, threading a visual
-    rhyme through the wordmark.
+    Color split is preserved via currentColor on each tspan, controlled
+    by Tailwind text-* classes that flip in dark mode automatically.
 
-    Color split is preserved: `settle` in slate, `pay` in brand. Done
-    via two `<g>` groups with currentColor on their strokes, controlled
-    by Tailwind text-color classes on the wrapping element. Dark-mode
-    variants flip automatically.
-
-    Usage:
+    Usage in any template:
         from _logo.html.twig import logo
         logo()                          - default: md, with wordmark
-        logo(size='lg')                 - bigger, wordmark
-        logo(size='sm', wordmark=false) - mark only (no letterforms)
-        logo(monogram_mode=true)        - same wordmark + a .pro tail
+        logo(size='lg')                 - bigger
+        logo(size='sm', wordmark=false) - mark only
+        logo(monogram_mode=true)        - wordmark + muted .pro suffix
 #}
 
 {% macro logo(size = 'md', wordmark = true, monogram_mode = false) %}
     {% set sizes = {
-        sm: { h: 24, gap: '' },
-        md: { h: 32, gap: '' },
-        lg: { h: 44, gap: '' },
-        xl: { h: 64, gap: '' }
+        sm: { h: 24 },
+        md: { h: 32 },
+        lg: { h: 44 },
+        xl: { h: 64 }
     } %}
     {% set s = sizes[size] %}
     {% set uid = size ~ '-' ~ random(99999) %}
-    {% set vbw = wordmark ? (monogram_mode ? 380 : 280) : 60 %}
+    {% set vbw = wordmark ? (monogram_mode ? 380 : 300) : 60 %}
 
     <svg height="{{ s.h }}" viewBox="0 0 {{ vbw }} 60" fill="none"
          xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Settlepay"
-         class="select-none">
+         class="select-none overflow-visible">
 
         <defs>
-            {# Brand-teal gradient for the mark's S-curve stroke. #}
-            <linearGradient id="sp-grad-{{ uid }}" x1="30" y1="6" x2="30" y2="54" gradientUnits="userSpaceOnUse">
+            {# Brand-teal gradient — light at top-left, deep at bottom-right.
+               Diagonal gives the mark a sense of motion / depth. #}
+            <linearGradient id="sp-grad-{{ uid }}" x1="6" y1="6" x2="50" y2="54" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#5eead4"/>
                 <stop offset="50%"  stop-color="#14b8a6"/>
                 <stop offset="100%" stop-color="#0f766e"/>
             </linearGradient>
-            {# Coin-terminus radial gradient. #}
-            <radialGradient id="sp-coin-{{ uid }}" cx="0.35" cy="0.30" r="0.8">
-                <stop offset="0%"   stop-color="#a7f3d0"/>
-                <stop offset="60%"  stop-color="#14b8a6"/>
-                <stop offset="100%" stop-color="#0f766e"/>
-            </radialGradient>
+            {# Subtle inner highlight along the top edge — gives the solid
+               shape just enough dimension to not look flat. #}
+            <linearGradient id="sp-shine-{{ uid }}" x1="0" y1="0" x2="0" y2="20" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.22"/>
+                <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+            </linearGradient>
         </defs>
 
-        {# ─── Brand mark — the standalone flowing S with coin termini ─── #}
-        <g transform="translate(2 0)">
-            <path d="M 44 12
-                     C 44 9 41 6 38 6
-                     L 21 6
-                     C 13 6 6 13 6 21
-                     C 6 28 12 32 20 33
-                     L 36 34
-                     C 45 35 51 40 51 48
-                     C 51 52 48 55 45 55
-                     L 16 55"
-                  stroke="url(#sp-grad-{{ uid }})"
-                  stroke-width="7.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <circle cx="44" cy="12" r="5.5" fill="url(#sp-coin-{{ uid }})"/>
-            <circle cx="44" cy="12" r="2.2" fill="#ffffff" fill-opacity="0.75"/>
-            <circle cx="16" cy="55" r="5.5" fill="url(#sp-coin-{{ uid }})"/>
-            <circle cx="16" cy="55" r="2.2" fill="#ffffff" fill-opacity="0.75"/>
+        {# ─── Mark: angular S ────────────────────────────────────────
+             Single closed path. Coordinates trace the outline of an
+             angular S clockwise. Three horizontal bars (top / middle /
+             bottom) connect via two vertical jogs. #}
+        <g>
+            <path d="M 6 6
+                     L 50 6
+                     L 50 24
+                     L 24 24
+                     L 24 28
+                     L 50 28
+                     L 50 54
+                     L 6 54
+                     L 6 36
+                     L 32 36
+                     L 32 32
+                     L 6 32 Z"
+                  fill="url(#sp-grad-{{ uid }})"/>
+            <path d="M 6 6
+                     L 50 6
+                     L 50 24
+                     L 24 24
+                     L 24 28
+                     L 50 28
+                     L 50 54
+                     L 6 54
+                     L 6 36
+                     L 32 36
+                     L 32 32
+                     L 6 32 Z"
+                  fill="url(#sp-shine-{{ uid }})"/>
         </g>
 
         {% if wordmark %}
-            {# ─── 'settle' — slate strokes via currentColor ─── #}
-            <g transform="translate(70 0)"
-               stroke="currentColor" stroke-width="5"
-               stroke-linecap="round" stroke-linejoin="round"
-               fill="none"
-               class="text-slate-900 dark:text-slate-50">
-
-                {# s — miniature S, ~22 wide #}
-                <path d="M 22 28
-                         C 22 23 18 22 14 22
-                         L 8 22
-                         C 3 22 3 27 3 30
-                         C 3 33 6 33 9 33
-                         L 14 33
-                         C 19 33 22 35 22 38
-                         C 22 42 18 44 14 44
-                         L 8 44
-                         C 4 44 3 41 3 38"/>
-
-                {# e — open at the right, 22 wide, starts at x=30 #}
-                <path d="M 30 33
-                         L 49 33
-                         M 49 33
-                         C 49 26 45 22 39 22
-                         C 33 22 30 27 30 33
-                         C 30 39 34 44 40 44
-                         C 43 44 47 43 49 40"/>
-
-                {# t — vertical + crossbar, narrow, starts at x=57 #}
-                <path d="M 62 16
-                         L 62 40
-                         C 62 43 64 44 67 44
-                         L 70 44
-                         M 56 24
-                         L 70 24"/>
-
-                {# t — same shape, second instance, starts at x=76 #}
-                <path d="M 81 16
-                         L 81 40
-                         C 81 43 83 44 86 44
-                         L 89 44
-                         M 75 24
-                         L 89 24"/>
-
-                {# l — single vertical with foot turn, starts at x=95 #}
-                <path d="M 98 12
-                         L 98 40
-                         C 98 43 100 44 103 44
-                         L 106 44"/>
-
-                {# e — second instance, starts at x=113 #}
-                <path d="M 113 33
-                         L 132 33
-                         M 132 33
-                         C 132 26 128 22 122 22
-                         C 116 22 113 27 113 33
-                         C 113 39 117 44 123 44
-                         C 126 44 130 43 132 40"/>
-            </g>
-
-            {# ─── 'pay' — brand-teal strokes via currentColor ─── #}
-            <g transform="translate(70 0)"
-               stroke="currentColor" stroke-width="5"
-               stroke-linecap="round" stroke-linejoin="round"
-               fill="none"
-               class="text-brand-600 dark:text-brand-400">
-
-                {# p — vertical stem with descender + right bowl, starts at x=146 #}
-                <path d="M 146 22
-                         L 146 56
-                         M 146 22
-                         L 159 22
-                         C 165 22 169 27 169 33
-                         C 169 39 165 44 159 44
-                         L 146 44"/>
-
-                {# a — left bowl + right vertical stem, starts at x=176 #}
-                <path d="M 197 30
-                         C 196 24 191 22 187 22
-                         C 182 22 177 25 177 30
-                         C 177 35 181 38 187 38
-                         L 197 38
-                         M 197 22
-                         L 197 44"/>
-
-                {# y — two diagonals, right one continues into a flowing descender (S-rhyme!), starts at x=205 #}
-                <path d="M 207 22
-                         L 218 44
-                         M 230 22
-                         L 218 44
-                         L 213 54
-                         C 211 57 209 57 207 56"/>
-            </g>
+            {# ─── Wordmark: Inter Display 800, tracking tight.
+                  Letters render via the browser font engine — Inter is
+                  already loaded for the rest of the site so no extra cost. #}
+            <text x="72" y="44"
+                  font-family="'Inter Display', Inter, ui-sans-serif, system-ui, sans-serif"
+                  font-weight="800"
+                  font-size="38"
+                  letter-spacing="-0.025em"
+                  text-rendering="optimizeLegibility"
+                  style="font-feature-settings: 'ss01', 'cv11';">
+                <tspan fill="currentColor" class="text-slate-900 dark:text-slate-50">settle</tspan><tspan fill="currentColor" class="text-brand-600 dark:text-brand-400">pay</tspan>
+            </text>
 
             {% if monogram_mode %}
-                {# .pro tail in muted slate — kept as SVG text since it's a sub-element. #}
-                <g transform="translate(305 0)"
-                   class="text-slate-400 dark:text-slate-500">
-                    <text x="0" y="44" font-family="Inter, ui-sans-serif, system-ui, sans-serif"
-                          font-size="26" font-weight="400" fill="currentColor">.pro</text>
-                </g>
+                <text x="262" y="44"
+                      font-family="'Inter Display', Inter, ui-sans-serif, system-ui, sans-serif"
+                      font-weight="500"
+                      font-size="26"
+                      letter-spacing="-0.01em"
+                      fill="currentColor"
+                      class="text-slate-400 dark:text-slate-500">.pro</text>
             {% endif %}
         {% endif %}
     </svg>
