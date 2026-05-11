@@ -5,7 +5,7 @@
 Settle is a SaaS platform that lets freelancers send professional invoices and get paid in **USDC / USDT / DAI** on cheap EVM L2s (**Base · Polygon · Arbitrum · Optimism**). It's built like Stripe, but on the rails freelancers in countries with broken banking actually want.
 
 **Live domain (production):** [settlepay.pro](https://settlepay.pro)
-**Status:** greenfield (May 2026 — design system + scaffold complete; backend in progress).
+**Status:** MVP shipped (May 2026). Mainnet listener running on Base / Polygon / Arbitrum / Optimism. End-to-end critical path proven: signup → connect wallet → create invoice → client pays → daemon detects on-chain payment → invoice flips to paid → email + PDF receipt delivered. Dogfooding for $1 real-USDC payments before public Product Hunt launch.
 
 ![Settle UI preview](docs/screenshot.png)
 
@@ -425,8 +425,8 @@ For MVP one address (`hello@`) is sufficient. Split when volume justifies separa
 |---|---|---|
 | User registers | `emails/auth/verify_email.html.twig` | `app.request.locale` (or user's `default_locale`) |
 | User clicks "forgot password" | `emails/auth/reset_password.html.twig` | same |
-| Invoice paid (listener flips status) | `emails/invoices/paid.html.twig` *(coming soon)* | invoice's stored locale |
-| Invoice sent | `emails/invoices/sent.html.twig` *(coming soon)* | client's preferred locale |
+| Invoice paid (listener flips status) | `emails/invoices/paid.html.twig` *(planned)* | invoice's stored locale |
+| Invoice sent | `emails/invoices/sent.html.twig` ✅ live, PDF attached | client's preferred locale |
 
 ### Local development
 
@@ -557,9 +557,13 @@ sudo tail -f /var/log/settle/listener-error.log
 
 ### Mainnet vs testnet
 
-The shipped unit runs `--testnet` because that's where the development invoices live. **Before going live with real money**, edit `ExecStart=` in the unit file to drop `--testnet` (which switches the daemon to all four mainnet chains), then `systemctl daemon-reload && systemctl restart settle-listener.service`.
+The shipped unit (`deploy/systemd/settle-listener.service`) runs against **mainnet** — Base, Polygon, Arbitrum, Optimism. A second unit (`deploy/systemd/settle-listener-testnet.service`) handles Sepolia testnets and runs alongside without conflict, since each chain owns its own `chain_cursors` row.
 
-To watch BOTH mainnet and testnet at the same time (useful while you're still testing on Sepolia after launching), copy the unit to `settle-listener-testnet.service`, keep `--testnet` on that one, drop it on the original, and enable both. Each daemon owns its own cursor row in `chain_cursors` so they don't collide.
+Enable both:
+```bash
+systemctl enable --now settle-listener            # mainnet
+systemctl enable --now settle-listener-testnet    # sepolia testnets (dev / dogfood)
+```
 
 ### Why systemd and not Supervisor / PM2 / cron?
 
@@ -575,7 +579,7 @@ See [`deploy/README.md`](deploy/README.md) for a one-page cheatsheet.
 
 ## Deployment
 
-Deploys are handled by **GitHub Actions** (`.github/workflows/deploy.yml`) using `appleboy/ssh-action` to SSH into the Hetzner server. Pattern is identical to [the existing Tripsquick & st-ai.com.ua deployments](https://github.com/kindrakevich-agency).
+Deploys are handled by **GitHub Actions** (`.github/workflows/ci.yml`) using `appleboy/ssh-action` to SSH into the Hetzner server. CI and deploy live in a single workflow with three jobs (`php`, `frontend`, `deploy`); the deploy job has `needs: [php, frontend]` so a broken commit can never reach prod.
 
 **On every push to `main`:**
 
@@ -598,20 +602,29 @@ Deploys are handled by **GitHub Actions** (`.github/workflows/deploy.yml`) using
 
 ---
 
-## Roadmap
+## Status & roadmap
 
-8-week MVP plan (full week-by-week breakdown in [`CLAUDE.md` §17](CLAUDE.md)):
+### Shipped
 
-| Week | Deliverable |
-|---|---|
-| 1 | Foundation: skeleton, auth, marketing landing (en/uk/es) |
-| 2 | Invoice CRUD, public invoice view, PDF + email |
-| 3 | Crypto checkout (testnet): viem + wagmi + RainbowKit |
-| 4 | Chain listener: `eth_getLogs` polling, payment matching |
-| 5 | Mainnet flip, Sentry, basic monitoring, webhooks v1 |
-| 6 | Full i18n: uk + es complete, locale-aware money/date |
-| 7 | Beta with 10–20 freelancers, onboarding polish |
-| 8 | Public launch (Product Hunt, Indie Hackers, X) |
+- Foundation: Symfony 7 skeleton, Doctrine entities, migrations, email/password auth (Argon2id, email verification, password reset)
+- Marketing site in en / uk / es with full SEO (hreflang, sitemap, JSON-LD, OG)
+- Dashboard (server-rendered Twig): invoice CRUD, paginated list with filters, payments table, settings (profile / payout wallet / security)
+- Public payment page with viem + wagmi + RainbowKit, WalletConnect (Reown)
+- Chain listener daemon: `eth_getLogs` polling, payment matching with ±0.5% tolerance, idempotent on `(chain_id, tx_hash, log_index)`
+- Mainnet live on Base / Polygon / Arbitrum / Optimism via Alchemy. Sepolia testnets run on a separate systemd unit
+- Resend email with DKIM + SPF + DMARC, plaintext fallback, List-Unsubscribe headers, PDF receipt attached to outgoing invoices
+- PDF invoice/receipt rendering with dompdf (Cyrillic + Latin coverage), branded template
+- Sentry error reporting wired with custom `before_send` filter
+- GitHub Actions CI + Deploy in a single workflow, deploy gated on lint + typecheck + build
+
+### Next
+
+- Edit / void draft invoices (currently write-once)
+- Webhooks (entity exists, dispatcher pending)
+- Stripe billing for Pro/Agency monthly fees
+- Browser-side Sentry project for checkout-time errors
+- SIWE login (phase 2)
+- Multi-user team seats (Agency plan)
 
 ---
 
@@ -623,4 +636,4 @@ MIT — see [LICENSE](LICENSE).
 
 ## Contributing & contact
 
-Solo founder build by **Vitalii** ([@kindrakevich-agency](https://github.com/kindrakevich-agency)). PRs and issues welcome once the MVP ships. For freelancers who want to be in the closed beta — reach out via the issue tracker.
+Solo founder build by **Vitalii** ([@kindrakevich-agency](https://github.com/kindrakevich-agency)). PRs and issues welcome. For freelancers who want early access, sign up at [settlepay.pro](https://settlepay.pro) — free up to $1,000 invoiced per month.

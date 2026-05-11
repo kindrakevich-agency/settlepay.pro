@@ -19,6 +19,7 @@ final class InvoiceMailer
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urls,
         private readonly LoggerInterface $logger,
+        private readonly InvoicePdfRenderer $pdf,
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
     ) {}
@@ -64,6 +65,21 @@ final class InvoiceMailer
         $email->getHeaders()
             ->addTextHeader('List-Unsubscribe', sprintf('<mailto:%s?subject=Unsubscribe>', $invoice->getUser()->getEmail()))
             ->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+
+        // Attach the rendered PDF — same number on the cover as the email
+        // subject, so the client can save the file straight into their
+        // accounting folder. Locale matches the freelancer's default.
+        try {
+            $pdfBytes = $this->pdf->render($invoice, $invoice->getUser()->getDefaultLocale());
+            $email->attach($pdfBytes, $this->pdf->filenameFor($invoice), 'application/pdf');
+        } catch (\Throwable $e) {
+            // PDF generation failing should NOT block the email — the link
+            // in the body is the source of truth for payment. Log + carry on.
+            $this->logger->warning('Invoice PDF attach skipped', [
+                'invoice_uuid' => $invoice->getUuid(),
+                'error'        => $e->getMessage(),
+            ]);
+        }
 
         try {
             $this->mailer->send($email);
