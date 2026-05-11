@@ -1,0 +1,126 @@
+{% extends 'base.html.twig' %}
+{% from '_logo.html.twig' import logo %}
+
+{% set locale = app.request.locale|default('en') %}
+{% set seo_indexable = false %}
+
+{% block title %}{{ 'billing.checkout.title'|trans({'%amount%': amount_decimal}) }} · Settlepay{% endblock %}
+
+{% block body %}
+<div class="min-h-dvh bg-slate-50 dark:bg-slate-950">
+    <header class="px-6 py-4 flex items-center justify-between">
+        <a href="{{ path('marketing_home', {_locale: locale}) }}">{{ logo(size='sm') }}</a>
+        <span class="text-xs text-slate-500 dark:text-slate-500 font-mono">{{ 'billing.checkout.id'|trans }}: {{ intent.uuid|slice(0, 8) }}…</span>
+    </header>
+
+    <main class="px-6 py-8">
+        <div class="max-w-lg mx-auto">
+
+            {# Status card — flips via JS poll #}
+            <div data-status-wrap class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8 shadow-card">
+
+                <div class="text-center mb-6">
+                    <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        {% if intent.kind.value == 'pro_monthly' %}{{ 'billing.checkout.kind_monthly'|trans }}
+                        {% elseif intent.kind.value == 'pro_lifetime' %}{{ 'billing.checkout.kind_lifetime'|trans }}
+                        {% else %}{{ 'billing.checkout.kind_fees'|trans }}{% endif %}
+                    </p>
+                    <p class="mt-2 font-display text-5xl font-semibold tracking-tight tabular-nums">${{ amount_decimal }}<span class="text-2xl text-slate-400 ml-1">USDC</span></p>
+                </div>
+
+                {# Pending state — shown by default. JS hides it on status=paid. #}
+                <div data-pending-block>
+                    <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">{{ 'billing.checkout.send_to'|trans }}</p>
+                        <code class="mt-2 block font-mono text-sm text-slate-900 dark:text-slate-100 break-all">{{ intent.recipientAddress }}</code>
+                        <button type="button"
+                                class="mt-3 text-xs font-medium text-brand-600 dark:text-brand-400 hover:underline"
+                                onclick="navigator.clipboard.writeText('{{ intent.recipientAddress }}'); this.textContent='✓ {{ 'invoice.copy'|trans }}';">
+                            {{ 'invoice.copy'|trans }}
+                        </button>
+                    </div>
+
+                    <div class="mt-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4">
+                        <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 mb-2">{{ 'billing.checkout.on_any_of'|trans }}</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for chain in available_chains %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1 text-xs font-medium">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
+                                    {{ chain.name }} · USDC
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                        <svg class="h-4 w-4 animate-spin text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>
+                        <span>{{ 'billing.checkout.waiting'|trans }}</span>
+                    </div>
+                    <p class="mt-2 text-xs text-slate-500 dark:text-slate-500">{{ 'billing.checkout.hint'|trans }}</p>
+                </div>
+
+                {# Success state — hidden by default; JS shows when status=paid. #}
+                <div data-paid-block class="hidden">
+                    <div class="rounded-xl border border-success-200 dark:border-success-500/30 bg-success-50 dark:bg-success-500/10 p-4 flex items-start gap-3">
+                        <svg class="h-5 w-5 text-success-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                        <div>
+                            <p class="font-medium text-success-700 dark:text-success-500">{{ 'billing.checkout.paid_title'|trans }}</p>
+                            <p class="text-sm text-success-700/80 dark:text-success-500/80 mt-1">{{ 'billing.checkout.paid_sub'|trans }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ path('dashboard_billing', {_locale: locale}) }}" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 text-sm font-medium transition">
+                        {{ 'billing.checkout.continue'|trans }}
+                    </a>
+                </div>
+
+                {# Expired state #}
+                <div data-expired-block class="hidden">
+                    <div class="rounded-xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4 text-sm text-warning-700 dark:text-warning-500">
+                        <p class="font-medium">{{ 'billing.checkout.expired_title'|trans }}</p>
+                        <p class="mt-1">{{ 'billing.checkout.expired_sub'|trans }}</p>
+                    </div>
+                    <a href="{{ path('dashboard_billing', {_locale: locale}) }}" class="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                        {{ 'billing.checkout.back_to_billing'|trans }}
+                    </a>
+                </div>
+            </div>
+
+            <p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-500">{{ 'billing.checkout.disclaimer'|trans }}</p>
+        </div>
+    </main>
+</div>
+
+<script>
+(() => {
+    const uuid = {{ intent.uuid|json_encode|raw }};
+    const wrap = document.querySelector('[data-status-wrap]');
+    if (!wrap) return;
+    const pendingBlock = wrap.querySelector('[data-pending-block]');
+    const paidBlock    = wrap.querySelector('[data-paid-block]');
+    const expiredBlock = wrap.querySelector('[data-expired-block]');
+
+    const poll = async () => {
+        try {
+            const res = await fetch(`/api/v1/public/billing/${uuid}`, {cache: 'no-store'});
+            if (!res.ok) return;
+            const json = await res.json();
+            const status = json.data?.status;
+            if (status === 'paid') {
+                pendingBlock?.classList.add('hidden');
+                paidBlock?.classList.remove('hidden');
+                return; // stop polling
+            }
+            if (status === 'expired') {
+                pendingBlock?.classList.add('hidden');
+                expiredBlock?.classList.remove('hidden');
+                return;
+            }
+            setTimeout(poll, 5000);
+        } catch (e) {
+            setTimeout(poll, 8000);
+        }
+    };
+    setTimeout(poll, 3000); // first poll after 3s grace
+})();
+</script>
+{% endblock %}

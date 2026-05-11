@@ -20,6 +20,7 @@ nav:
     dashboard: Panel
     invoices: Facturas
     payments: Pagos
+    billing: Facturación
     settings: Ajustes
     docs: Documentación
     pricing: Precios
@@ -562,3 +563,57 @@ emails:
         fallback: 'O pega este enlace en tu navegador:'
         ignore: 'Si no solicitaste el restablecimiento, ignora este correo — tu contraseña no cambiará.'
         footer: 'Restablecimiento de contraseña en settlepay.pro.'
+
+billing:
+    title: Facturación
+    subtitle: 'Tu plan, las comisiones acumuladas y pagos cripto-nativos — sin tarjeta, sin Stripe, sin bancos.'
+    platform_unset_title: 'Billetera de la plataforma sin configurar'
+    platform_unset_body: "El .env.local del servidor tiene PLATFORM_WALLET_ADDRESS vacío. Los botones de upgrade no generarán enlaces de pago válidos hasta que se configure."
+    current_plan: 'Plan actual'
+    plan_free: Free
+    plan_pro_monthly: 'Pro · mensual'
+    plan_pro_lifetime: 'Pro · de por vida'
+    label_fee_rate: 'Comisión por factura'
+    label_volume: Volumen
+    label_renews: 'Se renueva'
+    unlimited: 'Sin límite'
+    volume_free: 'Hasta $1.000 al mes'
+    lifetime: 'De por vida'
+    canceled_notice: 'Suscripción cancelada. Conservas Pro hasta el %date% y luego pasas a Free.'
+    confirm_cancel: '¿Cancelar la suscripción Pro? Mantienes el acceso hasta que termine el período, luego pasas a Free (1% por factura).'
+    cancel_subscription: 'Cancelar suscripción'
+    fees_owed: 'Comisiones pendientes'
+    fees_owed_explainer: 'Se acumulan como un pequeño porcentaje de cada factura pagada (1% en Free, 0,5% en Pro). Puedes pagarlas cuando quieras.'
+    pay_fees_now: 'Pagar $%amount% de comisiones'
+    upgrade_title: 'Pásate a Pro'
+    upgrade_sub: 'La mitad de comisión por factura, volumen ilimitado y todas las futuras funciones Pro. Se paga en USDC, como el resto de Settlepay.'
+    per_month: '/ mes'
+    one_time: 'pago único'
+    monthly_blurb: 'Paga $19 USDC cada mes. Cancela cuando quieras — conservas Pro hasta que termine el período.'
+    lifetime_blurb: 'Un solo pago en USDC, Pro para siempre. Se amortiza en unos %months% meses frente al plan mensual.'
+    upgrade_monthly: 'Pásate a Pro — paga $19 en USDC'
+    renew_monthly: 'Renovar — paga $19 en USDC'
+    upgrade_lifetime: 'Comprar de por vida — $299 en USDC'
+    best_value: 'Mejor relación calidad/precio'
+    upgrade_disclaimer: 'Settlepay nunca debita automáticamente — cada renovación es un pago nuevo que tú autorizas. Sin tarjetas, sin sorpresas.'
+    per_month_short: 'mes'
+    flash:
+        canceled: 'Suscripción cancelada. Mantienes Pro hasta el %date%.'
+        no_fees_owed: 'No tienes comisiones pendientes ahora mismo — las facturas pagadas en Pro acumulan 0,5%, en Free 1%.'
+    checkout:
+        title: 'Paga $%amount% USDC'
+        id: Referencia
+        kind_monthly: 'Pro · renovación mensual'
+        kind_lifetime: 'Pro · de por vida'
+        kind_fees: 'Liquidar comisiones acumuladas'
+        send_to: 'Envía USDC a esta billetera'
+        on_any_of: 'Cualquiera de estas redes'
+        waiting: 'Esperando confirmación en cadena…'
+        hint: 'Tip: la misma dirección EVM funciona en Base, Polygon, Arbitrum y Optimism. Usa la red donde tengas menos gas ahora mismo.'
+        paid_title: 'Pago recibido'
+        paid_sub: 'Tu cuenta está al día. El panel refleja el cambio.'
+        continue: 'Volver a Facturación'
+        expired_title: 'Este enlace de pago ha expirado'
+        expired_sub: 'Los enlaces son válidos por 1 hora. Abre uno nuevo desde la página de Facturación.'
+        back_to_billing: 'Volver a Facturación'
+        disclaimer: 'Settlepay no custodia tus fondos. El dinero llega a la billetera de la plataforma solo cuando TÚ decides enviarlo — sin auto-débito.'

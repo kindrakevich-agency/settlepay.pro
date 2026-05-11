@@ -20,6 +20,7 @@ nav:
     dashboard: Dashboard
     invoices: Invoices
     payments: Payments
+    billing: Billing
     settings: Settings
     docs: Docs
     pricing: Pricing
@@ -564,3 +565,57 @@ emails:
         fallback: 'Or paste this link into your browser:'
         ignore: 'If you did not request a reset, ignore this email — your password stays the same.'
         footer: 'Password reset for settlepay.pro.'
+
+billing:
+    title: Billing
+    subtitle: 'Your plan, accumulated fees, and crypto-native payments — no card, no Stripe, no banks.'
+    platform_unset_title: 'Platform wallet not configured'
+    platform_unset_body: "PLATFORM_WALLET_ADDRESS is empty in the server's .env.local. The upgrade buttons below won't generate working payment links until that's set."
+    current_plan: 'Current plan'
+    plan_free: Free
+    plan_pro_monthly: 'Pro · monthly'
+    plan_pro_lifetime: 'Pro · lifetime'
+    label_fee_rate: 'Per-invoice fee'
+    label_volume: Volume
+    label_renews: Renews
+    unlimited: Unlimited
+    volume_free: 'Up to $1,000/month'
+    lifetime: Lifetime
+    canceled_notice: 'Subscription canceled. You keep Pro access until %date%, then drop to Free.'
+    confirm_cancel: "Cancel your Pro subscription? You'll keep access until the period ends, then drop to Free (1% fee per invoice)."
+    cancel_subscription: 'Cancel subscription'
+    fees_owed: 'Fees owed'
+    fees_owed_explainer: 'Accumulated as a small percentage of every paid invoice (1% on Free, 0.5% on Pro). Pay it down whenever you like.'
+    pay_fees_now: 'Pay $%amount% in fees'
+    upgrade_title: 'Upgrade to Pro'
+    upgrade_sub: 'Half the per-invoice fee, unlimited volume, and all future Pro features. Paid in USDC like the rest of Settlepay.'
+    per_month: '/ month'
+    one_time: 'one-time'
+    monthly_blurb: 'Pay $19 USDC each month. Cancel anytime — you keep Pro access until the period ends.'
+    lifetime_blurb: 'One USDC transfer, Pro forever. Breaks even at ~%months% months vs. monthly.'
+    upgrade_monthly: 'Upgrade — pay $19 in USDC'
+    renew_monthly: 'Renew — pay $19 in USDC'
+    upgrade_lifetime: 'Get Lifetime — pay $299 in USDC'
+    best_value: 'Best value'
+    upgrade_disclaimer: 'Settlepay never auto-debits — every renewal is a fresh payment you authorize. No cards, no surprises.'
+    per_month_short: 'mo'
+    flash:
+        canceled: 'Subscription canceled. Pro access continues until %date%.'
+        no_fees_owed: 'No fees outstanding right now — invoices paid on Pro accrue 0.5%, on Free 1%.'
+    checkout:
+        title: 'Pay $%amount% USDC'
+        id: Reference
+        kind_monthly: 'Pro · monthly upgrade'
+        kind_lifetime: 'Pro · lifetime upgrade'
+        kind_fees: 'Settle accumulated fees'
+        send_to: 'Send USDC to this wallet'
+        on_any_of: 'Any of these networks'
+        waiting: 'Waiting for on-chain confirmation…'
+        hint: "Tip: same EVM address works on Base, Polygon, Arbitrum, and Optimism. Use whichever has the lowest gas in your wallet right now."
+        paid_title: 'Payment received'
+        paid_sub: 'Your account is up to date. The dashboard reflects the change.'
+        continue: 'Continue to Billing'
+        expired_title: 'This payment request expired'
+        expired_sub: 'Payment links are valid for 1 hour. Open a fresh one from the Billing page.'
+        back_to_billing: 'Back to Billing'
+        disclaimer: 'Settlepay is non-custodial. Funds arrive at the platform wallet only when YOU choose to send them — no auto-debit.'

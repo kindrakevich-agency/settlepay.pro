@@ -79,6 +79,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, options: ['default' => 'free'])]
     private string $plan = 'free';
 
+    /**
+     * For Pro plans: when the current billing period ends.
+     *   NULL + plan='pro'  → lifetime Pro (no renewal needed)
+     *   set + plan='pro'   → renewable monthly Pro
+     *   set + plan='free'  → never (free plan ignores this)
+     */
+    #[ORM\Column(name: 'plan_renews_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $planRenewsAt = null;
+
+    /** When the user clicked "Cancel" — they keep access until plan_renews_at then drop to free. */
+    #[ORM\Column(name: 'plan_canceled_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeInterface $planCanceledAt = null;
+
+    /** Accumulated unpaid per-invoice fees (1% Free, 0.5% Pro). Cleared when user pays via fee_settlement intent. */
+    #[ORM\Column(name: 'fees_owed_cents', type: Types::BIGINT, options: ['unsigned' => true, 'default' => 0])]
+    private string $feesOwedCents = '0';
+
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private \DateTimeInterface $createdAt;
 
@@ -139,6 +156,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPayoutToken(string $t): self           { $this->payoutToken = $t; return $this; }
     public function getPlan(): string                         { return $this->plan; }
     public function setPlan(string $p): self                  { $this->plan = $p; return $this; }
+    public function getPlanRenewsAt(): ?\DateTimeInterface    { return $this->planRenewsAt; }
+    public function setPlanRenewsAt(?\DateTimeInterface $t): self { $this->planRenewsAt = $t; return $this; }
+    public function getPlanCanceledAt(): ?\DateTimeInterface  { return $this->planCanceledAt; }
+    public function setPlanCanceledAt(?\DateTimeInterface $t): self { $this->planCanceledAt = $t; return $this; }
+    public function getFeesOwedCents(): int                   { return (int) $this->feesOwedCents; }
+    public function setFeesOwedCents(int $c): self            { $this->feesOwedCents = (string) max(0, $c); return $this; }
+    public function addFeesOwedCents(int $delta): self        { $this->feesOwedCents = (string) max(0, (int)$this->feesOwedCents + $delta); return $this; }
+    public function isPro(): bool                             { return $this->plan === 'pro' && ($this->planRenewsAt === null || $this->planRenewsAt > new \DateTimeImmutable()); }
+    public function isProLifetime(): bool                     { return $this->plan === 'pro' && $this->planRenewsAt === null; }
+    public function feeRateBps(): int                         { return $this->isPro() ? 50 : 100; } // 0.5% pro, 1% free
     public function getCreatedAt(): \DateTimeInterface        { return $this->createdAt; }
     public function getUpdatedAt(): \DateTimeInterface        { return $this->updatedAt; }
     public function touch(): self                             { $this->updatedAt = new \DateTimeImmutable(); return $this; }

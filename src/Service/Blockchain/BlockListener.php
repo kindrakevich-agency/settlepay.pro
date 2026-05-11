@@ -4,6 +4,8 @@ namespace App\Service\Blockchain;
 
 use App\Repository\ChainCursorRepository;
 use App\Repository\InvoiceRepository;
+use App\Service\Billing\BillingPaymentMatcher;
+use App\Service\Billing\PlatformWallet;
 use App\Service\Payment\PaymentMatcher;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -24,6 +26,8 @@ final class BlockListener
         private readonly ChainCursorRepository $cursors,
         private readonly InvoiceRepository $invoices,
         private readonly PaymentMatcher $matcher,
+        private readonly BillingPaymentMatcher $billingMatcher,
+        private readonly PlatformWallet $platformWallet,
         private readonly LoggerInterface $logger,
         #[Autowire('%env(default::APP_ENV)%')] private readonly string $appEnv = 'prod',
         /**
@@ -85,9 +89,16 @@ final class BlockListener
         $contractAddresses = array_values(array_map(static fn(array $t): string => strtolower($t['address']), $tokens));
 
         $recipients = $this->invoices->getOpenRecipientAddresses();
+        // Also watch the platform wallet (billing payments — subscriptions,
+        // fee settlements). Same listener, two destinations.
+        $platformAddr = $this->platformWallet->getAddress();
+        if ($platformAddr !== null) {
+            $recipients[] = $platformAddr;
+            $recipients = array_values(array_unique($recipients));
+        }
         if (empty($recipients)) {
-            // No open invoices — nothing to listen for. Still advance the
-            // cursor so we don't re-scan once invoices appear.
+            // No open invoices AND no platform wallet — nothing to listen for.
+            // Still advance the cursor so we don't re-scan once anything appears.
             $cursor->setLastProcessedBlock($to);
             $this->cursors->save($cursor);
             return 0;
@@ -135,13 +146,25 @@ final class BlockListener
                 $blockTimestamps[$blockNumber] = $this->rpcClient->blockTimestamp($rpcUrl, $blockNumber);
             }
 
-            $payment = $this->matcher->process(
-                chainId:        $chainId,
-                transfer:       $decoded,
-                token:          $tokenInfo,
-                confirmations:  $needed,
-                blockTimestamp: $blockTimestamps[$blockNumber],
-            );
+            // Route by recipient: platform wallet → billing flow; otherwise
+            // → invoice flow. Same Transfer event, two destinations.
+            if ($platformAddr !== null && $decoded['to'] === $platformAddr) {
+                $payment = $this->billingMatcher->process(
+                    chainId:        $chainId,
+                    transfer:       $decoded,
+                    token:          $tokenInfo,
+                    confirmations:  $needed,
+                    blockTimestamp: $blockTimestamps[$blockNumber],
+                );
+            } else {
+                $payment = $this->matcher->process(
+                    chainId:        $chainId,
+                    transfer:       $decoded,
+                    token:          $tokenInfo,
+                    confirmations:  $needed,
+                    blockTimestamp: $blockTimestamps[$blockNumber],
+                );
+            }
             if ($payment !== null) {
                 $processed++;
             }

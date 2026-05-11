@@ -1037,17 +1037,32 @@ export default {
 
 ---
 
-## 13. Pricing model
+## 13. Pricing model — crypto-native (no Stripe)
 
-| Plan | Monthly | Includes |
-|---|---|---|
-| Free | $0 | Up to $1,000 invoiced/month, 1.0% fee per invoice |
-| Pro | $19/mo | Unlimited invoicing volume, 0.5% fee per invoice, custom branding, API access |
-| Agency | $49/mo | Pro + multi-user (5 seats), priority support |
+| Plan | Cost | Per-invoice fee | Includes |
+|---|---|---|---|
+| Free | $0 | 1.0% | Up to $1,000 invoiced/month, all 4 chains, USDC/USDT/DAI |
+| Pro | $19 USDC / month | 0.5% | Unlimited volume, custom branding, API access |
+| Pro · Lifetime | $299 USDC one-time | 0.5% | All of Pro, forever (no renewal) |
+| Agency | $49 USDC / month | 0.5% | Pro + multi-user (5 seats), priority support — **phase 2** |
 
-(Agency is phase 2, mentioned for context.)
+**How fees are taken** (revised from the original Stripe plan):
 
-**How fees are taken (MVP):** the fee is **deducted at the point of conversion display**, not on-chain. We bill the freelancer monthly via Stripe (yes, fiat) for accumulated fees. Phase 2: deduct directly from incoming payments via a router contract.
+- **Per-invoice fees** (1% Free, 0.5% Pro) accumulate in `users.fees_owed_cents` whenever the listener confirms a freelancer's invoice. Funds still flow client → freelancer directly; we never touch the money on-chain.
+- **Settlement** is a separate USDC payment from the freelancer to a platform-controlled wallet (`PLATFORM_WALLET_ADDRESS` env var). The same listener daemon that watches freelancer payout wallets ALSO watches the platform wallet — on Transfer match, `BillingPaymentMatcher` clears `fees_owed_cents` or extends `plan_renews_at`.
+- **Subscriptions** (Pro monthly / Pro lifetime) use the same `BillingIntent` mechanism: freelancer clicks Upgrade → backend creates an intent → freelancer pays USDC → listener matches → user upgraded.
+- **No auto-debit.** Every renewal is a fresh USDC transfer the freelancer authorizes. Soft cancel (`plan_canceled_at`) keeps Pro until period ends, then drops to Free.
+
+**Why not Stripe** (the original plan): charging in fiat for a crypto product is hypocritical; cards add regional friction (Stripe blocks many Ukrainian / Argentine / Nigerian cards — same blockers we hit with MetaMask Buy); the listener we already built does exactly what we need.
+
+**Settlepay still writes nothing on-chain.** Platform fee collection is the same read-only pattern as invoice payments — listen for Transfers, match by amount + chain, update DB state. Keeps the "software facilitator, not money transmitter" framing intact.
+
+Implementation files:
+- `src/Service/Billing/{PlatformWallet, BillingIntentFactory, SubscriptionManager, BillingPaymentMatcher}.php`
+- `src/Entity/{BillingIntent, FeePayment}.php` + `src/Enum/BillingIntent{Kind, Status}.php`
+- `src/Controller/Dashboard/BillingController.php` → `/app/billing`
+- `src/Controller/PublicArea/BillingCheckoutController.php` → `/billing/pay/{uuid}` + `/api/v1/public/billing/{uuid}`
+- Migration: `migrations/Version20260511180000.php`
 
 ---
 

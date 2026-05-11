@@ -7,6 +7,7 @@ use App\Entity\Payment;
 use App\Enum\InvoiceStatus;
 use App\Repository\InvoiceRepository;
 use App\Repository\PaymentRepository;
+use App\Service\Billing\SubscriptionManager;
 use App\Service\Invoice\InvoiceMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -33,6 +34,7 @@ final class PaymentMatcher
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
         private readonly InvoiceMailer $mailer,
+        private readonly SubscriptionManager $subscriptions,
     ) {}
 
     /**
@@ -107,6 +109,17 @@ final class PaymentMatcher
                 $this->mailer->sendPaidNotifications($matched, $payment);
             } catch (\Throwable $e) {
                 $this->logger->error('Paid-notification dispatch failed', [
+                    'invoice_uuid' => $matched->getUuid(),
+                    'error'        => $e->getMessage(),
+                ]);
+            }
+            // Accumulate the freelancer's owed platform fee (1% Free, 0.5% Pro).
+            // The freelancer pays it down via a fee_settlement BillingIntent
+            // separately. Failure is non-fatal — already logged inside.
+            try {
+                $this->subscriptions->accrueInvoiceFee($matched);
+            } catch (\Throwable $e) {
+                $this->logger->error('accrueInvoiceFee failed', [
                     'invoice_uuid' => $matched->getUuid(),
                     'error'        => $e->getMessage(),
                 ]);

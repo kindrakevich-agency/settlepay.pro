@@ -602,26 +602,84 @@ Deploys are handled by **GitHub Actions** (`.github/workflows/ci.yml`) using `ap
 
 ---
 
+## Billing
+
+Settlepay's billing model is **crypto-native**: subscriptions AND per-invoice platform fees are paid in **USDC** to a platform-controlled wallet — the same wallet listener that watches freelancer payout wallets for invoice payments also watches the platform wallet for Settlepay's own revenue. **No Stripe. No cards. No fiat funnel.**
+
+### Why not Stripe
+
+The earlier plan (CLAUDE.md §13 v1) used Stripe to charge $19/mo + accumulated %-fees in fiat. We pivoted because:
+
+- Charging in fiat for a crypto product looks hypocritical
+- Stripe + cards adds regional friction (Ukrainian / Argentine / Nigerian freelancers can't always get cards Stripe accepts — same blockers we hit with MetaMask Buy)
+- Stripe fees (~2.9% + $0.30) eat into a $19/mo line item
+- The on-chain listener we already built is *exactly* what we need
+
+### Plans
+
+| Plan | Cost | Per-invoice fee | How paid |
+|---|---|---|---|
+| **Free** | $0 | 1% | Accumulates as `users.fees_owed_cents` → freelancer pays in USDC when they choose |
+| **Pro** | $19 USDC / month | 0.5% | Freelancer sends $19 USDC to the platform wallet to extend Pro by 30 days |
+| **Pro · Lifetime** | $299 USDC one-time | 0.5% | Single USDC transfer → Pro forever (no renewal) |
+
+### How payments are matched
+
+Every billing payment runs through a `BillingIntent`:
+
+1. Freelancer clicks **Upgrade to Pro** / **Pay fees** in `/app/billing`
+2. `BillingIntentFactory` creates a row with kind, amount, accepted chains, recipient = platform wallet
+3. Browser redirects to `/{locale}/billing/pay/{uuid}` — manual-transfer page (v1) with address + amount + accepted networks
+4. Freelancer sends USDC from any wallet
+5. The **same listener daemon** that watches invoice recipients also watches the platform wallet. On a Transfer match, `BillingPaymentMatcher` flips the intent to `paid` and `SubscriptionManager` updates the user (`plan`, `plan_renews_at`, `fees_owed_cents`)
+
+### Per-invoice fees
+
+When `PaymentMatcher` confirms an invoice payment, `SubscriptionManager::accrueInvoiceFee()` adds the freelancer's share to `users.fees_owed_cents`:
+
+- Free plan: `floor(invoice_cents * 100 / 10000)` → 1%
+- Pro plan: `floor(invoice_cents * 50 / 10000)` → 0.5%
+
+The freelancer settles whenever they want via a `fee_settlement` BillingIntent.
+
+### Required server-side config
+
+In `/www/wwwroot/settlepay.pro/.env.local`:
+
+```
+PLATFORM_WALLET_ADDRESS=0x... # the wallet Settlepay receives subscriptions + fees at
+```
+
+If unset, the dashboard `/app/billing` page shows a "platform wallet not configured" warning and intent creation throws — preventing orphan payments to a placeholder.
+
+### Architectural note
+
+Settlepay still **writes nothing on-chain**. The platform-side fee collection is exactly the same pattern as invoice payments: read incoming Transfers, match by amount + chain, update state. This keeps the system under the "software facilitator, not money transmitter" framing in CLAUDE.md.
+
+---
+
 ## Status & roadmap
 
 ### Shipped
 
 - Foundation: Symfony 7 skeleton, Doctrine entities, migrations, email/password auth (Argon2id, email verification, password reset)
-- Marketing site in en / uk / es with full SEO (hreflang, sitemap, JSON-LD, OG)
-- Dashboard (server-rendered Twig): invoice CRUD, paginated list with filters, payments table, settings (profile / payout wallet / security)
+- Marketing site in en / uk / es with full SEO (hreflang, sitemap, JSON-LD, OG) + embedded YouTube demo video
+- Dashboard (server-rendered Twig): invoice CRUD with edit/void, paginated list with filters, payments table, settings (profile / payout wallet / security), **billing page**
 - Public payment page with viem + wagmi + RainbowKit, WalletConnect (Reown)
 - Chain listener daemon: `eth_getLogs` polling, payment matching with ±0.5% tolerance, idempotent on `(chain_id, tx_hash, log_index)`
 - Mainnet live on Base / Polygon / Arbitrum / Optimism via Alchemy. Sepolia testnets run on a separate systemd unit
-- Resend email with DKIM + SPF + DMARC, plaintext fallback, List-Unsubscribe headers, PDF receipt attached to outgoing invoices
+- Resend email with DKIM + SPF + DMARC, plaintext fallback, List-Unsubscribe headers, PDF receipt attached to outgoing invoices, paid-invoice notification emails to both client + freelancer
 - PDF invoice/receipt rendering with dompdf (Cyrillic + Latin coverage), branded template
-- Sentry error reporting wired with custom `before_send` filter
+- Sentry error reporting wired (PHP + browser-JS) with custom `before_send` filters
+- **Crypto-native billing** (see [Billing](#billing) below) — Pro subscriptions + per-invoice fees paid in USDC, no Stripe
 - GitHub Actions CI + Deploy in a single workflow, deploy gated on lint + typecheck + build
 
 ### Next
 
-- Edit / void draft invoices (currently write-once)
+- Email reminders for upcoming Pro renewals + auto-downgrade after 7-day grace
+- Wallet-connect on the billing payment page (currently manual transfer)
 - Webhooks (entity exists, dispatcher pending)
-- Stripe billing for Pro/Agency monthly fees
+- SIWE (Sign-In With Ethereum) login
 - Browser-side Sentry project for checkout-time errors
 - SIWE login (phase 2)
 - Multi-user team seats (Agency plan)
