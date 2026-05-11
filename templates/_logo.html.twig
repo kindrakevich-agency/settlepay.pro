@@ -1,20 +1,25 @@
 {#
-    Settlepay logo — reusable mark + wordmark.
+    Settlepay logo — flowing S-curve with stablecoin termini.
 
-    The glyph is a custom S formed by two interlocking flow arrows
-    inside a rounded gradient square. It reads as both a stylized S
-    for Settle and as two-way payment flow (top arrow goes right,
-    bottom arrow returns left) — non-custodial in a single mark.
+    Standalone glyph, no container box. The mark reads as:
+      • A custom letterform "S" for Settle
+      • A non-custodial money-flow path — two coins (token in, token out)
+        threaded by the settlement curve between them
+      • A continuous brand-teal gradient stroke that suggests motion
 
-    The wordmark is "settle" in slate + "pay" in brand-600 so the
-    domain "settlepay.pro" reads naturally and the brand color
-    highlights the action verb.
+    The two filled circles at the ends are deliberate: they read as
+    stablecoins on a payment rail, anchor the abstract path, and give
+    the mark a strong silhouette at favicon sizes (24px and smaller).
+
+    Wordmark: `settle` (slate) + `pay` (brand) — keeps domain reading
+    natural and lets the brand color emphasize the action verb.
 
     Usage in any template:
         from _logo.html.twig import logo
         logo()                          - default: md, with wordmark
         logo(size='lg')                 - bigger glyph + wordmark
         logo(size='sm', wordmark=false) - tiny mark only
+        logo(monogram_mode=true)        - adds .pro suffix in muted tone
 #}
 
 {% macro logo(size = 'md', wordmark = true, monogram_mode = false) %}
@@ -25,32 +30,54 @@
         xl: { px: 64, gap: 'gap-4',    text: 'text-4xl' }
     } %}
     {% set s = sizes[size] %}
+    {# Random-ish unique id so multiple logos on a page get distinct gradient defs. #}
+    {% set uid = size ~ '-' ~ (monogram_mode ? 'm' : 'x') ~ '-' ~ random(99999) %}
 
     <span class="inline-flex items-center {{ s.gap }} select-none">
         <svg width="{{ s.px }}" height="{{ s.px }}" viewBox="0 0 32 32" fill="none"
              xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Settlepay">
             <defs>
-                <linearGradient id="settlepay-grad-{{ size }}" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%"   stop-color="#2dd4bf"/>
-                    <stop offset="55%"  stop-color="#14b8a6"/>
-                    <stop offset="100%" stop-color="#0d9488"/>
+                {# Vertical brand gradient — top is lighter (motion / arrival),
+                   bottom is darker (settled / weight). Tones come from Tailwind's
+                   teal-300 / teal-500 / teal-700. #}
+                <linearGradient id="sp-grad-{{ uid }}" x1="16" y1="2" x2="16" y2="30" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%"   stop-color="#5eead4"/>
+                    <stop offset="50%"  stop-color="#14b8a6"/>
+                    <stop offset="100%" stop-color="#0f766e"/>
                 </linearGradient>
-                <linearGradient id="settlepay-shine-{{ size }}" x1="0" y1="0" x2="0" y2="32" gradientUnits="userSpaceOnUse">
-                    <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.18"/>
-                    <stop offset="50%"  stop-color="#ffffff" stop-opacity="0"/>
-                </linearGradient>
+                {# Halo for the terminus coins so they read as "lit up" stablecoins. #}
+                <radialGradient id="sp-coin-{{ uid }}" cx="0.35" cy="0.30" r="0.8">
+                    <stop offset="0%"   stop-color="#a7f3d0"/>
+                    <stop offset="60%"  stop-color="#14b8a6"/>
+                    <stop offset="100%" stop-color="#0f766e"/>
+                </radialGradient>
             </defs>
 
-            <rect x="0" y="0" width="32" height="32" rx="9" fill="url(#settlepay-grad-{{ size }})"/>
-            <rect x="0" y="0" width="32" height="32" rx="9" fill="url(#settlepay-shine-{{ size }})"/>
+            {# ─── The S-path. Two bezier bowls joined by a tight middle waist.
+                 Drawn open (stroke, not fill) so the negative space reads.
+                 stroke-linecap=round gives soft motion to the terminus joins. #}
+            <path d="M 23 6
+                     C 23 4.4 21.6 3 20 3
+                     L 12 3
+                     C 7.6 3 4 6.6 4 11
+                     C 4 14.6 7 17 11 17.5
+                     L 19 18
+                     C 24 18.5 27 21 27 25
+                     C 27 27 25.6 28.8 24 29
+                     L 9 29"
+                  stroke="url(#sp-grad-{{ uid }})"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  fill="none"/>
 
-            <path d="M 9 11 H 19 L 16 8 M 19 11 L 16 14"
-                  stroke="#ffffff" stroke-width="2.2"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            {# ─── Stablecoin termini. Outer ring + inner highlight gives them
+                 dimension. Sized so they merge cleanly with the stroke width. #}
+            <circle cx="23" cy="6" r="3" fill="url(#sp-coin-{{ uid }})"/>
+            <circle cx="23" cy="6" r="1.1" fill="#ffffff" fill-opacity="0.7"/>
 
-            <path d="M 23 21 H 13 L 16 18 M 13 21 L 16 24"
-                  stroke="#ffffff" stroke-width="2.2"
-                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="9" cy="29" r="3" fill="url(#sp-coin-{{ uid }})"/>
+            <circle cx="9" cy="29" r="1.1" fill="#ffffff" fill-opacity="0.7"/>
         </svg>
 
         {% if wordmark %}
