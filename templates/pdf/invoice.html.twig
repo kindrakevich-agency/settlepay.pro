@@ -31,8 +31,9 @@
         table.items td.right { text-align: right; font-variant-numeric: tabular-nums; }
         table.items tr.total td { border-bottom: none; font-weight: 600; font-size: 12pt; padding-top: 14pt; }
 
-        .header-bar { border-bottom: 2pt solid #0d9488; padding-bottom: 12pt; margin-bottom: 24pt; }
-        .brand-mark { width: 16pt; height: 16pt; background: #0d9488; display: inline-block; vertical-align: middle; border-radius: 4pt; margin-right: 6pt; }
+        {% set _brand = user.brandColor ?: '#0d9488' %}
+        .header-bar { border-bottom: 2pt solid {{ _brand }}; padding-bottom: 12pt; margin-bottom: 24pt; }
+        .brand-mark { width: 16pt; height: 16pt; background: {{ _brand }}; display: inline-block; vertical-align: middle; border-radius: 4pt; margin-right: 6pt; }
 
         .payment-card { border: 1pt solid #e2e8f0; background: #f8fafc; border-radius: 5pt; padding: 14pt; margin-top: 18pt; }
         .payment-card .label { color: #64748b; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.5pt; margin-bottom: 3pt; }
@@ -47,10 +48,15 @@
     <table class="layout">
         <tr>
             <td>
-                <span class="brand-mark"></span>
-                <span style="font-size: 14pt; font-weight: 600; vertical-align: middle;">
-                    <span style="color: #0f172a;">settle</span><span style="color: #0d9488;">pay</span>
-                </span>
+                {% if user.brandLogoPath %}
+                    {# dompdf will load the file relative to its chroot (= public/) — keep the path no leading slash. #}
+                    <img src="{{ user.brandLogoPath }}" alt="{{ user.businessName }}" style="height: 22pt; vertical-align: middle;">
+                {% else %}
+                    <span class="brand-mark"></span>
+                    <span style="font-size: 14pt; font-weight: 600; vertical-align: middle;">
+                        <span style="color: #0f172a;">settle</span><span style="color: {{ _brand }};">pay</span>
+                    </span>
+                {% endif %}
             </td>
             <td class="right">
                 <h1 style="margin-bottom: 0;">{{ paid ? ('pdf.receipt'|trans({}, 'messages', locale)) : ('pdf.invoice'|trans({}, 'messages', locale)) }}</h1>
@@ -90,11 +96,11 @@
     <tr>
         <td style="width: 33%;">
             <h2>{{ 'pdf.issued'|trans({}, 'messages', locale) }}</h2>
-            <div>{{ invoice.issuedAt|date('Y-m-d') }}</div>
+            <div>{{ invoice.issuedAt|format_date(pattern='d MMM y', locale=locale) }}</div>
         </td>
         <td style="width: 33%;">
             <h2>{{ 'pdf.due'|trans({}, 'messages', locale) }}</h2>
-            <div>{{ invoice.dueDate ? invoice.dueDate|date('Y-m-d') : '—' }}</div>
+            <div>{{ invoice.dueDate ? invoice.dueDate|format_date(pattern='d MMM y', locale=locale) : '—' }}</div>
         </td>
         <td style="width: 34%;" class="right">
             <h2>{{ 'pdf.status'|trans({}, 'messages', locale) }}</h2>
@@ -124,13 +130,13 @@
             <tr>
                 <td>{{ li.description }}</td>
                 <td class="right">{{ li.quantity }}</td>
-                <td class="right">{{ (li.unitPriceCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
-                <td class="right">{{ (li.totalCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+                <td class="right">{{ (li.unitPriceCents / 100)|format_currency(invoice.currency, locale=locale) }}</td>
+                <td class="right">{{ (li.totalCents / 100)|format_currency(invoice.currency, locale=locale) }}</td>
             </tr>
         {% endfor %}
         <tr class="total">
             <td colspan="3" class="right muted">{{ 'invoice.total'|trans({}, 'messages', locale) }}</td>
-            <td class="right">{{ (invoice.amountCents / 100)|number_format(2, '.', ',') }} {{ invoice.currency }}</td>
+            <td class="right">{{ (invoice.amountCents / 100)|format_currency(invoice.currency, locale=locale) }}</td>
         </tr>
     </tbody>
 </table>

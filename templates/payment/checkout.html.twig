@@ -60,9 +60,16 @@
             {# Header: business + status pill #}
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white text-sm font-semibold">
-                        {{ (invoice.user.businessName|default('S'))|slice(0, 2)|upper }}
-                    </span>
+                    {% if invoice.user.brandLogoPath %}
+                        <img src="/{{ invoice.user.brandLogoPath }}"
+                             alt="{{ invoice.user.businessName }}"
+                             class="h-9 w-9 rounded-xl object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                    {% else %}
+                        <span class="grid h-9 w-9 place-items-center rounded-xl text-white text-sm font-semibold"
+                              style="background: {{ invoice.user.brandColor ? invoice.user.brandColor : 'linear-gradient(135deg, #2dd4bf, #0f766e)' }};">
+                            {{ (invoice.user.businessName|default('S'))|slice(0, 2)|upper }}
+                        </span>
+                    {% endif %}
                     <div>
                         <div class="text-sm font-semibold">{{ invoice.user.businessName|default('Settlepay merchant') }}</div>
                         <div class="text-xs text-slate-500 dark:text-slate-500">
@@ -144,7 +151,8 @@
             {# Connect / Pay button — Stage 2/3 wires it. Stage 1 is a stub. #}
             <button id="settlepay-cta"
                     type="button"
-                    class="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 text-white py-4 text-base font-semibold shadow-card hover:shadow-card-hover transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="mt-8 w-full inline-flex items-center justify-center gap-2 rounded-2xl {{ invoice.user.brandColor ? '' : 'bg-brand-600 hover:bg-brand-700 active:bg-brand-800' }} text-white py-4 text-base font-semibold shadow-card hover:shadow-card-hover transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    {% if invoice.user.brandColor %}style="background-color: {{ invoice.user.brandColor }}"{% endif %}
                     {% if not is_payable %}disabled{% endif %}>
                 <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                     <rect x="2" y="6" width="20" height="14" rx="2"/><path d="M14 12h4M22 10v4"/>

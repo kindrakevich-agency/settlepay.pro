@@ -40,4 +40,22 @@ class MarketingPagesController extends AbstractController
             'last_updated' => '2026-05-10',
         ]);
     }
+
+    #[Route(path: '/{_locale}/docs', name: 'marketing_docs', requirements: self::LOCALE_REQUIREMENTS, methods: ['GET'])]
+    public function docsIndex(): Response
+    {
+        return $this->render('marketing/docs/index.html.twig');
+    }
+
+    #[Route(path: '/{_locale}/docs/webhooks', name: 'marketing_docs_webhooks', requirements: self::LOCALE_REQUIREMENTS, methods: ['GET'])]
+    public function docsWebhooks(): Response
+    {
+        return $this->render('marketing/docs/webhooks.html.twig');
+    }
+
+    #[Route(path: '/{_locale}/docs/api', name: 'marketing_docs_api', requirements: self::LOCALE_REQUIREMENTS, methods: ['GET'])]
+    public function docsApi(): Response
+    {
+        return $this->render('marketing/docs/api.html.twig');
+    }
 }

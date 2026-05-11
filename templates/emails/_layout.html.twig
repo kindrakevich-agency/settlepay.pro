@@ -11,12 +11,23 @@
         <tr><td align="center">
             <table role="presentation" width="540" cellpadding="0" cellspacing="0" border="0" style="max-width:540px;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
                 <tr><td style="padding:28px 32px 8px;">
-                    <a href="https://settlepay.pro" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
-                        <span style="display:inline-block;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2dd4bf,#0d9488);"></span>
-                        <span style="font-size:18px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;">
-                            <span>settle</span><span style="color:#0d9488;">pay</span>
-                        </span>
-                    </a>
+                    {# Brand source: explicit `user` context var, OR invoice.user, OR none → default. #}
+                    {% set _brand_user = user|default(invoice.user|default(null)) %}
+                    {% set _brand_color = _brand_user ? _brand_user.brandColor|default('#0d9488') : '#0d9488' %}
+                    {% set _brand_logo  = _brand_user ? _brand_user.brandLogoPath|default(null) : null %}
+                    {% if _brand_logo %}
+                        <a href="https://settlepay.pro" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+                            <img src="https://settlepay.pro/{{ _brand_logo }}" alt="{{ _brand_user.businessName }}" style="height:32px;border-radius:8px;">
+                            {% if _brand_user.businessName %}<span style="font-size:16px;font-weight:600;color:#0f172a;">{{ _brand_user.businessName }}</span>{% endif %}
+                        </a>
+                    {% else %}
+                        <a href="https://settlepay.pro" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+                            <span style="display:inline-block;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2dd4bf,{{ _brand_color }});"></span>
+                            <span style="font-size:18px;font-weight:600;color:#0f172a;letter-spacing:-0.01em;">
+                                <span>settle</span><span style="color:{{ _brand_color }};">pay</span>
+                            </span>
+                        </a>
+                    {% endif %}
                 </td></tr>
 
                 <tr><td style="padding:16px 32px 32px;">

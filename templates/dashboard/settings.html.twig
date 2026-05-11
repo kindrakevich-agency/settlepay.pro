@@ -208,6 +208,34 @@
         </form>
     </section>
 
+    {# ─── Branding (Pro feature) ───────────────────────────────── #}
+    <section class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
+        <header class="mb-5">
+            <h2 class="font-semibold tracking-tight">{{ 'settings.section_branding'|trans }}</h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'settings.section_branding_sub'|trans }}</p>
+        </header>
+        <a href="{{ path('dashboard_branding', {_locale: locale}) }}"
+           class="group rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition flex items-center gap-3">
+            {% if user.brandLogoPath %}
+                <img src="/{{ user.brandLogoPath }}" alt="{{ user.businessName }}" class="h-10 w-10 rounded-lg object-cover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            {% else %}
+                <span class="grid h-10 w-10 place-items-center rounded-lg text-white text-sm font-semibold"
+                      style="background-color: {{ user.brandColor ?: '#0d9488' }}">
+                    {{ (user.businessName|default(user.email))|slice(0, 2)|upper }}
+                </span>
+            {% endif %}
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">{{ 'branding.title'|trans }}</p>
+                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {% if user.brandColor or user.brandLogoPath %}{{ 'branding.is_set'|trans }}{% else %}{{ 'branding.not_set'|trans }}{% endif %}
+                </p>
+            </div>
+            {% if not user.pro %}
+                <span class="inline-flex items-center rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">Pro</span>
+            {% endif %}
+        </a>
+    </section>
+
     {# ─── Developer tools (API tokens + webhooks) ─────────────────── #}
     <section class="mt-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 lg:p-8">
         <header class="mb-5">

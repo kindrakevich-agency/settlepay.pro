@@ -76,6 +76,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'payout_token', length: 20, options: ['default' => 'USDC'])]
     private string $payoutToken = 'USDC';
 
+    /**
+     * Pro-only custom branding. Persisted as relative path under public/uploads/branding/.
+     * Display via assetUrl(brandLogoPath). Cleared (NULL) on user removal of logo.
+     */
+    #[ORM\Column(name: 'brand_logo_path', length: 255, nullable: true)]
+    private ?string $brandLogoPath = null;
+
+    /** Pro-only brand accent color, 7-char hex (#rrggbb), validated on save. */
+    #[ORM\Column(name: 'brand_color', length: 7, nullable: true)]
+    private ?string $brandColor = null;
+
     #[ORM\Column(length: 20, options: ['default' => 'free'])]
     private string $plan = 'free';
 
@@ -154,6 +165,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPayoutChainId(int $id): self           { $this->payoutChainId = $id; return $this; }
     public function getPayoutToken(): string                  { return $this->payoutToken; }
     public function setPayoutToken(string $t): self           { $this->payoutToken = $t; return $this; }
+    public function getBrandLogoPath(): ?string               { return $this->brandLogoPath; }
+    public function setBrandLogoPath(?string $p): self        { $this->brandLogoPath = $p; return $this; }
+    public function getBrandColor(): ?string                  { return $this->brandColor; }
+    public function setBrandColor(?string $c): self           { $this->brandColor = $c; return $this; }
+    public function hasCustomBranding(): bool                 { return $this->brandLogoPath !== null || $this->brandColor !== null; }
     public function getPlan(): string                         { return $this->plan; }
     public function setPlan(string $p): self                  { $this->plan = $p; return $this; }
     public function getPlanRenewsAt(): ?\DateTimeInterface    { return $this->planRenewsAt; }

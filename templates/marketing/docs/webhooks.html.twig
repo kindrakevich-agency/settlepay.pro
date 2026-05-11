@@ -1,0 +1,122 @@
+{% extends 'marketing/docs/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block docs_title %}{{ 'docs.nav.webhooks'|trans }}{% endblock %}
+
+{% block docs_body %}
+<h1 class="font-display text-3xl sm:text-4xl font-semibold tracking-tight">{{ 'docs.webhooks.title'|trans }}</h1>
+<p class="mt-3 text-slate-600 dark:text-slate-400">{{ 'docs.webhooks.subtitle'|trans }}</p>
+
+<h2 class="mt-10">{{ 'docs.webhooks.events_title'|trans }}</h2>
+<ul class="not-prose mt-3 space-y-2 text-sm">
+    <li class="flex gap-3"><code class="font-mono shrink-0 rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5">invoice.sent</code><span class="text-slate-600 dark:text-slate-400">{{ 'docs.webhooks.event_invoice_sent'|trans }}</span></li>
+    <li class="flex gap-3"><code class="font-mono shrink-0 rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5">invoice.paid</code><span class="text-slate-600 dark:text-slate-400">{{ 'docs.webhooks.event_invoice_paid'|trans }}</span></li>
+    <li class="flex gap-3"><code class="font-mono shrink-0 rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5">invoice.voided</code><span class="text-slate-600 dark:text-slate-400">{{ 'docs.webhooks.event_invoice_voided'|trans }}</span></li>
+    <li class="flex gap-3"><code class="font-mono shrink-0 rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5">payment.received</code><span class="text-slate-600 dark:text-slate-400">{{ 'docs.webhooks.event_payment_received'|trans }}</span></li>
+</ul>
+
+<h2 class="mt-10">{{ 'docs.webhooks.request_shape_title'|trans }}</h2>
+<p>{{ 'docs.webhooks.request_shape_body'|trans }}</p>
+<pre><code class="language-http">POST /your/endpoint HTTP/1.1
+Content-Type: application/json
+User-Agent: Settlepay-Webhooks/1.0
+X-Settlepay-Event: invoice.paid
+X-Settlepay-Timestamp: 1746979200
+X-Settlepay-Signature: 8e6ac57c…  (hex hmac-sha256)
+X-Settlepay-Delivery: 42
+
+{
+  "event": "invoice.paid",
+  "created_at": "2026-05-11T15:00:00+00:00",
+  "data": {
+    "invoice": {
+      "uuid": "8a1f…",
+      "number": "INV-2026-0042",
+      "amount_cents": 190000,
+      "currency": "USD",
+      "status": "paid",
+      "paid_at": "2026-05-11T14:59:55+00:00"
+    }
+  }
+}</code></pre>
+
+<h2 class="mt-10">{{ 'docs.webhooks.verify_title'|trans }}</h2>
+<p>{{ 'docs.webhooks.verify_body'|trans }}</p>
+
+<h3 class="mt-6">Node.js</h3>
+<pre><code class="language-javascript">import crypto from 'node:crypto';
+import express from 'express';
+
+const SECRET = process.env.SETTLEPAY_WEBHOOK_SECRET;
+const app = express();
+
+// Settlepay sends JSON — keep the raw body so the signature still matches.
+app.post('/webhooks/settlepay',
+  express.raw({ type: 'application/json' }),
+  (req, res) =&gt; {
+    const ts        = req.header('X-Settlepay-Timestamp');
+    const signature = req.header('X-Settlepay-Signature');
+    const body      = req.body.toString('utf8');
+
+    const expected = crypto
+      .createHmac('sha256', SECRET)
+      .update(`${ts}.${body}`)
+      .digest('hex');
+
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      return res.status(401).end();
+    }
+
+    const event = JSON.parse(body);
+    // …route by event.event…
+    res.status(200).end();
+  });</code></pre>
+
+<h3 class="mt-6">PHP</h3>
+<pre><code class="language-php">&lt;?php
+$secret    = $_ENV['SETTLEPAY_WEBHOOK_SECRET'];
+$body      = file_get_contents('php://input');
+$timestamp = $_SERVER['HTTP_X_SETTLEPAY_TIMESTAMP'] ?? '';
+$signature = $_SERVER['HTTP_X_SETTLEPAY_SIGNATURE'] ?? '';
+
+$expected = hash_hmac('sha256', $timestamp . '.' . $body, $secret);
+
+if (!hash_equals($expected, $signature)) {
+    http_response_code(401);
+    exit;
+}
+
+$event = json_decode($body, true);
+// …route by $event['event']…</code></pre>
+
+<h3 class="mt-6">Python</h3>
+<pre><code class="language-python">import hmac, hashlib, os
+from flask import Flask, request, abort
+
+SECRET = os.environ['SETTLEPAY_WEBHOOK_SECRET'].encode()
+app = Flask(__name__)
+
+@app.route('/webhooks/settlepay', methods=['POST'])
+def settlepay():
+    ts        = request.headers.get('X-Settlepay-Timestamp', '')
+    signature = request.headers.get('X-Settlepay-Signature', '')
+    body      = request.get_data(as_text=True)
+
+    expected = hmac.new(SECRET, f'{ts}.{body}'.encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, signature):
+        abort(401)
+
+    event = request.get_json()
+    # …route by event['event']…
+    return ('', 200)</code></pre>
+
+<h2 class="mt-10">{{ 'docs.webhooks.retries_title'|trans }}</h2>
+<p>{{ 'docs.webhooks.retries_body'|trans }}</p>
+<ul class="not-prose mt-3 space-y-1.5 text-sm text-slate-600 dark:text-slate-400 list-disc pl-5">
+    <li>{{ 'docs.webhooks.retries_2xx'|trans }}</li>
+    <li>{{ 'docs.webhooks.retries_410'|trans }}</li>
+    <li>{{ 'docs.webhooks.retries_4xx'|trans }}</li>
+    <li>{{ 'docs.webhooks.retries_5xx'|trans }}</li>
+</ul>
+{% endblock %}
