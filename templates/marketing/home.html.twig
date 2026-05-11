@@ -70,23 +70,22 @@
          style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%), radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);"></div>
     <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80" aria-hidden="true"></div>
 
-    {# Hanging-lamp spotlight — industrial pendant suspended from the topbar
-       at the LEFT side of the hero, casting a wide warm beam that visibly
-       illuminates the hero content (headline + invoice card on the right).
-       Beam reaches ~90% across the hero and fades just before the bottom.
-       pointer-events off so it never intercepts clicks. #}
+    {# Wall-sconce spotlight — small lamp mounted on the upper-left wall of the
+       hero (just below the sticky topbar), angled toward the right so the beam
+       sweeps across and illuminates the hero content (headline + invoice card).
+       No cord — the lamp reads as a fixed sconce, not a pendant.
+
+       Sized small (40% smaller than the prior pendant). Rotated 70° clockwise
+       so the shade points down-and-right. Beam fans wide to the right. #}
     <svg viewBox="0 0 900 600" aria-hidden="true" preserveAspectRatio="xMinYMin slice"
          class="pointer-events-none absolute left-0 top-0 w-full h-[600px] z-0 select-none">
         <defs>
-            <radialGradient id="hero-lamp-bulb" cx="140" cy="84" r="44" gradientUnits="userSpaceOnUse">
+            <radialGradient id="hero-lamp-bulb" cx="0" cy="0" r="26" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fff7ed" stop-opacity="1"/>
                 <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.65"/>
                 <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
             </radialGradient>
-            {# Beam fans out from the bulb (140, 84) — left edge skews toward 0,
-               right edge skews diagonally across the hero to 90% of the viewport.
-               Higher opacity at the top, fading toward the bottom + edges. #}
-            <linearGradient id="hero-lamp-beam" x1="140" y1="84" x2="700" y2="600" gradientUnits="userSpaceOnUse">
+            <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="700" y2="500" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fde68a" stop-opacity="0.55"/>
                 <stop offset="35%"  stop-color="#fde68a" stop-opacity="0.30"/>
                 <stop offset="75%"  stop-color="#fde68a" stop-opacity="0.10"/>
@@ -97,32 +96,36 @@
             </filter>
         </defs>
 
-        {# Wide conical beam — apex at the bulb on the left, spans diagonally
-           across the hero. The triangle vertices put the right edge at ~90%
-           of the viewBox width (810/900 ≈ 0.9). #}
-        <path d="M 140 80
-                 L 60  600
-                 L 810 600 Z"
-              fill="url(#hero-lamp-beam)"
-              filter="url(#hero-lamp-blur)"/>
+        {# Lamp group — origin at (130, 110), well below the sticky topbar.
+           Rotated 70° clockwise so the shade points right-and-down. All
+           sub-shapes are drawn around the local origin (0, 0) so the rotation
+           keeps the bulb in place. Scale 0.6 = 40% reduction from prior size. #}
+        <g transform="translate(130 110) rotate(70)">
+            {# Wide warm beam — apex at lamp origin, fans to the lower-right.
+               Pre-rotation the beam points "down"; after the 70° rotation
+               it shoots toward the right-and-down across the hero. #}
+            <path d="M 0 0
+                     L -40 600
+                     L 520 600 Z"
+                  fill="url(#hero-lamp-beam)"
+                  filter="url(#hero-lamp-blur)"/>
 
-        {# Cord from the top edge down to the shade #}
-        <line x1="140" y1="0" x2="140" y2="52" stroke="currentColor" stroke-width="1.6"
-              class="text-slate-400 dark:text-slate-600"/>
+            {# Shade — trapezoidal pendant body, 60% scale of the prior size #}
+            <g transform="scale(0.6)">
+                <path d="M 0 -50
+                         L -28 -16
+                         L 28 -16 Z"
+                      fill="currentColor"
+                      class="text-slate-800 dark:text-slate-900"/>
+                <path d="M -24 -18 L 24 -18"
+                      stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+                      class="text-slate-700 dark:text-slate-700"/>
+            </g>
 
-        {# Industrial trapezoid pendant shade #}
-        <path d="M 140 52
-                 L 112 84
-                 L 168 84 Z"
-              fill="currentColor"
-              class="text-slate-800 dark:text-slate-900"/>
-        <path d="M 116 82 L 164 82"
-              stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-              class="text-slate-700 dark:text-slate-700"/>
-
-        {# Bulb — bright honey core with radial glow #}
-        <circle cx="140" cy="90" r="44" fill="url(#hero-lamp-bulb)"/>
-        <circle cx="140" cy="90" r="5"  fill="#fff7ed"/>
+            {# Bulb — radial glow at lamp origin #}
+            <circle cx="0" cy="0" r="26" fill="url(#hero-lamp-bulb)"/>
+            <circle cx="0" cy="0" r="3"  fill="#fff7ed"/>
+        </g>
     </svg>
 
     <div class="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
