@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Enum\BillingIntentKind;
 use App\Repository\BillingIntentRepository;
 use App\Service\Blockchain\ChainRegistry;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Creates a BillingIntent row for a given user + action. All pricing
@@ -30,6 +31,16 @@ final class BillingIntentFactory
         private readonly BillingIntentRepository $intents,
         private readonly ChainRegistry $chains,
         private readonly PlatformWallet $platformWallet,
+        /**
+         * When true, billing intents also accept Sepolia testnet chains.
+         * Default false — production must stay mainnet-only so nobody can
+         * pay a $19 Pro subscription with free faucet USDC.
+         *
+         * Set BILLING_ALLOW_TESTNETS=1 in .env.local on dev / founder
+         * servers to dogfood the upgrade flow with testnet USDC.
+         */
+        #[Autowire('%env(bool:default::BILLING_ALLOW_TESTNETS)%')]
+        private readonly bool $allowTestnets = false,
     ) {}
 
     public function createProMonthly(User $user): BillingIntent
@@ -55,10 +66,13 @@ final class BillingIntentFactory
         if (!$this->platformWallet->isEnabled()) {
             throw new \LogicException('PLATFORM_WALLET_ADDRESS is not configured — billing intent cannot be created.');
         }
-        // Mainnet chain IDs only for billing — we don't accept testnet payments for real subscriptions.
+        // Mainnet chain IDs always; testnets when explicitly enabled for dev dogfood.
+        $sources = $this->allowTestnets
+            ? ($this->chains->getMainnets() + $this->chains->getTestnets())
+            : $this->chains->getMainnets();
         $chains = array_values(array_map(
             static fn(array $c): int => (int) $c['chain_id'],
-            $this->chains->getMainnets()
+            $sources
         ));
 
         $intent = (new BillingIntent())
