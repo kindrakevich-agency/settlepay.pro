@@ -12,7 +12,6 @@ class HomeController extends AbstractController
         path: '/{_locale}',
         name: 'marketing_home',
         requirements: ['_locale' => 'en|uk|es'],
-        defaults: ['_locale' => 'en'],
         methods: ['GET'],
     )]
     public function index(): Response

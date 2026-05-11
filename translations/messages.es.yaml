@@ -47,6 +47,11 @@ hero:
         view_receipt: Ver recibo
         chip: Liquidado en 14 segundos
 
+demo:
+    eyebrow: 'Demo en 90 segundos'
+    title: 'De factura a cobrada en 90 segundos.'
+    sub: 'Mira cómo un pago real de $1 USDC recorre todo el camino: crear → enviar → confirmación en cadena → recibo. Exactamente lo que ve tu cliente.'
+
 features:
     eyebrow: Hecho para freelancers
     title: 'La calidad de Stripe — en las redes donde la comisión son centavos.'

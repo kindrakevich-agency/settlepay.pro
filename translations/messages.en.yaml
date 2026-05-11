@@ -47,6 +47,11 @@ hero:
         view_receipt: View receipt
         chip: Settled in 14 seconds
 
+demo:
+    eyebrow: 90-second demo
+    title: 'From invoice to paid in 90 seconds.'
+    sub: 'Watch a real $1 USDC payment go from create → send → on-chain confirm → receipt — exactly what your client experiences.'
+
 features:
     eyebrow: Built for freelancers
     title: 'Stripe-grade UX, on the rails you actually want.'
