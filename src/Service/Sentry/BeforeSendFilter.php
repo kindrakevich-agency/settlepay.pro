@@ -11,11 +11,13 @@ use Sentry\EventHint;
  *   - Drops known-noise errors we never want paged on.
  *   - Scrubs PII out of request data (full emails, full wallet addresses).
  *
- * Wired into config/packages/sentry.yaml under `options.before_send`.
+ * Wired into config/packages/sentry.yaml under `options.before_send` as a
+ * plain `Class::method` callable string — Sentry config doesn't resolve
+ * Symfony service refs (no `@`), so this stays static + dependency-free.
  */
 final class BeforeSendFilter
 {
-    public function __invoke(Event $event, ?EventHint $hint = null): ?Event
+    public static function filter(Event $event, ?EventHint $hint = null): ?Event
     {
         // Drop noisy non-actionable errors entirely.
         foreach ($event->getExceptions() as $exception) {
