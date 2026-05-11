@@ -194,7 +194,7 @@ pricing:
         cta: Pasarme a Agency
     fees:
         title: 'Cómo funcionan las comisiones'
-        body: 'En Free la comisión es del 1% por factura cobrada; en Pro, del 0,5%. Las comisiones se acumulan durante el mes y se cobran en fiat a la tarjeta de tu suscripción el día 1 del mes siguiente. Nunca las descontamos de los stablecoins que recibes — esos llegan a tu billetera completos, directo del cliente.'
+        body: 'En Free la comisión es del 1% por factura cobrada; en Pro y Agency, del 0,5%. Los fondos siempre van directos desde la billetera del cliente a la tuya — nunca los tocamos. La comisión se acumula en tu cuenta, y la pagas en USDC a nuestra billetera desde la página de Facturación cuando quieras. Sin tarjetas, sin Stripe, sin débitos automáticos.'
         fineprint: 'Sin coste de alta, sin mínimo, puedes cancelar cuando quieras.'
     faq:
         title: 'Preguntas frecuentes'
@@ -284,7 +284,7 @@ terms:
     s4_item_3: 'Si la billetera del cliente fue comprometida y otra persona paga tu factura, el pago igual se acredita. La resolución del robo es entre el cliente y las autoridades.'
     s4_item_4: 'Si el emisor de un stablecoin (por ejemplo, Circle para USDC) congela una billetera, esos fondos quedan inaccesibles hasta que el emisor los libere. Settlepay no tiene ninguna influencia sobre eso.'
     s5_title: '5. Comisiones'
-    s5_body: 'Plan Free: 1% por factura cobrada. Plan Pro: $19 al mes + 0,5%. Plan Agency: $49 al mes + 0,5%. Las comisiones se acumulan durante el mes y se cobran en fiat a través de Stripe a la tarjeta de tu suscripción el día 1 del mes siguiente. Nunca descontamos comisiones de los stablecoins que recibes — esos llegan a tu billetera completos.'
+    s5_body: 'Plan Free: 1% por factura cobrada. Plan Pro: $19 USDC cada 30 días + 0,5% por factura cobrada. Plan Agency: $49 USDC cada 30 días + 0,5%, 5 plazas incluidas. Todos los importes en USDC. Las comisiones por factura se acumulan en tu cuenta y las liquidas en USDC a la billetera de Settlepay cuando quieras, desde la página de Facturación. Nunca debitamos automáticamente, ni custodiamos tus fondos, ni descontamos comisiones de los stablecoins entrantes — esos van directos de la billetera del cliente a la tuya.'
     s6_title: '6. Uso aceptable'
     s6_body: 'Aceptas no usar Settlepay para: actividades ilegales (fraude, blanqueo de capitales, financiación del terrorismo); cobrar por bienes o servicios prohibidos en tu jurisdicción; acoso, difamación o abuso a través del contenido de las facturas; enviar facturas a clientes que no han aceptado ser facturados; o cualquier intento de interrumpir el servicio o aplicarle ingeniería inversa.'
     s7_title: '7. Fin del servicio'

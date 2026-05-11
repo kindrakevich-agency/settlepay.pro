@@ -249,7 +249,7 @@ Two files:
 | File | Purpose | Committed? |
 |---|---|---|
 | `.env` | Non-sensitive defaults (public RPC URLs, `APP_ENV=dev`, container hostnames) | ✅ yes |
-| `.env.local` | Real secrets (`APP_SECRET`, DB password, Alchemy/Resend keys, Stripe key) | ❌ **never** |
+| `.env.local` | Real secrets (`APP_SECRET`, DB password, Alchemy/Resend keys, `PLATFORM_WALLET_ADDRESS`) | ❌ **never** |
 
 This is the standard Symfony [`.env` workflow](https://symfony.com/doc/current/configuration.html#configuration-environments). The `.gitignore` excludes `.env.local*`, `*.pem`, `*.key`, and SSH keys outright. Production secrets travel via **GitHub Actions Secrets** for CI/CD and live in `.env.local` on the server.
 

@@ -194,7 +194,7 @@ pricing:
         cta: Upgrade to Agency
     fees:
         title: 'How fees work'
-        body: 'Free has a 1% fee per paid invoice; Pro has 0.5%. Fees accumulate during the month and we bill them in fiat to your subscription card on the 1st (we never deduct from your stablecoin payments). All non-custodial — funds always go from client wallet to your wallet directly.'
+        body: 'Free has a 1% fee per paid invoice; Pro and Agency have 0.5%. Fees accumulate on your account — funds always go directly from your client''s wallet to yours, we never touch them. Whenever you''re ready, pay the balance in USDC to our platform wallet from your Billing page. No cards, no Stripe, no auto-debit.'
         fineprint: 'No setup fee, no minimum, cancel anytime.'
     faq:
         title: 'Frequently asked'
@@ -285,7 +285,7 @@ terms:
     s4_item_3: 'If your client''s wallet is compromised and someone else pays your invoice, the payment is credited to the invoice; resolving theft is between the client and law enforcement.'
     s4_item_4: 'If a stablecoin issuer (e.g. Circle for USDC) freezes a wallet, those funds are inaccessible until the issuer unfreezes — Settlepay has no influence over that.'
     s5_title: '5. Fees'
-    s5_body: 'Free plan: 1% per paid invoice. Pro plan: $19/month + 0.5% per paid invoice. Agency plan: $49/month + 0.5%. Fees accrue throughout the month and are billed in fiat via Stripe to your subscription card on the 1st of the following month. We never deduct fees from your incoming stablecoin payments — those flow directly to your wallet untouched.'
+    s5_body: 'Free plan: 1% per paid invoice. Pro plan: $19 USDC per 30 days + 0.5% per paid invoice. Agency plan: $49 USDC per 30 days + 0.5%, includes 5 seats. All amounts are denominated in USDC. Per-invoice fees accrue on your account and you settle them in USDC to the Settlepay platform wallet whenever you choose, from your Billing page. We never auto-debit, take custody of your funds, or deduct fees from your incoming stablecoin payments — those flow directly from your client''s wallet to yours, untouched.'
     s6_title: '6. Acceptable use'
     s6_body: 'You agree not to use Settlepay for: any illegal activity (fraud, money laundering, terrorism financing); accepting payment for goods or services prohibited in your jurisdiction; harassment, defamation, or abuse via invoice content; sending invoices to clients who haven''t agreed to be billed; or attempting to disrupt or reverse-engineer the service.'
     s7_title: '7. Termination'

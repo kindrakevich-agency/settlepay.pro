@@ -48,10 +48,16 @@
                 {% endfor %}
             </div>
             {% if app.user %}
+                {# Avatar source: workspace business identity if set, else email local-part.
+                   "DE", "VI", etc. = first 2 chars of whichever wins. #}
+                {% set _ws = current_workspace() %}
+                {% set _avatar = (_ws and _ws.businessName) ? _ws.businessName
+                                 : (_ws and _ws.name and _ws.name != 'Workspace') ? _ws.name
+                                 : (app.user.email|split('@')|first) %}
                 <a href="{{ path('dashboard_home', {_locale: locale}) }}"
                    class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
                     <span class="grid h-5 w-5 place-items-center rounded-md bg-white/20 dark:bg-slate-900/15 text-[10px] font-semibold">
-                        {{ (app.user.businessName|default(app.user.email))|slice(0, 2)|upper }}
+                        {{ _avatar|slice(0, 2)|upper }}
                     </span>
                     {{ 'common.open_dashboard'|trans }}
                 </a>
@@ -190,7 +196,7 @@
                 <a href="{{ path('dashboard_home', {_locale: locale}) }}"
                    class="flex items-center gap-3 rounded-xl bg-slate-900 dark:bg-white px-4 py-3.5 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-card">
                     <span class="grid h-9 w-9 place-items-center rounded-lg bg-white/20 dark:bg-slate-900/15 text-sm font-semibold shrink-0">
-                        {{ (app.user.businessName|default(app.user.email))|slice(0, 2)|upper }}
+                        {{ _avatar|slice(0, 2)|upper }}
                     </span>
                     <div class="flex-1 min-w-0 text-left">
                         <div class="text-sm font-semibold">{{ 'common.open_dashboard'|trans }}</div>
