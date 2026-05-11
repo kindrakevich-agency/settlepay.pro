@@ -29,6 +29,12 @@ final class Version20260511200000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        // Prod had a stale `webhooks` skeleton from an early schema:update —
+        // never reachable from any code path, never had real data. Drop it
+        // before recreating with the shape this entity expects. IF EXISTS
+        // keeps fresh installs idempotent.
+        $this->addSql('DROP TABLE IF EXISTS webhooks');
+
         $this->addSql(<<<SQL
             CREATE TABLE webhooks (
                 id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
