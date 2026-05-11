@@ -34,6 +34,13 @@ final class Version20260511220000 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
+        // Migration is idempotent on retry: a previous failed attempt may
+        // have left some tables created. IF NOT EXISTS / IF EXISTS guards
+        // let the migration recover cleanly without manual SQL cleanup.
+        $this->addSql('DROP TABLE IF EXISTS workspace_invitations');
+        $this->addSql('DROP TABLE IF EXISTS workspace_members');
+        $this->addSql('DROP TABLE IF EXISTS workspaces');
+
         // ─── workspaces ───────────────────────────────────────────────
         $this->addSql(<<<SQL
             CREATE TABLE workspaces (
@@ -105,11 +112,35 @@ final class Version20260511220000 extends AbstractMigration
         // Nullable in this migration so backfill can populate them; a
         // later migration tightens them to NOT NULL once writes route
         // through the workspace context.
-        $this->addSql('ALTER TABLE invoices         ADD COLUMN workspace_id BIGINT UNSIGNED DEFAULT NULL, ADD INDEX IDX_inv_workspace (workspace_id)');
-        $this->addSql('ALTER TABLE api_tokens       ADD COLUMN workspace_id BIGINT UNSIGNED DEFAULT NULL, ADD INDEX IDX_apit_workspace (workspace_id)');
-        $this->addSql('ALTER TABLE webhooks         ADD COLUMN workspace_id BIGINT UNSIGNED DEFAULT NULL, ADD INDEX IDX_wh_workspace (workspace_id)');
-        $this->addSql('ALTER TABLE billing_intents  ADD COLUMN workspace_id BIGINT UNSIGNED DEFAULT NULL, ADD INDEX IDX_bi_workspace (workspace_id)');
+        // ALTER TABLE doesn't support IF NOT EXISTS portably; do a runtime
+        // check via information_schema so retries after a partial failure
+        // don't crash on "column already exists".
+        $this->addWorkspaceIdColumnIfMissing('invoices',        'IDX_inv_workspace');
+        $this->addWorkspaceIdColumnIfMissing('api_tokens',      'IDX_apit_workspace');
+        $this->addWorkspaceIdColumnIfMissing('webhooks',        'IDX_wh_workspace');
+        $this->addWorkspaceIdColumnIfMissing('billing_intents', 'IDX_bi_workspace');
+    }
 
+    private function addWorkspaceIdColumnIfMissing(string $table, string $indexName): void
+    {
+        $exists = (int) $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+            [$table, 'workspace_id']
+        );
+        if ($exists === 0) {
+            $this->connection->executeStatement(sprintf(
+                'ALTER TABLE %s ADD COLUMN workspace_id BIGINT UNSIGNED DEFAULT NULL, ADD INDEX %s (workspace_id)',
+                $table, $indexName
+            ));
+        }
+    }
+
+    /**
+     * postUp runs AFTER all queued up() SQL has been executed, so
+     * `workspaces` definitely exists by the time we INSERT into it.
+     */
+    public function postUp(Schema $schema): void
+    {
         // ─── Backfill: one workspace per user, that user as owner ───
         // We can't use the Workspace entity from inside a migration, so
         // raw SQL. The UUID is generated per-row in PHP (MariaDB has
