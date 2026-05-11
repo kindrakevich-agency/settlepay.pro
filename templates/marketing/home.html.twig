@@ -3,6 +3,35 @@
 
 {% set locale = app.request.locale|default('en') %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+    <style>
+        /* Plyr theming to brand teal */
+        :root { --plyr-color-main: #0d9488; --plyr-video-control-color-hover: #ffffff; }
+        .plyr { border-radius: 1rem; }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const el = document.getElementById('settlepay-demo');
+        if (el && window.Plyr) {
+          new Plyr(el, {
+            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+            tooltips: { controls: true, seek: true },
+            keyboard: { focused: true, global: false },
+            settings: ['speed'],
+            speed: { selected: 1, options: [0.75, 1, 1.25, 1.5] }
+          });
+        }
+      });
+    </script>
+{% endblock %}
+
 {% block title %}{{ 'seo.home.title'|trans }}{% endblock %}
 {% block meta_description %}{{ 'seo.home.description'|trans }}{% endblock %}
 {% block meta_keywords %}<meta name="keywords" content="{{ 'seo.home.keywords'|trans }}">{% endblock %}
@@ -139,19 +168,21 @@
             <p class="mt-4 text-slate-600 dark:text-slate-400">{{ 'demo.sub'|trans }}</p>
         </div>
 
-        {# Responsive YouTube embed (privacy-enhanced nocookie host).
-           The source video is 2098×1080 (1.94:1) — not the 16:9 of
-           aspect-video. Using aspect-video left black letterbox bars
-           top/bottom, so we match the source ratio exactly. #}
+        {# Self-hosted demo (3 languages × MP4 + WebM). Plyr handles
+           controls + accessibility + responsive scaling. Source video is
+           2098×1080 (1.94:1) so we set the wrapper to that exact ratio. #}
         <div class="relative aspect-[2098/1080] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-card bg-slate-50 dark:bg-slate-900">
-            <iframe
-                src="https://www.youtube-nocookie.com/embed/Xad2bgVAzKA?rel=0&modestbranding=1"
-                title="{{ 'demo.title'|trans }}"
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen
-                class="absolute inset-0 w-full h-full"></iframe>
+            <video id="settlepay-demo"
+                   playsinline
+                   preload="metadata"
+                   poster="/videos/demo-poster.jpg"
+                   class="plyr__video-embed w-full h-full">
+                <source src="/videos/demo-{{ locale }}.webm" type="video/webm">
+                <source src="/videos/demo-{{ locale }}.mp4"  type="video/mp4">
+                {# Browsers that don't recognize the locale fall back to EN. #}
+                <source src="/videos/demo-en.webm" type="video/webm">
+                <source src="/videos/demo-en.mp4"  type="video/mp4">
+            </video>
         </div>
     </div>
 </section>
