@@ -9,32 +9,81 @@
 {% block title %}{% block dashboard_title %}{{ 'nav.dashboard'|trans }}{% endblock %} · Settlepay{% endblock %}
 
 {% block body %}
-<div class="min-h-dvh bg-slate-50 dark:bg-slate-950 grid grid-rows-[auto_1fr] lg:grid-cols-[16rem_1fr] lg:grid-rows-1">
+<div class="min-h-dvh bg-slate-50 dark:bg-slate-950 flex flex-col lg:flex-row" data-dashboard>
 
-    {# ─── Mobile topbar (collapses sidebar on small screens) ──────────────── #}
-    <header class="lg:hidden border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-3 flex items-center justify-between">
-        <a href="{{ path('marketing_home', {_locale: locale}) }}">{{ logo(size='sm') }}</a>
-        <a href="{{ path('auth_logout', {_locale: locale}) }}" class="text-xs font-medium text-slate-700 dark:text-slate-300">{{ 'common.log_out'|trans }}</a>
+    {# ─── Mobile topbar (sticky, lg:hidden) ──────────────────────────────────
+       Below lg breakpoint this is the only chrome the user sees. Has a logo,
+       a hamburger that toggles the side drawer, and a quick logout. #}
+    <header class="lg:hidden sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-950/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <button type="button"
+                    class="inline-flex items-center justify-center rounded-lg p-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-controls="dashboard-drawer"
+                    aria-expanded="false"
+                    aria-label="{{ 'nav.toggle_menu'|trans }}"
+                    data-drawer-toggle>
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3"  y1="6"  x2="21" y2="6"/>
+                    <line x1="3"  y1="12" x2="21" y2="12"/>
+                    <line x1="3"  y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+            <a href="{{ path('marketing_home', {_locale: locale}) }}" aria-label="settlepay home">{{ logo(size='sm') }}</a>
+        </div>
+        <a href="{{ path('auth_logout', {_locale: locale}) }}"
+           class="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+            {{ 'common.log_out'|trans }}
+        </a>
     </header>
 
-    {# ─── Sidebar ─────────────────────────────────────────────────────────── #}
-    <aside class="hidden lg:flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    {# ─── Backdrop for the mobile drawer ─────────────────────────────────────
+       Sits below the drawer (z-40) but above the main content. Clicking it
+       closes the drawer; pointer-events flip off when closed so the user
+       can interact with content normally on desktop. #}
+    <div class="lg:hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-200
+                opacity-0 pointer-events-none data-[open=true]:opacity-100 data-[open=true]:pointer-events-auto"
+         data-drawer-backdrop aria-hidden="true"></div>
+
+    {# ─── Sidebar / drawer ───────────────────────────────────────────────────
+       Desktop (lg+):  sticky to viewport at top-0, height = full viewport,
+                       fixed width 16rem. Scrolls independently of main.
+       Mobile (<lg):   fixed slide-over from left, 18rem wide, hidden by
+                       default with -translate-x-full → translate-x-0 on open. #}
+    <aside id="dashboard-drawer"
+           data-open="false"
+           class="fixed inset-y-0 left-0 z-50 w-72 transform -translate-x-full transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[open=true]:translate-x-0
+                  lg:relative lg:translate-x-0 lg:w-64 lg:sticky lg:top-0 lg:h-dvh lg:shrink-0 lg:z-10
+                  flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+           data-drawer-panel>
+
         {# Logo + account picker #}
-        <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800">
-            <a href="{{ path('marketing_home', {_locale: locale}) }}" class="block mb-3" aria-label="settlepay home">{{ logo(size='sm') }}</a>
-            <div class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2">
-                <span class="grid h-7 w-7 place-items-center rounded-md bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-semibold">
-                    {{ (current_user.businessName|default(current_user.email))|slice(0, 2)|upper }}
-                </span>
-                <div class="min-w-0 flex-1">
-                    <div class="text-sm font-medium truncate">{{ current_user.businessName ?: (current_user.email|split('@')|first) }}</div>
-                    <div class="text-xs text-slate-500 dark:text-slate-500 truncate">{{ current_user.email }}</div>
+        <div class="px-4 py-4 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-2">
+            <div class="min-w-0 flex-1">
+                <a href="{{ path('marketing_home', {_locale: locale}) }}" class="block mb-3" aria-label="settlepay home">{{ logo(size='sm') }}</a>
+                <div class="flex items-center gap-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2">
+                    <span class="grid h-7 w-7 place-items-center rounded-md bg-brand-100 dark:bg-brand-500/15 text-brand-700 dark:text-brand-400 text-xs font-semibold shrink-0">
+                        {{ (current_user.businessName|default(current_user.email))|slice(0, 2)|upper }}
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <div class="text-sm font-medium truncate">{{ current_user.businessName ?: (current_user.email|split('@')|first) }}</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-500 truncate">{{ current_user.email }}</div>
+                    </div>
                 </div>
             </div>
+            {# Close button (mobile only) — hidden on desktop where the drawer is permanent. #}
+            <button type="button"
+                    class="lg:hidden mt-1 rounded-lg p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    aria-label="{{ 'nav.close_menu'|trans }}"
+                    data-drawer-close>
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                    <line x1="6" y1="18" x2="18" y2="6"/>
+                </svg>
+            </button>
         </div>
 
-        {# Nav #}
-        <nav class="p-2 space-y-0.5 text-sm flex-1">
+        {# Nav — scrollable if the page ever grows more nav items #}
+        <nav class="p-2 space-y-0.5 text-sm flex-1 overflow-y-auto">
             {% set nav_items = [
                 {route: 'dashboard_home',     label: 'nav.dashboard', icon: 'dashboard'},
                 {route: 'dashboard_invoices', label: 'nav.invoices',  icon: 'invoice'},
@@ -66,7 +115,7 @@
         </nav>
 
         {# Footer #}
-        <div class="p-3 space-y-2 border-t border-slate-200 dark:border-slate-800">
+        <div class="p-3 space-y-2 border-t border-slate-200 dark:border-slate-800 shrink-0">
             {% if current_user.plan == 'free' %}
                 <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-brand-50 to-white dark:from-brand-950/50 dark:to-slate-900 p-3.5">
                     <p class="text-xs font-medium text-slate-900 dark:text-slate-100">{{ 'dashboard_section.upgrade_title'|trans }}</p>
@@ -83,7 +132,7 @@
     </aside>
 
     {# ─── Main content ────────────────────────────────────────────────────── #}
-    <main class="overflow-x-auto">
+    <main class="flex-1 min-w-0 overflow-x-auto">
         {# Flash messages #}
         {% for type, msgs in app.flashes(['success', 'error', 'warning', 'info']) %}
             {% for msg in msgs %}
@@ -105,4 +154,49 @@
         </div>
     </main>
 </div>
+
+<script>
+    (() => {
+        const root     = document.querySelector('[data-dashboard]');
+        if (!root) return;
+        const panel    = root.querySelector('[data-drawer-panel]');
+        const backdrop = root.querySelector('[data-drawer-backdrop]');
+        const toggle   = root.querySelector('[data-drawer-toggle]');
+        const closeBtn = root.querySelector('[data-drawer-close]');
+        if (!panel || !toggle) return;
+
+        const setOpen = (open) => {
+            panel.setAttribute('data-open', open ? 'true' : 'false');
+            backdrop?.setAttribute('data-open', open ? 'true' : 'false');
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            document.documentElement.style.overflow = open ? 'hidden' : '';
+        };
+
+        toggle.addEventListener('click', () => {
+            setOpen(panel.getAttribute('data-open') !== 'true');
+        });
+
+        closeBtn?.addEventListener('click', () => setOpen(false));
+        backdrop?.addEventListener('click', () => setOpen(false));
+
+        // Close on nav-link click — user clicked a destination, drawer should
+        // disappear so the new page is visible.
+        panel.addEventListener('click', (e) => {
+            if (e.target.closest('nav a')) setOpen(false);
+        });
+
+        // Close on Escape.
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && panel.getAttribute('data-open') === 'true') {
+                setOpen(false);
+                toggle.focus();
+            }
+        });
+
+        // Close + reset on resize past lg (1024px) so an open drawer doesn't
+        // linger when the user rotates / resizes into desktop layout.
+        const mq = window.matchMedia('(min-width: 1024px)');
+        mq.addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+    })();
+</script>
 {% endblock %}
