@@ -82,14 +82,17 @@
                 <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.65"/>
                 <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
             </radialGradient>
-            {# Vertical beam gradient — INVERTED: transparent at the bulb,
-               pools to full opacity at the bottom. Reads as light
-               accumulating on the hero floor. #}
+            {# Vertical beam gradient — fully transparent at the bulb,
+               stays dim through the upper hero, then ramps to fully
+               opaque saturated amber at the bottom edge. The
+               brightness happens almost entirely in the last 30% of
+               the beam, so the floor of the hero reads as a clear
+               warm light pool. #}
             <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="0" y2="540" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fde68a" stop-opacity="0"/>
-                <stop offset="35%"  stop-color="#fde68a" stop-opacity="0.20"/>
-                <stop offset="75%"  stop-color="#fde68a" stop-opacity="0.60"/>
-                <stop offset="100%" stop-color="#fde68a" stop-opacity="1"/>
+                <stop offset="55%"  stop-color="#fde68a" stop-opacity="0"/>
+                <stop offset="80%"  stop-color="#fcd34d" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#f59e0b" stop-opacity="1"/>
             </linearGradient>
             <filter id="hero-lamp-blur" x="-10%" y="-10%" width="120%" height="120%">
                 <feGaussianBlur stdDeviation="14"/>
