@@ -52,6 +52,9 @@ final class SubscriptionManager
                 $user->setPlan('pro')
                     ->setPlanRenewsAt($start->add(new \DateInterval(self::MONTHLY_PERIOD)))
                     ->setPlanCanceledAt(null);
+                foreach ($user->getOwnedWorkspaces() as $w) {
+                    $w->setPlan('pro')->setPlanRenewsAt($user->getPlanRenewsAt())->setPlanCanceledAt(null)->touch();
+                }
                 $this->logger->info('Pro plan extended', [
                     'user_id'    => $user->getId(),
                     'renews_at'  => $user->getPlanRenewsAt()?->format(\DATE_ATOM),
@@ -63,8 +66,39 @@ final class SubscriptionManager
                 $user->setPlan('pro')
                     ->setPlanRenewsAt(null)
                     ->setPlanCanceledAt(null);
+                foreach ($user->getOwnedWorkspaces() as $w) {
+                    $w->setPlan('pro')->setPlanRenewsAt(null)->setPlanCanceledAt(null)->touch();
+                }
                 $this->logger->info('Pro lifetime activated', [
                     'user_id'    => $user->getId(),
+                    'intent_uuid'=> $intent->getUuid(),
+                ]);
+                break;
+
+            case BillingIntentKind::AgencyMonthly:
+                // Same renewal logic as Pro monthly, plus bumps the workspace
+                // seat_limit to 5 so the owner can immediately invite teammates.
+                $base = $user->getPlanRenewsAt();
+                $start = ($base !== null && $base > new \DateTimeImmutable())
+                    ? \DateTimeImmutable::createFromInterface($base)
+                    : new \DateTimeImmutable();
+                $user->setPlan('agency')
+                    ->setPlanRenewsAt($start->add(new \DateInterval(self::MONTHLY_PERIOD)))
+                    ->setPlanCanceledAt(null);
+
+                // Mirror onto the user's owned workspace(s). Phase 1 keeps
+                // user.plan as the source of truth, but workspace.plan +
+                // seat_limit drive seat enforcement, so they MUST agree.
+                foreach ($user->getOwnedWorkspaces() as $workspace) {
+                    $workspace->setPlan('agency')
+                        ->setPlanRenewsAt($user->getPlanRenewsAt())
+                        ->setPlanCanceledAt(null)
+                        ->setSeatLimit(5)
+                        ->touch();
+                }
+                $this->logger->info('Agency plan extended', [
+                    'user_id'    => $user->getId(),
+                    'renews_at'  => $user->getPlanRenewsAt()?->format(\DATE_ATOM),
                     'intent_uuid'=> $intent->getUuid(),
                 ]);
                 break;

@@ -184,15 +184,14 @@ pricing:
         cta: Upgrade to Pro
     tier_agency:
         name: Agency
-        badge: Coming soon
         tagline: For studios + small teams
         fee: '0.5% per paid invoice'
         feat_1: 'Everything in Pro'
         feat_2: 'Up to 5 team seats'
-        feat_3: 'Per-client billing dashboards'
-        feat_4: 'Shared client list'
-        feat_5: 'Onboarding call + dedicated support'
-        cta: Get notified
+        feat_3: 'Shared invoices, payments & client list'
+        feat_4: 'Email invite flow for teammates'
+        feat_5: 'Owner-controlled billing + branding'
+        cta: Upgrade to Agency
     fees:
         title: 'How fees work'
         body: 'Free has a 1% fee per paid invoice; Pro has 0.5%. Fees accumulate during the month and we bill them in fiat to your subscription card on the 1st (we never deduct from your stablecoin payments). All non-custodial — funds always go from client wallet to your wallet directly.'
@@ -460,6 +459,8 @@ settings:
     section_developer_sub: 'API access tokens and outgoing webhooks for connecting Settlepay to your own tools.'
     section_branding: 'Branding'
     section_branding_sub: 'Logo and accent color shown on the payment page, emails, and PDF receipts.'
+    section_team: 'Team'
+    section_team_sub: 'Invite teammates to share invoices and payments. Up to 5 seats on the Agency plan.'
     business_name: 'Business name'
     business_name_placeholder: "e.g. Vitalii's Studio"
     business_name_hint: 'Appears as the sender on invoice emails and as the merchant on the payment page.'
@@ -603,6 +604,10 @@ billing:
     renew_monthly: 'Renew — pay $19 in USDC'
     upgrade_lifetime: 'Get Lifetime — pay $299 in USDC'
     best_value: 'Best value'
+    agency_label: 'Agency · 5 seats'
+    agency_blurb: 'Invite up to 4 teammates to share invoices, payments, and branding. Same crypto-native, non-custodial flow.'
+    upgrade_agency: 'Upgrade — pay $49 in USDC'
+    renew_agency: 'Renew Agency — pay $49 in USDC'
     upgrade_disclaimer: 'Settlepay never auto-debits — every renewal is a fresh payment you authorize. No cards, no surprises.'
     per_month_short: 'mo'
     volume_meter_title: 'This month — invoiced volume'
@@ -616,6 +621,7 @@ billing:
         id: Reference
         kind_monthly: 'Pro · monthly upgrade'
         kind_lifetime: 'Pro · lifetime upgrade'
+        kind_agency: 'Agency · monthly · 5 seats'
         kind_fees: 'Settle accumulated fees'
         send_to: 'Send USDC to this wallet'
         on_any_of: 'Any of these networks'
@@ -763,3 +769,63 @@ branding:
     flash:
         saved: 'Branding saved.'
         logo_removed: 'Logo removed.'
+
+team:
+    title: 'Team'
+    short_blurb: 'Manage workspace members and invitations.'
+    subtitle: 'Members of %workspace% share invoices, payments, and billing. Up to 5 seats on the Agency plan.'
+    seats: 'Seats used'
+    upgrade_to_agency: 'Upgrade to Agency'
+    agency_plan_required: 'Team management is part of the Agency plan ($49/mo, 5 seats). Upgrade to invite teammates.'
+    invite_title: 'Invite a teammate'
+    invite_hint: 'They will receive an email with a link to accept. The link is valid for 14 days.'
+    email_placeholder: 'teammate@example.com'
+    send_invite: 'Send invite'
+    seat_limit_reached: 'Seat limit reached. Remove a member or revoke a pending invite to invite someone new.'
+    members_title: 'Members'
+    pending_title: 'Pending invitations'
+    pending_expires: 'Expires %date%'
+    revoke_invite: 'Revoke'
+    remove: 'Remove'
+    leave: 'Leave workspace'
+    confirm_remove: 'Remove this teammate from the workspace?'
+    confirm_leave: 'Leave this workspace? You will lose access to its invoices and payments.'
+    cannot_remove_owner: 'The workspace owner cannot be removed.'
+    owner_cannot_leave: 'The owner cannot leave their own workspace. Delete the workspace instead.'
+    role:
+        owner: Owner
+        member: Member
+    flash:
+        invited: 'Invitation sent.'
+        invite_revoked: 'Invitation revoked.'
+        member_removed: 'Member removed.'
+        left: 'You left the workspace.'
+
+invitations:
+    accept_title: 'Workspace invitation'
+    invalid_title: 'Invitation unavailable'
+    title: "You're invited to join %workspace%"
+    invited_by: 'Invited by %name%'
+    invite_email: 'Email'
+    invite_role: 'Role'
+    invite_expires: 'Expires'
+    sign_in_to_accept: "Sign in or create an account with %email% to accept this invite."
+    email_mismatch_title: 'Sign in with a different email'
+    email_mismatch_body: 'This invitation was sent to %invited%, but you are currently signed in as %current%.'
+    accept_button: 'Accept and join workspace'
+    back_home: 'Back to settlepay.pro'
+    role:
+        owner: Owner
+        member: Member
+    invalid_reason:
+        unknown: 'This invitation link is not recognized. It may have been mistyped or revoked.'
+        already_accepted: 'This invitation has already been accepted.'
+        expired_or_revoked: 'This invitation has expired or been revoked. Ask the owner to send a new one.'
+    invalid_email: 'Enter a valid email address.'
+    already_member: 'That email already belongs to a member of this workspace.'
+    already_invited: 'A pending invite has already been sent to that email.'
+    seat_limit_reached: 'No more seats available on the current plan.'
+    expired_or_used: 'This invitation has expired or already been used.'
+    email_mismatch: 'You must be signed in with the invited email to accept.'
+    flash:
+        accepted: 'You joined the workspace.'

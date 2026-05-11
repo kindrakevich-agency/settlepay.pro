@@ -184,15 +184,14 @@ pricing:
         cta: Pasar a Pro
     tier_agency:
         name: Agency
-        badge: Próximamente
         tagline: Para estudios y equipos pequeños
         fee: '0,5% por factura cobrada'
         feat_1: 'Todo lo del plan Pro'
         feat_2: 'Hasta 5 plazas en el equipo'
-        feat_3: 'Paneles de facturación por cliente'
-        feat_4: 'Lista de clientes compartida'
-        feat_5: 'Llamada de onboarding + soporte dedicado'
-        cta: Avísame
+        feat_3: 'Facturas, pagos y lista de clientes compartidos'
+        feat_4: 'Invitaciones a compañeros por email'
+        feat_5: 'El owner controla facturación y marca'
+        cta: Pasarme a Agency
     fees:
         title: 'Cómo funcionan las comisiones'
         body: 'En Free la comisión es del 1% por factura cobrada; en Pro, del 0,5%. Las comisiones se acumulan durante el mes y se cobran en fiat a la tarjeta de tu suscripción el día 1 del mes siguiente. Nunca las descontamos de los stablecoins que recibes — esos llegan a tu billetera completos, directo del cliente.'
@@ -458,6 +457,8 @@ settings:
     section_developer_sub: 'Tokens de acceso a la API y webhooks salientes para conectar Settlepay con tus propias herramientas.'
     section_branding: 'Personalización de marca'
     section_branding_sub: 'Logo y color de acento que aparecen en la página de pago, los correos y los recibos en PDF.'
+    section_team: 'Equipo'
+    section_team_sub: 'Invita a compañeros a compartir facturas y pagos. Hasta 5 plazas en el plan Agency.'
     business_name: 'Nombre del negocio'
     business_name_placeholder: 'p. ej. Estudio de Vitalii'
     business_name_hint: 'Aparece como remitente del correo de la factura y como comerciante en la página de pago.'
@@ -600,6 +601,10 @@ billing:
     upgrade_monthly: 'Pásate a Pro — paga $19 en USDC'
     renew_monthly: 'Renovar — paga $19 en USDC'
     upgrade_lifetime: 'Comprar de por vida — $299 en USDC'
+    agency_label: 'Agency · 5 plazas'
+    agency_blurb: 'Invita hasta 4 compañeros a compartir facturas, pagos y marca. Mismo flujo cripto-nativo, sin custodia.'
+    upgrade_agency: 'Pasarme a Agency — $49 en USDC'
+    renew_agency: 'Renovar Agency — $49 en USDC'
     best_value: 'Mejor relación calidad/precio'
     upgrade_disclaimer: 'Settlepay nunca debita automáticamente — cada renovación es un pago nuevo que tú autorizas. Sin tarjetas, sin sorpresas.'
     per_month_short: 'mes'
@@ -614,6 +619,7 @@ billing:
         id: Referencia
         kind_monthly: 'Pro · renovación mensual'
         kind_lifetime: 'Pro · de por vida'
+        kind_agency: 'Agency · mensual · 5 plazas'
         kind_fees: 'Liquidar comisiones acumuladas'
         send_to: 'Envía USDC a esta billetera'
         on_any_of: 'Cualquiera de estas redes'
@@ -761,3 +767,63 @@ branding:
     flash:
         saved: 'Marca guardada.'
         logo_removed: 'Logo eliminado.'
+
+team:
+    title: 'Equipo'
+    short_blurb: 'Gestiona los miembros del espacio y las invitaciones.'
+    subtitle: 'Los miembros de %workspace% comparten facturas, pagos y facturación. Hasta 5 plazas en Agency.'
+    seats: 'Plazas usadas'
+    upgrade_to_agency: 'Pasar a Agency'
+    agency_plan_required: 'La gestión del equipo forma parte del plan Agency ($49/mes, 5 plazas). Actualiza para invitar a tu equipo.'
+    invite_title: 'Invitar a un compañero'
+    invite_hint: 'Recibirá un email con un enlace para aceptar. El enlace dura 14 días.'
+    email_placeholder: 'compañero@example.com'
+    send_invite: 'Enviar invitación'
+    seat_limit_reached: 'No quedan plazas. Quita un miembro o revoca una invitación pendiente para invitar a alguien nuevo.'
+    members_title: 'Miembros'
+    pending_title: 'Invitaciones pendientes'
+    pending_expires: 'Caduca %date%'
+    revoke_invite: 'Revocar'
+    remove: 'Quitar'
+    leave: 'Salir del espacio'
+    confirm_remove: '¿Quitar este miembro del espacio?'
+    confirm_leave: '¿Salir de este espacio? Perderás acceso a sus facturas y pagos.'
+    cannot_remove_owner: 'No se puede quitar al owner del espacio.'
+    owner_cannot_leave: 'El owner no puede salir de su propio espacio. Elimínalo en su lugar.'
+    role:
+        owner: Owner
+        member: Miembro
+    flash:
+        invited: 'Invitación enviada.'
+        invite_revoked: 'Invitación revocada.'
+        member_removed: 'Miembro quitado.'
+        left: 'Has salido del espacio.'
+
+invitations:
+    accept_title: 'Invitación al espacio'
+    invalid_title: 'Invitación no disponible'
+    title: 'Te invitaron a unirte a %workspace%'
+    invited_by: 'Invitado por %name%'
+    invite_email: 'Email'
+    invite_role: 'Rol'
+    invite_expires: 'Caduca'
+    sign_in_to_accept: 'Inicia sesión o crea una cuenta con %email% para aceptar la invitación.'
+    email_mismatch_title: 'Inicia sesión con otro correo'
+    email_mismatch_body: 'Esta invitación se envió a %invited%, pero estás conectado como %current%.'
+    accept_button: 'Aceptar y unirme'
+    back_home: 'Volver a settlepay.pro'
+    role:
+        owner: Owner
+        member: Miembro
+    invalid_reason:
+        unknown: 'Este enlace de invitación no se reconoce. Puede que esté mal o haya sido revocado.'
+        already_accepted: 'Esta invitación ya se aceptó.'
+        expired_or_revoked: 'La invitación expiró o fue revocada. Pide una nueva al owner.'
+    invalid_email: 'Introduce un correo válido.'
+    already_member: 'Ese correo ya pertenece a un miembro del espacio.'
+    already_invited: 'Ya hay una invitación pendiente para ese correo.'
+    seat_limit_reached: 'No quedan plazas en el plan actual.'
+    expired_or_used: 'La invitación expiró o ya fue usada.'
+    email_mismatch: 'Debes iniciar sesión con el correo invitado para aceptar.'
+    flash:
+        accepted: 'Te uniste al espacio.'

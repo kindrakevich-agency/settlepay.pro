@@ -63,10 +63,7 @@
             {# Agency #}
             <article class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7 shadow-card flex flex-col">
                 <header>
-                    <div class="flex items-center gap-2">
-                        <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'pricing.tier_agency.name'|trans }}</h2>
-                        <span class="inline-flex items-center rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-2xs font-medium text-slate-600 dark:text-slate-400">{{ 'pricing.tier_agency.badge'|trans }}</span>
-                    </div>
+                    <h2 class="font-display text-xl font-semibold tracking-tight">{{ 'pricing.tier_agency.name'|trans }}</h2>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ 'pricing.tier_agency.tagline'|trans }}</p>
                 </header>
                 <div class="mt-6 mb-6">
@@ -78,7 +75,19 @@
                         <li class="flex items-start gap-2.5"><svg class="h-4 w-4 mt-0.5 text-brand-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 5 5L20 7"/></svg>{{ ('pricing.tier_agency.' ~ k)|trans }}</li>
                     {% endfor %}
                 </ul>
-                <button type="button" disabled class="mt-7 inline-flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-4 py-2.5 text-sm font-medium cursor-not-allowed">{{ 'pricing.tier_agency.cta'|trans }}</button>
+                {% if app.user %}
+                    <form method="POST" action="{{ path('dashboard_billing_upgrade', {_locale: locale, kind: 'agency'}) }}" class="mt-7">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('billing-upgrade') }}">
+                        <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition">
+                            {{ 'pricing.tier_agency.cta'|trans }}
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{{ path('auth_register', {_locale: locale}) }}"
+                       class="mt-7 inline-flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition">
+                        {{ 'pricing.tier_agency.cta'|trans }}
+                    </a>
+                {% endif %}
             </article>
 
         </div>

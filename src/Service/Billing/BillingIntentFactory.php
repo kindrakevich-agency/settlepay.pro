@@ -24,8 +24,9 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
  */
 final class BillingIntentFactory
 {
-    public const PRO_MONTHLY_CENTS  = 1900;   // $19.00
-    public const PRO_LIFETIME_CENTS = 29900;  // $299.00
+    public const PRO_MONTHLY_CENTS    = 1900;   // $19.00
+    public const PRO_LIFETIME_CENTS   = 29900;  // $299.00
+    public const AGENCY_MONTHLY_CENTS = 4900;   // $49.00 — 5 seats included
 
     public function __construct(
         private readonly BillingIntentRepository $intents,
@@ -51,6 +52,11 @@ final class BillingIntentFactory
     public function createProLifetime(User $user): BillingIntent
     {
         return $this->build($user, BillingIntentKind::ProLifetime, self::PRO_LIFETIME_CENTS);
+    }
+
+    public function createAgencyMonthly(User $user): BillingIntent
+    {
+        return $this->build($user, BillingIntentKind::AgencyMonthly, self::AGENCY_MONTHLY_CENTS);
     }
 
     public function createFeeSettlement(User $user): ?BillingIntent

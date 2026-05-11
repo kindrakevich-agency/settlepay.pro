@@ -1,0 +1,12 @@
+You're invited to join {{ workspace.name }} on Settlepay
+
+{{ invited_by.businessName ?: invited_by.email }} invited you to collaborate on
+{{ workspace.name }} — a shared workspace for invoicing in stablecoins.
+
+Accept the invitation:
+{{ accept_url }}
+
+The link expires on {{ invitation.expiresAt|date('Y-m-d') }} UTC.
+The same email address must be used when accepting.
+
+— Settlepay

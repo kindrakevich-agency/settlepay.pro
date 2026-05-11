@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+{% from '_logo.html.twig' import logo %}
+
+{% set locale = app.request.locale|default('en') %}
+{% set seo_indexable = false %}
+
+{% block title %}{{ 'invitations.accept_title'|trans }} · Settlepay{% endblock %}
+
+{% block body %}
+<div class="min-h-dvh bg-slate-50 dark:bg-slate-950 grid place-items-center px-6 py-10">
+    <div class="absolute top-0 inset-x-0 px-6 py-4">
+        <a href="{{ path('marketing_home', {_locale: locale}) }}" aria-label="settlepay">{{ logo(size='sm') }}</a>
+    </div>
+
+    <main class="w-full max-w-md">
+        <div class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 lg:p-10 shadow-card">
+
+            <span class="grid h-12 w-12 place-items-center rounded-2xl text-white text-base font-semibold"
+                  style="background-color: {{ workspace.brandColor ?: '#0d9488' }}">
+                {{ workspace.name|slice(0, 2)|upper }}
+            </span>
+
+            <h1 class="mt-5 font-display text-2xl font-semibold tracking-tight">
+                {{ 'invitations.title'|trans({'%workspace%': workspace.name}) }}
+            </h1>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                {{ 'invitations.invited_by'|trans({'%name%': invitation.invitedBy.businessName ?: invitation.invitedBy.email}) }}
+            </p>
+
+            <dl class="mt-6 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 p-4 space-y-2 text-sm">
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-500 dark:text-slate-400">{{ 'invitations.invite_email'|trans }}</dt>
+                    <dd class="font-mono text-slate-900 dark:text-slate-100 truncate">{{ invitation.email }}</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-500 dark:text-slate-400">{{ 'invitations.invite_role'|trans }}</dt>
+                    <dd class="font-medium text-slate-900 dark:text-slate-100">{{ ('invitations.role.' ~ invitation.role)|trans }}</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-500 dark:text-slate-400">{{ 'invitations.invite_expires'|trans }}</dt>
+                    <dd class="text-slate-900 dark:text-slate-100">{{ invitation.expiresAt|format_date('long', locale=locale) }}</dd>
+                </div>
+            </dl>
+
+            {% if not logged_in %}
+                <p class="mt-6 text-sm text-slate-600 dark:text-slate-400">
+                    {{ 'invitations.sign_in_to_accept'|trans({'%email%': invitation.email}) }}
+                </p>
+                <div class="mt-5 grid grid-cols-2 gap-3">
+                    <a href="{{ path('auth_login', {_locale: locale}) }}?next={{ app.request.requestUri|url_encode }}"
+                       class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        {{ 'common.sign_in'|trans }}
+                    </a>
+                    <a href="{{ path('auth_register', {_locale: locale}) }}?email={{ invitation.email|url_encode }}&next={{ app.request.requestUri|url_encode }}"
+                       class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium transition">
+                        {{ 'common.sign_up'|trans }}
+                    </a>
+                </div>
+            {% elseif not email_matches %}
+                <div class="mt-6 rounded-xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4">
+                    <p class="text-sm font-medium text-warning-700 dark:text-warning-500">
+                        {{ 'invitations.email_mismatch_title'|trans }}
+                    </p>
+                    <p class="mt-1 text-xs text-warning-700/80 dark:text-warning-500/80">
+                        {{ 'invitations.email_mismatch_body'|trans({'%invited%': invitation.email, '%current%': app.user.email}) }}
+                    </p>
+                </div>
+                <a href="{{ path('auth_logout', {_locale: locale}) }}"
+                   class="mt-5 inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2.5 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    {{ 'common.log_out'|trans }}
+                </a>
+            {% else %}
+                <form method="POST" class="mt-6 space-y-3">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('invite-accept') }}">
+                    <button type="submit"
+                            class="w-full inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-3 text-sm font-semibold transition">
+                        {{ 'invitations.accept_button'|trans }}
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

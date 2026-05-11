@@ -23,6 +23,7 @@
                     <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                         {% if intent.kind.value == 'pro_monthly' %}{{ 'billing.checkout.kind_monthly'|trans }}
                         {% elseif intent.kind.value == 'pro_lifetime' %}{{ 'billing.checkout.kind_lifetime'|trans }}
+                        {% elseif intent.kind.value == 'agency_monthly' %}{{ 'billing.checkout.kind_agency'|trans }}
                         {% else %}{{ 'billing.checkout.kind_fees'|trans }}{% endif %}
                     </p>
                     <p class="mt-2 font-display text-5xl font-semibold tracking-tight tabular-nums">${{ amount_decimal }}<span class="text-2xl text-slate-400 ml-1">USDC</span></p>

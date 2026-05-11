@@ -151,6 +151,22 @@
                 </form>
             </div>
 
+            {# Agency card — separate row, less visual weight than Pro #}
+            <form method="POST" action="{{ path('dashboard_billing_upgrade', {_locale: locale, kind: 'agency'}) }}"
+                  class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-5">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('billing-upgrade') }}">
+                <div class="flex items-baseline justify-between gap-3 flex-wrap">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-500">{{ 'billing.agency_label'|trans }}</p>
+                        <p class="mt-1 font-display text-2xl font-semibold tracking-tight">${{ agency_monthly_usd }} <span class="text-sm font-normal text-slate-500">{{ 'billing.per_month'|trans }}</span></p>
+                    </div>
+                    <button type="submit" class="rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 px-4 py-2 text-sm font-medium transition">
+                        {{ user.plan == 'agency' ? 'billing.renew_agency'|trans : 'billing.upgrade_agency'|trans }}
+                    </button>
+                </div>
+                <p class="mt-2 text-xs text-slate-600 dark:text-slate-400">{{ 'billing.agency_blurb'|trans }}</p>
+            </form>
+
             <p class="mt-4 text-xs text-slate-500 dark:text-slate-500">{{ 'billing.upgrade_disclaimer'|trans }}</p>
         </section>
     {% endif %}

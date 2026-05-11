@@ -13,10 +13,22 @@ enum BillingIntentKind: string
 {
     case ProMonthly    = 'pro_monthly';
     case ProLifetime   = 'pro_lifetime';
+    case AgencyMonthly = 'agency_monthly';   // $49 USDC, 5 seats, 30 days
     case FeeSettlement = 'fee_settlement';
 
     public function isSubscription(): bool
     {
-        return $this === self::ProMonthly || $this === self::ProLifetime;
+        return $this === self::ProMonthly
+            || $this === self::ProLifetime
+            || $this === self::AgencyMonthly;
+    }
+
+    public function planSlug(): ?string
+    {
+        return match ($this) {
+            self::ProMonthly, self::ProLifetime => 'pro',
+            self::AgencyMonthly                 => 'agency',
+            default                             => null,
+        };
     }
 }

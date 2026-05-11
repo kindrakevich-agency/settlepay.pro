@@ -117,13 +117,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'user')]
     private Collection $invoices;
 
+    /** @var Collection<int, Workspace> */
+    #[ORM\OneToMany(targetEntity: Workspace::class, mappedBy: 'owner')]
+    private Collection $ownedWorkspaces;
+
     public function __construct()
     {
-        $this->uuid       = Uuid::v7()->toRfc4122();
-        $this->createdAt  = new \DateTimeImmutable();
-        $this->updatedAt  = new \DateTimeImmutable();
-        $this->invoices   = new ArrayCollection();
+        $this->uuid            = Uuid::v7()->toRfc4122();
+        $this->createdAt       = new \DateTimeImmutable();
+        $this->updatedAt       = new \DateTimeImmutable();
+        $this->invoices        = new ArrayCollection();
+        $this->ownedWorkspaces = new ArrayCollection();
     }
+
+    /** @return Collection<int, Workspace> */
+    public function getOwnedWorkspaces(): Collection             { return $this->ownedWorkspaces; }
 
     public function getId(): ?string                          { return $this->id; }
     public function getUuid(): string                         { return $this->uuid; }

@@ -48,8 +48,9 @@ class BillingController extends AbstractController
         return $this->render('dashboard/billing/index.html.twig', [
             'user'             => $user,
             'platform_enabled' => $this->platformWallet->isEnabled(),
-            'pro_monthly_usd'  => BillingIntentFactory::PRO_MONTHLY_CENTS / 100,
-            'pro_lifetime_usd' => BillingIntentFactory::PRO_LIFETIME_CENTS / 100,
+            'pro_monthly_usd'    => BillingIntentFactory::PRO_MONTHLY_CENTS / 100,
+            'pro_lifetime_usd'   => BillingIntentFactory::PRO_LIFETIME_CENTS / 100,
+            'agency_monthly_usd' => BillingIntentFactory::AGENCY_MONTHLY_CENTS / 100,
             'mtd_volume_cents' => $mtdCents,
             'free_cap_cents'   => self::FREE_VOLUME_CAP_CENTS,
             'cap_remaining_cents' => max(0, self::FREE_VOLUME_CAP_CENTS - $mtdCents),
@@ -57,7 +58,7 @@ class BillingController extends AbstractController
     }
 
     #[Route('/upgrade/{kind}', name: 'dashboard_billing_upgrade',
-        requirements: ['kind' => 'monthly|lifetime'],
+        requirements: ['kind' => 'monthly|lifetime|agency'],
         methods: ['POST'])]
     public function upgrade(string $kind, Request $request): RedirectResponse
     {
@@ -68,9 +69,11 @@ class BillingController extends AbstractController
         /** @var User $user */
         $user = $this->getUser();
 
-        $intent = $kind === 'lifetime'
-            ? $this->intents->createProLifetime($user)
-            : $this->intents->createProMonthly($user);
+        $intent = match ($kind) {
+            'lifetime' => $this->intents->createProLifetime($user),
+            'agency'   => $this->intents->createAgencyMonthly($user),
+            default    => $this->intents->createProMonthly($user),
+        };
 
         return $this->redirectToRoute('public_billing_checkout', [
             '_locale' => $request->getLocale(),
