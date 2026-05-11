@@ -14,6 +14,7 @@ common:
     sign_in: Увійти
     sign_up: Почати
     log_out: Вийти
+    open_dashboard: Перейти в кабінет
     cancel: Скасувати
 
 nav:

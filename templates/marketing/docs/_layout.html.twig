@@ -5,6 +5,56 @@
 
 {% block title %}{{ block('docs_title') }} · {{ 'docs.brand_suffix'|trans }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {# Prism syntax highlighting — coy theme tweaked to match Slate / Tailwind. #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prism-themes@1.9.0/themes/prism-one-dark.min.css">
+    <style>
+        /* Tighten Prism to feel native inside our Tailwind dark surfaces. */
+        .prose pre,
+        pre[class*="language-"] {
+            background: #0b1220 !important;
+            border: 1px solid #1e293b;
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem !important;
+            font-size: 0.8125rem !important;
+            line-height: 1.65 !important;
+            overflow-x: auto;
+            box-shadow: 0 1px 2px rgba(2, 6, 23, 0.06);
+        }
+        :not(pre) > code {
+            background: rgb(241 245 249);
+            color: rgb(15 23 42);
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.3rem;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        .dark :not(pre) > code {
+            background: rgb(30 41 59);
+            color: rgb(226 232 240);
+        }
+        /* Soft glow that doesn't fight Tailwind's prose styles */
+        pre[class*="language-"] code { background: transparent !important; padding: 0 !important; }
+        /* Hide the default Prism scrollbar styling so it picks up the page's */
+        pre[class*="language-"]::-webkit-scrollbar { height: 6px; }
+        pre[class*="language-"]::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 3px; }
+    </style>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        if (window.Prism?.plugins?.autoloader) {
+          Prism.plugins.autoloader.languages_path = 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/';
+        }
+      });
+    </script>
+{% endblock %}
+
 {% block marketing_content %}
 <div class="mx-auto max-w-6xl px-6 py-12">
     <div class="grid lg:grid-cols-[14rem_1fr] gap-10">

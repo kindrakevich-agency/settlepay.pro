@@ -47,12 +47,22 @@
                     </a>
                 {% endfor %}
             </div>
-            <a href="{{ path('auth_login', {_locale: locale}) }}" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
-                {{ 'common.sign_in'|trans }}
-            </a>
-            <a href="{{ path('auth_register', {_locale: locale}) }}" class="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
-                {{ 'common.sign_up'|trans }}
-            </a>
+            {% if app.user %}
+                <a href="{{ path('dashboard_home', {_locale: locale}) }}"
+                   class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
+                    <span class="grid h-5 w-5 place-items-center rounded-md bg-white/20 dark:bg-slate-900/15 text-[10px] font-semibold">
+                        {{ (app.user.businessName|default(app.user.email))|slice(0, 2)|upper }}
+                    </span>
+                    {{ 'common.open_dashboard'|trans }}
+                </a>
+            {% else %}
+                <a href="{{ path('auth_login', {_locale: locale}) }}" class="hidden sm:inline-flex rounded-lg px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                    {{ 'common.sign_in'|trans }}
+                </a>
+                <a href="{{ path('auth_register', {_locale: locale}) }}" class="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white px-3.5 py-2 text-sm font-medium text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm">
+                    {{ 'common.sign_up'|trans }}
+                </a>
+            {% endif %}
 
             {# ───── Hamburger (mobile only) ───── #}
             <button type="button"
@@ -176,15 +186,33 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <a href="{{ path('auth_login', {_locale: locale}) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-white dark:hover:bg-slate-800 transition">
-                    {{ 'common.sign_in'|trans }}
+            {% if app.user %}
+                <a href="{{ path('dashboard_home', {_locale: locale}) }}"
+                   class="flex items-center gap-3 rounded-xl bg-slate-900 dark:bg-white px-4 py-3.5 text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-card">
+                    <span class="grid h-9 w-9 place-items-center rounded-lg bg-white/20 dark:bg-slate-900/15 text-sm font-semibold shrink-0">
+                        {{ (app.user.businessName|default(app.user.email))|slice(0, 2)|upper }}
+                    </span>
+                    <div class="flex-1 min-w-0 text-left">
+                        <div class="text-sm font-semibold">{{ 'common.open_dashboard'|trans }}</div>
+                        <div class="text-xs opacity-70 truncate">{{ app.user.email }}</div>
+                    </div>
+                    <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
-                <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 px-4 py-3 text-sm font-semibold text-white shadow-card transition">
-                    {{ 'common.sign_up'|trans }}
-                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                <a href="{{ path('auth_logout', {_locale: locale}) }}"
+                   class="mt-3 block text-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition">
+                    {{ 'common.log_out'|trans }}
                 </a>
-            </div>
+            {% else %}
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="{{ path('auth_login', {_locale: locale}) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-100 hover:bg-white dark:hover:bg-slate-800 transition">
+                        {{ 'common.sign_in'|trans }}
+                    </a>
+                    <a href="{{ path('auth_register', {_locale: locale}) }}" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 active:bg-brand-800 px-4 py-3 text-sm font-semibold text-white shadow-card transition">
+                        {{ 'common.sign_up'|trans }}
+                        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

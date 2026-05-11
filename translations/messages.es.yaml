@@ -14,6 +14,7 @@ common:
     sign_in: Iniciar sesión
     sign_up: Empezar
     log_out: Cerrar sesión
+    open_dashboard: Abrir panel
     cancel: Cancelar
 
 nav:
