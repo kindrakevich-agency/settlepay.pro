@@ -1,0 +1,117 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block dashboard_title %}{{ 'api_tokens.title'|trans }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div>
+        <a href="{{ path('dashboard_settings', {_locale: locale}) }}"
+           class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            {{ 'nav.settings'|trans }}
+        </a>
+        <h1 class="mt-2 font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'api_tokens.title'|trans }}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ 'api_tokens.subtitle'|trans }}</p>
+    </div>
+
+    {# ─── One-time plaintext panel — shown ONCE after creation ─── #}
+    {% if just_created %}
+        <div class="rounded-2xl border-2 border-success-500 bg-success-50 dark:bg-success-500/10 p-5">
+            <div class="flex items-start gap-3">
+                <span class="grid h-6 w-6 place-items-center rounded-full bg-success-500 text-white shrink-0 text-xs font-bold">✓</span>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-success-700 dark:text-success-500">{{ 'api_tokens.one_time_title'|trans }}</p>
+                    <p class="mt-1 text-sm text-success-700/80 dark:text-success-500/80">{{ 'api_tokens.one_time_warning'|trans }}</p>
+                    <div class="mt-3 flex items-center gap-2 rounded-xl bg-white dark:bg-slate-950 border border-success-200 dark:border-success-500/30 p-3 font-mono text-xs sm:text-sm break-all">
+                        <code class="flex-1" id="token-plaintext">{{ just_created }}</code>
+                        <button type="button"
+                                class="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-2.5 py-1.5 text-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition"
+                                onclick="navigator.clipboard.writeText(document.getElementById('token-plaintext').textContent); this.textContent='✓ {{ 'api_tokens.copied'|trans|escape('js') }}'">
+                            {{ 'api_tokens.copy'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    {# ─── Pro-gating notice for Free users ─── #}
+    {% if not user.pro %}
+        <div class="rounded-2xl border border-warning-200 dark:border-warning-500/30 bg-warning-50 dark:bg-warning-500/10 p-4">
+            <p class="text-sm font-medium text-warning-700 dark:text-warning-500">{{ 'api_tokens.free_plan_required'|trans }}</p>
+            <a href="{{ path('dashboard_billing', {_locale: locale}) }}"
+               class="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 text-xs font-medium transition">
+                {{ 'billing.upgrade_title'|trans }}
+            </a>
+        </div>
+    {% endif %}
+
+    {# ─── Create form ─── #}
+    {% if user.pro %}
+        <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+            <h2 class="font-semibold tracking-tight">{{ 'api_tokens.create_title'|trans }}</h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'api_tokens.create_hint'|trans }}</p>
+            <form method="POST" action="{{ path('dashboard_api_tokens_create', {_locale: locale}) }}"
+                  class="mt-4 flex flex-col sm:flex-row gap-3">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('api-token-create') }}">
+                <input type="text" name="name" required maxlength="80"
+                       placeholder="{{ 'api_tokens.name_placeholder'|trans }}"
+                       class="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-colors text-sm">
+                <button type="submit"
+                        class="inline-flex items-center justify-center rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 text-sm font-medium transition">
+                    {{ 'api_tokens.create'|trans }}
+                </button>
+            </form>
+        </section>
+    {% endif %}
+
+    {# ─── Existing tokens ─── #}
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <header class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <h2 class="font-semibold tracking-tight">{{ 'api_tokens.active_title'|trans }}</h2>
+        </header>
+        {% if tokens|length == 0 %}
+            <div class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+                {{ 'api_tokens.empty'|trans }}
+            </div>
+        {% else %}
+            <ul class="divide-y divide-slate-200 dark:divide-slate-800">
+                {% for t in tokens %}
+                    <li class="px-6 py-4 flex items-center justify-between gap-4 flex-wrap">
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{{ t.name }}</p>
+                            <p class="mt-0.5 font-mono text-xs text-slate-500 dark:text-slate-500">{{ t.tokenPrefix }}…</p>
+                            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                {{ 'api_tokens.created_at'|trans({'%date%': t.createdAt|date('Y-m-d')}) }}
+                                {% if t.lastUsedAt %}
+                                    · {{ 'api_tokens.last_used'|trans({'%date%': t.lastUsedAt|date('Y-m-d H:i')}) }}
+                                {% else %}
+                                    · {{ 'api_tokens.never_used'|trans }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <form method="POST" action="{{ path('dashboard_api_tokens_revoke', {_locale: locale, id: t.id}) }}"
+                              onsubmit="return confirm('{{ 'api_tokens.confirm_revoke'|trans|escape('js') }}')">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('api-token-revoke') }}">
+                            <button type="submit" class="text-xs font-medium text-danger-600 hover:text-danger-700 transition">
+                                {{ 'api_tokens.revoke'|trans }}
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+
+    {# ─── Docs hint ─── #}
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-5">
+        <p class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ 'api_tokens.docs_title'|trans }}</p>
+        <pre class="mt-3 overflow-x-auto rounded-lg bg-slate-900 dark:bg-black text-slate-100 p-3 text-xs font-mono"><code>curl https://settlepay.pro/api/v1/invoices \
+  -H "Authorization: Bearer sk_pro_..."</code></pre>
+    </div>
+
+</div>
+{% endblock %}

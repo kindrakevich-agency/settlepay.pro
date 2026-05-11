@@ -3,12 +3,14 @@
 namespace App\Controller\Dashboard;
 
 use App\Entity\User;
+use App\Entity\Webhook;
 use App\Enum\InvoiceStatus;
 use App\Repository\InvoiceRepository;
 use App\Service\Blockchain\ChainRegistry;
 use App\Service\Invoice\InvoiceFactory;
 use App\Service\Invoice\InvoiceMailer;
 use App\Service\Invoice\InvoicePdfRenderer;
+use App\Service\Notification\WebhookDispatcher;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -30,7 +32,28 @@ class InvoiceController extends AbstractController
         private readonly ChainRegistry $chains,
         private readonly EntityManagerInterface $em,
         private readonly TranslatorInterface $translator,
+        private readonly WebhookDispatcher $webhooks,
     ) {}
+
+    /** Compact wire-format payload used by every invoice-* webhook event. */
+    private function invoicePayload(\App\Entity\Invoice $invoice): array
+    {
+        return [
+            'uuid'             => $invoice->getUuid(),
+            'number'           => $invoice->getNumber(),
+            'amount_cents'     => $invoice->getAmountCents(),
+            'currency'         => $invoice->getCurrency(),
+            'status'           => $invoice->getStatus()->value,
+            'client_name'      => $invoice->getClientName(),
+            'client_email'     => $invoice->getClientEmail(),
+            'description'      => $invoice->getDescription(),
+            'due_date'         => $invoice->getDueDate()?->format('Y-m-d'),
+            'issued_at'        => $invoice->getIssuedAt()->format('Y-m-d'),
+            'recipient_address'=> $invoice->getRecipientAddress(),
+            'accepted_chains'  => $invoice->getAcceptedChains(),
+            'accepted_tokens'  => $invoice->getAcceptedTokens(),
+        ];
+    }
 
     #[Route('', name: 'dashboard_invoices', methods: ['GET'])]
     public function index(Request $request): Response
@@ -326,6 +349,13 @@ class InvoiceController extends AbstractController
 
         $invoice->setStatus(InvoiceStatus::Void)->touch();
         $this->em->flush();
+
+        try {
+            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_VOIDED, [
+                'invoice' => $this->invoicePayload($invoice),
+            ]);
+        } catch (\Throwable) { /* non-fatal */ }
+
         $this->addFlash('success', $this->translator->trans('flash.invoice_voided', ['%number%' => $invoice->getNumber()]));
         return $this->redirectToRoute('dashboard_invoices', ['_locale' => $request->getLocale()]);
     }
@@ -369,6 +399,12 @@ class InvoiceController extends AbstractController
 
         $invoice->setStatus(InvoiceStatus::Sent)->touch();
         $this->em->flush();
+
+        try {
+            $this->webhooks->dispatch($invoice->getUser(), Webhook::EVENT_INVOICE_SENT, [
+                'invoice' => $this->invoicePayload($invoice),
+            ]);
+        } catch (\Throwable) { /* non-fatal */ }
 
         $emailed = $this->mailer->sendInvoiceToClient($invoice);
         $this->addFlash('success', $emailed

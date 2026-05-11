@@ -16,4 +16,5 @@ framework:
         # Routing is added per-message-class as they are created.
         # Until then, messages dispatch synchronously by default.
         # See CLAUDE.md §7 for the planned message classes.
-        routing: ~
+        routing:
+            App\Message\DeliverWebhookMessage: async

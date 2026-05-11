@@ -6,9 +6,11 @@ use App\Entity\Invoice;
 use App\Entity\Payment;
 use App\Enum\InvoiceStatus;
 use App\Repository\InvoiceRepository;
+use App\Entity\Webhook;
 use App\Repository\PaymentRepository;
 use App\Service\Billing\SubscriptionManager;
 use App\Service\Invoice\InvoiceMailer;
+use App\Service\Notification\WebhookDispatcher;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -35,6 +37,7 @@ final class PaymentMatcher
         private readonly LoggerInterface $logger,
         private readonly InvoiceMailer $mailer,
         private readonly SubscriptionManager $subscriptions,
+        private readonly WebhookDispatcher $webhooks,
     ) {}
 
     /**
@@ -120,6 +123,39 @@ final class PaymentMatcher
                 $this->subscriptions->accrueInvoiceFee($matched);
             } catch (\Throwable $e) {
                 $this->logger->error('accrueInvoiceFee failed', [
+                    'invoice_uuid' => $matched->getUuid(),
+                    'error'        => $e->getMessage(),
+                ]);
+            }
+            // Fire Pro-tier webhooks (invoice.paid + payment.received) —
+            // dispatching enqueues, so failure here can't break the match.
+            try {
+                $this->webhooks->dispatch($matched->getUser(), Webhook::EVENT_INVOICE_PAID, [
+                    'invoice' => [
+                        'uuid'         => $matched->getUuid(),
+                        'number'       => $matched->getNumber(),
+                        'amount_cents' => $matched->getAmountCents(),
+                        'currency'     => $matched->getCurrency(),
+                        'status'       => $matched->getStatus()->value,
+                        'paid_at'      => $matched->getPaidAt()?->format(DATE_RFC3339),
+                    ],
+                ]);
+                $this->webhooks->dispatch($matched->getUser(), Webhook::EVENT_PAYMENT_RECEIVED, [
+                    'payment' => [
+                        'id'            => (int) $payment->getId(),
+                        'invoice_uuid'  => $matched->getUuid(),
+                        'chain_id'      => $payment->getChainId(),
+                        'tx_hash'       => $payment->getTxHash(),
+                        'token_symbol'  => $payment->getTokenSymbol(),
+                        'token_decimals'=> $payment->getTokenDecimals(),
+                        'amount_raw'    => $payment->getAmountRaw(),
+                        'amount_usd_cents' => $payment->getAmountUsdCents(),
+                        'payer_address' => $payment->getPayerAddress(),
+                        'confirmed_at'  => $payment->getConfirmedAt()?->format(DATE_RFC3339),
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                $this->logger->error('Webhook dispatch failed', [
                     'invoice_uuid' => $matched->getUuid(),
                     'error'        => $e->getMessage(),
                 ]);

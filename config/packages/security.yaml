@@ -15,6 +15,13 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        api:
+            pattern: ^/api/v1/(?!public|auth|health)
+            stateless: true
+            provider: users_in_db
+            custom_authenticators:
+                - App\Security\ApiTokenAuthenticator
+
         main:
             lazy: true
             provider: users_in_db
