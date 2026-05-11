@@ -44,23 +44,29 @@ Settle removes the friction with a Stripe-grade UX layered over **non-custodial*
 
 ## How it works
 
-![Settle payment flow](docs/diagrams/flow.svg)
+![Settlepay payment flow](docs/diagrams/flow.svg)
 
-The single most important architectural decision: **Symfony writes nothing on-chain. It only reads.** All transactions are signed in the user's browser by their wallet. This keeps Settle out of money-transmitter regulation territory and dramatically simplifies the codebase.
+Six steps from invoice to settled, end-to-end in under a minute. Two architectural rules hold the whole thing together:
+
+1. **Symfony writes nothing on-chain. It only reads.** All transactions are signed in the client's browser by their own wallet. This keeps Settlepay out of money-transmitter regulation territory and dramatically simplifies the codebase.
+2. **Funds move directly from client wallet → workspace payout wallet.** We never custody. The listener watches `Transfer` events on the workspace's payout address, matches them to open invoices by amount + token, and updates the database — that's it.
+
+A workspace is the unit of "the business" — it owns invoices, payments, billing state, branding, and payout settings. Solo freelancers get exactly one workspace where they are the sole Owner. Agency-tier accounts can invite teammates (up to 5 seats) so multiple users share the same invoice pool.
 
 ---
 
 ## Architecture
 
-![Settle architecture](docs/diagrams/architecture.svg)
+![Settlepay architecture](docs/diagrams/architecture.svg)
 
 ### Why the stack looks this way
 
-- **Twig for marketing & checkout** → server-rendered, fast, SEO-friendly, no JS framework needed for the conversion-critical payment page.
-- **React SPA for the dashboard** → complex, stateful UI (invoice CRUD, real-time payment updates) where SPA pays off.
-- **MariaDB, not PostgreSQL** → existing Hetzner server already runs MariaDB; the invoicing workload doesn't need PG-specific features.
-- **PHP for the listener** → keeps the whole codebase in one language. Listeners don't need raw throughput; latency budget is "seconds, not milliseconds."
-- **No custom smart contracts (MVP)** → we use existing ERC-20 tokens and read on-chain events. Zero Solidity surface area = zero deploy risk.
+- **Twig for marketing, docs & checkout** → server-rendered, fast, SEO-friendly. The conversion-critical payment page is plain Twig + a thin `viem`/`wagmi`/`RainbowKit` JS island.
+- **React SPA for the dashboard** → complex, stateful UI (invoice CRUD, real-time payment updates, team management) where SPA pays off. Workspace-scoped throughout.
+- **MariaDB, not PostgreSQL** → existing Hetzner server already runs MariaDB; the invoicing workload doesn't need PG-specific features. Workspace as ownership scope: tables like `invoices`, `payments`, `billing_intents`, `api_tokens`, `webhooks` all FK to `workspaces.id`.
+- **PHP for the listener** → keeps the whole codebase in one language. Latency budget is "seconds, not milliseconds." The same daemon watches BOTH invoice recipient wallets (for client payments) AND the Settlepay platform wallet (for Pro/Agency subscriptions + accumulated-fee settlements).
+- **Symfony Messenger for async** → emails, PDF rendering, webhook deliveries, invitation emails. Doctrine transport in MVP; can flip to Redis when volume warrants.
+- **No custom smart contracts** → we use existing ERC-20 tokens (USDC/USDT/DAI) and read on-chain events. Zero Solidity surface area = zero deploy risk.
 
 ---
 

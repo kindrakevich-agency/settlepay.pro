@@ -44,8 +44,24 @@ sudo systemctl disable settle-listener.service       # turn off permanently
 
 ### Mainnet vs testnet
 
-The shipped unit runs `--testnet`. Once mainnet invoices exist, swap
-the `ExecStart=` line to drop `--testnet` (which means it watches
-all configured mainnets). To watch BOTH simultaneously, copy the unit
-to `settle-listener-testnet.service`, leave the original on mainnet,
-and enable both.
+Prod runs **two listener units side by side**:
+
+- `settle-listener.service` — mainnet only (the shipped unit, no `--testnet` flag). Watches Base, Polygon, Arbitrum, Optimism.
+- `settle-listener-testnet.service` — copies the unit, adds `--testnet` to `ExecStart=`. Watches Base Sepolia, Optimism Sepolia, Arbitrum Sepolia. Used for staging + dev dogfooding via `BILLING_ALLOW_TESTNETS=1`.
+
+Both listeners share the same database and platform wallet matcher — they just look at different chain IDs. The deploy workflow `restart`s both with one glob:
+
+```bash
+sudo systemctl restart 'settle-listener*.service'
+```
+
+This avoids the stale-cache bug where one listener kept running with the previous compiled-container hash after a deploy (see `memory/gotchas.md`).
+
+### Messenger worker
+
+Async jobs (invitation emails, webhook deliveries, PDF rendering) run on `settle-worker@N.service`, a templated unit. Enable one or two instances:
+
+```bash
+sudo systemctl enable --now settle-worker@1
+sudo systemctl enable --now settle-worker@2
+```

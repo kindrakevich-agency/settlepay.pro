@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="flowTitle flowDesc" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
-  <title id="flowTitle">Settle payment flow</title>
-  <desc id="flowDesc">Six-step flow from invoice creation to confirmed on-chain payment.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" role="img" aria-labelledby="flowTitle flowDesc" font-family="Inter, ui-sans-serif, system-ui, sans-serif">
+  <title id="flowTitle">Settlepay payment flow</title>
+  <desc id="flowDesc">Six-step flow from invoice creation to confirmed on-chain payment. Funds move directly from client wallet to workspace payout wallet; Settlepay reads chain only.</desc>
 
   <style><![CDATA[
     :root {
@@ -62,62 +62,63 @@
     </marker>
   </defs>
 
-  <rect class="bg" width="1200" height="520"/>
+  <rect class="bg" width="1200" height="560"/>
 
   <!-- Title -->
   <text class="badge brand" x="60" y="48">PAYMENT FLOW</text>
   <text class="text" x="60" y="74" font-size="20" font-weight="600" letter-spacing="-0.015em">From invoice to settled in under a minute</text>
+  <text class="muted body" x="60" y="96">Funds move client → workspace payout wallet directly. Settlepay reads chain, never holds funds.</text>
 
   <!-- ─────── Row 1: 1 → 2 → 3 ─────── -->
 
   <!-- Node 1: Freelancer -->
-  <g transform="translate(60, 130)">
+  <g transform="translate(60, 150)">
     <rect class="card" width="280" height="140" rx="14"/>
     <circle class="brand-fill" cx="32" cy="32" r="14"/>
     <text class="num" x="32" y="36" text-anchor="middle">1</text>
-    <text class="text h2" x="58" y="36">Freelancer</text>
+    <text class="text h2" x="58" y="36">Freelancer / Workspace member</text>
     <text class="muted body" x="20" y="76">Creates invoice in dashboard:</text>
     <text class="text body" x="20" y="96" font-weight="500">$2,450 · Acme Corp · due May 24</text>
     <text class="muted body" x="20" y="118">Picks accepted chains + tokens</text>
   </g>
 
   <!-- Arrow 1 → 2 -->
-  <path class="arrow" d="M 340 200 L 410 200" marker-end="url(#arrowhead)"/>
-  <text class="muted body" x="375" y="190" text-anchor="middle">creates</text>
+  <path class="arrow" d="M 340 220 L 410 220" marker-end="url(#arrowhead)"/>
+  <text class="muted body" x="375" y="210" text-anchor="middle">creates</text>
 
   <!-- Node 2: Settle -->
-  <g transform="translate(410, 130)">
+  <g transform="translate(410, 150)">
     <rect class="card-soft" width="280" height="140" rx="14"/>
     <circle class="brand-fill" cx="32" cy="32" r="14"/>
     <text class="num" x="32" y="36" text-anchor="middle">2</text>
-    <text class="text h2" x="58" y="36">Settle</text>
+    <text class="text h2" x="58" y="36">Settlepay</text>
     <text class="muted body" x="20" y="76">Generates unique payment link:</text>
     <text class="text body" x="20" y="96" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11">settlepay.pro/pay/inv_abc123</text>
-    <text class="muted body" x="20" y="118">Snapshots wallet, currency, locale</text>
+    <text class="muted body" x="20" y="118">Snapshots workspace payout wallet</text>
   </g>
 
   <!-- Arrow 2 → 3 -->
-  <path class="arrow" d="M 690 200 L 760 200" marker-end="url(#arrowhead)"/>
-  <text class="muted body" x="725" y="190" text-anchor="middle">shares</text>
+  <path class="arrow" d="M 690 220 L 760 220" marker-end="url(#arrowhead)"/>
+  <text class="muted body" x="725" y="210" text-anchor="middle">shares</text>
 
   <!-- Node 3: Email/Telegram -->
-  <g transform="translate(760, 130)">
+  <g transform="translate(760, 150)">
     <rect class="card" width="280" height="140" rx="14"/>
     <circle class="brand-fill" cx="32" cy="32" r="14"/>
     <text class="num" x="32" y="36" text-anchor="middle">3</text>
     <text class="text h2" x="58" y="36">Freelancer → Client</text>
     <text class="muted body" x="20" y="76">Sends link via:</text>
-    <text class="text body" x="20" y="96" font-weight="500">Email · Telegram · Anywhere</text>
-    <text class="muted body" x="20" y="118">No KYC, no account required</text>
+    <text class="text body" x="20" y="96" font-weight="500">Email · Telegram · anywhere</text>
+    <text class="muted body" x="20" y="118">No KYC, no account for client</text>
   </g>
 
   <!-- Vertical arrow down to row 2 (right → left turn) -->
-  <path class="arrow-brand" d="M 900 270 L 900 320 Q 900 340 880 340 L 320 340 Q 300 340 300 360 L 300 380" marker-end="url(#arrowhead-brand)"/>
+  <path class="arrow-brand" d="M 900 290 L 900 340 Q 900 360 880 360 L 320 360 Q 300 360 300 380 L 300 400" marker-end="url(#arrowhead-brand)"/>
 
   <!-- ─────── Row 2: 6 ← 5 ← 4 ─────── -->
 
   <!-- Node 4: Client -->
-  <g transform="translate(760, 380)">
+  <g transform="translate(760, 400)">
     <rect class="card" width="280" height="120" rx="14"/>
     <circle class="brand-fill" cx="32" cy="32" r="14"/>
     <text class="num" x="32" y="36" text-anchor="middle">4</text>
@@ -127,14 +128,14 @@
   </g>
 
   <!-- On-chain dashed arrow 4 → listener -->
-  <path class="chain-line" d="M 760 460 Q 540 460 540 460 L 460 460" marker-end="url(#arrowhead-chain)"/>
-  <g transform="translate(560, 442)">
+  <path class="chain-line" d="M 760 480 L 460 480" marker-end="url(#arrowhead-chain)"/>
+  <g transform="translate(560, 462)">
     <rect rx="9" width="120" height="22" fill="var(--on-chain-soft)"/>
     <text class="badge" x="60" y="15" text-anchor="middle" fill="var(--on-chain)">on-chain transfer</text>
   </g>
 
   <!-- Node 5: Listener -->
-  <g transform="translate(180, 380)">
+  <g transform="translate(180, 400)">
     <rect class="card-soft" width="280" height="120" rx="14"/>
     <circle class="brand-fill" cx="32" cy="32" r="14"/>
     <text class="num" x="32" y="36" text-anchor="middle">5</text>
@@ -144,15 +145,15 @@
   </g>
 
   <!-- Arrow 5 → 6 -->
-  <path class="arrow-brand" d="M 180 440 L 110 440" marker-end="url(#arrowhead-brand)"/>
+  <path class="arrow-brand" d="M 180 460 L 110 460" marker-end="url(#arrowhead-brand)"/>
 
   <!-- Node 6: Receipt -->
-  <g transform="translate(-170, 380)">
+  <g transform="translate(-170, 400)">
     <rect class="card" x="230" width="280" height="120" rx="14"/>
     <circle class="brand-fill" cx="262" cy="32" r="14"/>
     <text class="num" x="262" y="36" text-anchor="middle">6</text>
-    <text class="text h2" x="288" y="36">Both parties confirmed</text>
+    <text class="text h2" x="288" y="36">Paid — all members notified</text>
     <text class="muted body" x="250" y="74">Receipt PDF · email both ways</text>
-    <text class="text body" x="250" y="94" font-weight="500">Dashboard shows paid &lt; 30s</text>
+    <text class="text body" x="250" y="94" font-weight="500">Webhooks fire · 0.5–1% fee accrues</text>
   </g>
 </svg>

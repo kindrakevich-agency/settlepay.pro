@@ -1,0 +1,111 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% set locale = app.request.locale|default('en') %}
+
+{% block dashboard_title %}{{ 'help.title'|trans }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div>
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">{{ 'help.title'|trans }}</h1>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ 'help.subtitle'|trans }}</p>
+    </div>
+
+    {# ─── Quick links to docs ─── #}
+    <div class="grid sm:grid-cols-3 gap-3">
+        <a href="{{ path('marketing_docs', {_locale: locale}) }}"
+           class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition">
+            <p class="text-sm font-semibold">{{ 'help.quick.overview_title'|trans }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'help.quick.overview_sub'|trans }}</p>
+        </a>
+        <a href="{{ path('marketing_docs_api', {_locale: locale}) }}"
+           class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition">
+            <p class="text-sm font-semibold">{{ 'help.quick.api_title'|trans }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'help.quick.api_sub'|trans }}</p>
+        </a>
+        <a href="{{ path('marketing_docs_webhooks', {_locale: locale}) }}"
+           class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 hover:border-brand-300 dark:hover:border-brand-700 transition">
+            <p class="text-sm font-semibold">{{ 'help.quick.webhooks_title'|trans }}</p>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'help.quick.webhooks_sub'|trans }}</p>
+        </a>
+    </div>
+
+    {# ─── Getting started ─── #}
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <h2 class="font-semibold tracking-tight text-lg">{{ 'help.getting_started.title'|trans }}</h2>
+        <ol class="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-300 list-decimal pl-5">
+            <li>
+                <strong>{{ 'help.getting_started.step1_title'|trans }}</strong>
+                — {{ 'help.getting_started.step1_body'|trans }}
+                <a href="{{ path('dashboard_settings', {_locale: locale}) }}" class="text-brand-600 hover:underline">{{ 'help.getting_started.step1_link'|trans }}</a>
+            </li>
+            <li>
+                <strong>{{ 'help.getting_started.step2_title'|trans }}</strong>
+                — {{ 'help.getting_started.step2_body'|trans }}
+                <a href="{{ path('dashboard_invoice_new', {_locale: locale}) }}" class="text-brand-600 hover:underline">{{ 'help.getting_started.step2_link'|trans }}</a>
+            </li>
+            <li>
+                <strong>{{ 'help.getting_started.step3_title'|trans }}</strong>
+                — {{ 'help.getting_started.step3_body'|trans }}
+            </li>
+            <li>
+                <strong>{{ 'help.getting_started.step4_title'|trans }}</strong>
+                — {{ 'help.getting_started.step4_body'|trans }}
+            </li>
+        </ol>
+    </section>
+
+    {# ─── FAQ ─── #}
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <header class="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <h2 class="font-semibold tracking-tight text-lg">{{ 'help.faq.title'|trans }}</h2>
+        </header>
+        <div class="divide-y divide-slate-200 dark:divide-slate-800">
+            {% for n in 1..10 %}
+                <details class="group px-6 py-4">
+                    <summary class="cursor-pointer flex items-center justify-between text-sm font-medium hover:text-brand-600 transition">
+                        <span>{{ ('help.faq.q' ~ n)|trans }}</span>
+                        <svg class="h-4 w-4 text-slate-400 group-open:rotate-180 transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </summary>
+                    <div class="mt-3 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {{ ('help.faq.a' ~ n)|trans|raw }}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    </section>
+
+    {# ─── Troubleshooting ─── #}
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+        <h2 class="font-semibold tracking-tight text-lg">{{ 'help.troubleshooting.title'|trans }}</h2>
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ 'help.troubleshooting.sub'|trans }}</p>
+
+        <dl class="mt-4 space-y-4 text-sm">
+            {% for n in 1..5 %}
+                <div>
+                    <dt class="font-medium text-slate-900 dark:text-slate-100">{{ ('help.troubleshooting.q' ~ n)|trans }}</dt>
+                    <dd class="mt-1 text-slate-600 dark:text-slate-400">{{ ('help.troubleshooting.a' ~ n)|trans|raw }}</dd>
+                </div>
+            {% endfor %}
+        </dl>
+    </section>
+
+    {# ─── Status + contact ─── #}
+    <section class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-6">
+        <h2 class="font-semibold tracking-tight">{{ 'help.contact.title'|trans }}</h2>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{{ 'help.contact.body'|trans|raw }}</p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a href="mailto:hello@settlepay.pro"
+               class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2 text-sm font-medium hover:bg-slate-800 dark:hover:bg-slate-100 transition">
+                {{ 'help.contact.email_button'|trans }}
+            </a>
+            <a href="https://github.com/kindrakevich-agency/settlepay.pro/issues" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 px-4 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                {{ 'help.contact.github_button'|trans }}
+            </a>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@ nav:
     payments: Payments
     billing: Billing
     settings: Settings
+    help: Help
     docs: Docs
     pricing: Pricing
     product: Product
@@ -836,3 +837,66 @@ invitations:
     email_mismatch: 'You must be signed in with the invited email to accept.'
     flash:
         accepted: 'You joined the workspace.'
+
+help:
+    title: 'Help'
+    subtitle: 'Quick answers, getting-started guide, and a link to the full developer docs.'
+    quick:
+        overview_title: 'Developer docs →'
+        overview_sub: 'Overview, REST API, and webhook reference.'
+        api_title: 'REST API →'
+        api_sub: 'List, create, send and void invoices programmatically.'
+        webhooks_title: 'Webhooks →'
+        webhooks_sub: 'HMAC-signed callbacks on invoice + payment events.'
+    getting_started:
+        title: 'Getting started in 4 steps'
+        step1_title: 'Set your payout wallet.'
+        step1_body: 'In Settings → Payout, paste the EVM wallet address where you want to receive stablecoins. The same address works on Base, Polygon, Arbitrum, and Optimism.'
+        step1_link: 'Open Settings →'
+        step2_title: 'Create your first invoice.'
+        step2_body: 'Add a client name, an amount, optional line items, and the chains you accept. Save as draft, then send it to your client.'
+        step2_link: 'New invoice →'
+        step3_title: 'Send the payment link.'
+        step3_body: 'Share the link by email, Telegram, or paste it anywhere. Your client opens it, connects a wallet, and pays in USDC, USDT, or DAI on any chain you accept.'
+        step4_title: 'Get paid.'
+        step4_body: 'Our listener detects the on-chain Transfer in 10–30 seconds, marks the invoice paid, and emails both parties. Funds go directly from your client''s wallet to yours — Settlepay never holds them.'
+    faq:
+        title: 'Frequently asked'
+        q1: 'How do fees work?'
+        a1: 'Free plan: 1% per paid invoice. Pro and Agency: 0.5%. Fees accumulate on your <strong>workspace</strong>, not deducted from incoming payments — those flow directly to your wallet. Settle the accumulated balance in USDC from the <a href="/en/app/billing" class="text-brand-600 hover:underline">Billing</a> page whenever you choose. No auto-debit. No cards.'
+        q2: 'How are subscriptions paid?'
+        a2: 'Pro is $19 USDC per 30 days OR $299 USDC lifetime. Agency is $49 USDC per 30 days (5 seats included). All paid in USDC to our platform wallet — same listener that matches your invoice payments also matches subscription payments. Every renewal is a fresh transaction you authorize; no auto-debit.'
+        q3: 'How fast does payment confirm?'
+        a3: 'Most L2 transactions confirm in 2–10 seconds. We wait for additional confirmations before flipping the invoice to <em>paid</em>: 5 on Base/Arbitrum/Optimism, 30 on Polygon (Polygon has slightly higher reorg risk). End-to-end you''re looking at 10–60 seconds.'
+        q4: 'What if my client has never used crypto?'
+        a4: 'They can buy USDC with a card via Coinbase, MoonPay, or Transak — 10 minutes the first time, instant after. The payment page itself is a single-screen UX that abstracts the gas and chain selection.'
+        q5: 'Which chains do you support?'
+        a5: 'Base (8453), Polygon (137), Arbitrum (42161), and Optimism (10). All four are EVM L2s with cheap gas. We deliberately don''t support Ethereum mainnet — gas is too expensive for invoice-size payments.'
+        q6: 'Which tokens can I accept?'
+        a6: 'USDC, USDT, and DAI on any of the four chains above. You can pick per-invoice which combinations you accept.'
+        q7: 'How do API tokens and webhooks work?'
+        a7: 'Pro and Agency plans get programmatic access. Mint a token in <a href="/en/app/settings/api-tokens" class="text-brand-600 hover:underline">Settings → API tokens</a> and call <code>/api/v1/invoices</code> etc. Register webhook endpoints in <a href="/en/app/settings/webhooks" class="text-brand-600 hover:underline">Settings → Webhooks</a> — we POST HMAC-signed JSON when invoices are sent, paid, or voided. Full reference at <a href="/en/docs" class="text-brand-600 hover:underline">/docs</a>.'
+        q8: 'How does the Agency plan work?'
+        a8: 'Agency owners can invite up to 4 teammates by email. All members share the same invoices, payments, branding, and billing. Owner-only: payout settings, plan upgrades, branding changes, API tokens, webhooks. Members can create + send + void their own invoices.'
+        q9: 'Can I get my money out as fiat?'
+        a9: 'Yes. You receive USDC in your own wallet — same USDC you can off-ramp to a bank account via Coinbase, Binance, Kraken, MoonPay, or local exchanges in your country. Usually 1–3 days for the first transfer (KYC at the exchange) and minutes after.'
+        q10: 'Is this legal? Do I need to KYC my clients?'
+        a10: 'Settlepay is software, not a money transmitter — we never custody funds. Your client pays you directly, peer-to-peer. KYC requirements depend on your country''s tax law (the same as receiving payment via SWIFT). Consult a local accountant for tax reporting on stablecoin income.'
+    troubleshooting:
+        title: 'Troubleshooting'
+        sub: 'Common gotchas at the payment step.'
+        q1: 'My client paid but the invoice still shows "Sent".'
+        a1: 'Wait 30–90 seconds for confirmations. The listener polls every 5–15s; Polygon needs 30 confirmations (~1 minute), the other chains need 5. If it''s still not updating after 5 minutes, check that the on-chain Transfer went to the exact wallet shown on your invoice — partial / wrong-address payments will appear in Payments as "orphan".'
+        q2: 'Wallet says "wrong network".'
+        a2: 'Your client''s wallet is on a chain you didn''t accept on this invoice. They can switch network in the wallet, or pay from a different chain that you did accept.'
+        q3: 'Payment shows up as "orphan" in the Payments list.'
+        a3: 'The on-chain Transfer landed on your wallet but didn''t match any open invoice (amount mismatch outside ±0.5% tolerance, or the invoice was voided, or it was a faucet/test transfer). The funds are still yours — they''re in your wallet — they just didn''t auto-link to an invoice.'
+        q4: 'Email verification link isn''t arriving.'
+        a4: 'Check spam. If it''s still missing after a few minutes, log in and click "Resend verification email" on the dashboard banner. Outlook/Gmail occasionally throttle new sender domains — give it 5 minutes.'
+        q5: 'I''m on Free and hit the $1,000 monthly cap.'
+        a5: 'Free includes up to $1,000 invoiced per calendar month. Upgrade to Pro ($19/mo) for unlimited volume, or wait until the 1st of next month.'
+    contact:
+        title: 'Still stuck?'
+        body: 'Email <a href="mailto:hello@settlepay.pro" class="text-brand-600 hover:underline">hello@settlepay.pro</a> — we usually reply within a day. For bugs or feature requests, open a GitHub issue.'
+        email_button: 'Email us'
+        github_button: 'GitHub issues'

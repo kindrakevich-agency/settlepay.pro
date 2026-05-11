@@ -163,38 +163,106 @@ All tables use:
 
 ### Core tables
 
+Phase 2 model: **Workspace is the ownership scope.** A workspace owns
+invoices, payments, billing state, branding, payout settings, API tokens,
+and webhooks. A User is the human (auth + display name + locale). They
+join via `workspace_members` with a role of `owner` or `member`. Solo
+freelancers get one workspace where they are the sole Owner; Agency-tier
+accounts can invite teammates.
+
 ```sql
--- users
+-- users (auth + identity only)
 CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   uuid CHAR(36) NOT NULL UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   email_verified_at DATETIME NULL,
+  email_verification_token VARCHAR(64) NULL,
+  email_verification_expires_at DATETIME NULL,
+  password_reset_token VARCHAR(64) NULL,
+  password_reset_expires_at DATETIME NULL,
+  last_login_at DATETIME NULL,
   display_name VARCHAR(120) NULL,
-  business_name VARCHAR(180) NULL,        -- shown on invoices
-  business_address TEXT NULL,
-  tax_id VARCHAR(60) NULL,                -- VAT/NIE/EIN
-  default_currency CHAR(3) DEFAULT 'USD', -- USD, EUR
-  default_locale VARCHAR(5) DEFAULT 'en', -- en, uk, es
-  payout_address VARCHAR(64) NOT NULL,    -- the wallet they want to receive to
-  payout_chain_id INT UNSIGNED NOT NULL,  -- preferred chain
-  payout_token VARCHAR(20) NOT NULL DEFAULT 'USDC',
-  plan VARCHAR(20) DEFAULT 'free',        -- free, pro
+  default_locale VARCHAR(5) DEFAULT 'en',  -- en, uk, es — user UI preference
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   INDEX idx_email (email)
 );
+-- Note: the legacy `business_name`, `tax_id`, `payout_*`, `brand_*`,
+-- `plan`, `fees_owed_cents` columns still exist on users for backward
+-- compat during Phase 2 rollout. They are no longer read; reads go
+-- through the workspace. They'll be dropped in a Phase 3 cleanup.
 
--- invoices
+-- workspaces (the business unit — invoices, billing, branding all owned here)
+CREATE TABLE workspaces (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  uuid CHAR(36) NOT NULL UNIQUE,
+  name VARCHAR(180) NOT NULL,             -- "Vitalii's Studio", backfilled from business_name
+  plan VARCHAR(20) NOT NULL DEFAULT 'free',  -- free, pro, agency
+  plan_renews_at DATETIME NULL,           -- NULL on pro = lifetime; set + plan='pro' = monthly
+  plan_canceled_at DATETIME NULL,         -- soft cancel; keeps access until plan_renews_at
+  fees_owed_cents BIGINT UNSIGNED NOT NULL DEFAULT 0, -- per-paid-invoice accrual
+  business_name VARCHAR(180) NULL,        -- shown on invoices
+  business_address TEXT NULL,
+  tax_id VARCHAR(60) NULL,                -- VAT/NIE/EIN
+  default_currency CHAR(3) NOT NULL DEFAULT 'USD',
+  default_locale VARCHAR(5) NOT NULL DEFAULT 'en',
+  payout_address VARCHAR(64) NOT NULL,    -- workspace's payout wallet
+  payout_chain_id INT UNSIGNED NOT NULL,
+  payout_token VARCHAR(20) NOT NULL DEFAULT 'USDC',
+  brand_logo_path VARCHAR(255) NULL,      -- Pro custom branding
+  brand_color VARCHAR(7) NULL,            -- #RRGGBB
+  seat_limit INT UNSIGNED NOT NULL DEFAULT 1,  -- 1 for solo/Pro, 5 for Agency
+  owner_user_id BIGINT UNSIGNED NOT NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  INDEX idx_workspaces_owner (owner_user_id),
+  INDEX idx_workspaces_plan (plan)
+);
+
+-- workspace_members (pivot — N users per workspace)
+CREATE TABLE workspace_members (
+  workspace_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,
+  role VARCHAR(16) NOT NULL DEFAULT 'member',  -- 'owner' | 'member'
+  joined_at DATETIME NOT NULL,
+  PRIMARY KEY (workspace_id, user_id),
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_wm_user (user_id),
+  INDEX idx_wm_role (role)
+);
+
+-- workspace_invitations (email invite flow, signed token, 14-day expiry)
+CREATE TABLE workspace_invitations (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  workspace_id BIGINT UNSIGNED NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  role VARCHAR(16) NOT NULL DEFAULT 'member',
+  token VARCHAR(64) NOT NULL UNIQUE,
+  invited_by_user_id BIGINT UNSIGNED NOT NULL,
+  expires_at DATETIME NOT NULL,
+  accepted_at DATETIME NULL,
+  revoked_at DATETIME NULL,
+  created_at DATETIME NOT NULL,
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+  FOREIGN KEY (invited_by_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  INDEX idx_wi_workspace (workspace_id),
+  INDEX idx_wi_email (email)
+);
+
+-- invoices (workspace-owned; user_id is "created_by" attribution)
 CREATE TABLE invoices (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   uuid CHAR(36) NOT NULL UNIQUE,
-  number VARCHAR(40) NOT NULL,            -- human-readable: INV-2026-0001
-  user_id BIGINT UNSIGNED NOT NULL,
+  number VARCHAR(40) NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,        -- who created it (audit)
+  workspace_id BIGINT UNSIGNED NOT NULL,   -- who OWNS it (Phase 2)
   status ENUM('draft','sent','viewed','paid','partially_paid','overdue','void','refunded') NOT NULL DEFAULT 'draft',
-  amount_cents BIGINT UNSIGNED NOT NULL,  -- always store as integer cents
-  currency CHAR(3) NOT NULL,              -- USD, EUR — display currency
+  amount_cents BIGINT UNSIGNED NOT NULL,
+  currency CHAR(3) NOT NULL,
   client_name VARCHAR(180) NOT NULL,
   client_email VARCHAR(255) NULL,
   client_address TEXT NULL,
@@ -204,88 +272,114 @@ CREATE TABLE invoices (
   issued_at DATE NOT NULL,
   paid_at DATETIME NULL,
   viewed_at DATETIME NULL,
-  accepted_chains JSON NOT NULL,          -- [8453, 137, 42161, 10]
-  accepted_tokens JSON NOT NULL,          -- ["USDC", "USDT", "DAI"]
-  recipient_address VARCHAR(64) NOT NULL, -- snapshot of user.payout_address at creation
-  metadata JSON NULL,                     -- arbitrary extra data
+  accepted_chains JSON NOT NULL,           -- [8453, 137, 42161, 10]
+  accepted_tokens JSON NOT NULL,           -- ["USDC", "USDT", "DAI"]
+  recipient_address VARCHAR(64) NOT NULL,  -- snapshot of workspace.payout_address
+  metadata JSON NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT,
-  INDEX idx_user_status (user_id, status),
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE RESTRICT,
+  INDEX idx_inv_workspace (workspace_id),
   INDEX idx_status (status),
   INDEX idx_uuid (uuid)
 );
 
--- line_items (for itemized invoices)
-CREATE TABLE invoice_line_items (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  invoice_id BIGINT UNSIGNED NOT NULL,
-  description VARCHAR(500) NOT NULL,
-  quantity DECIMAL(10,2) NOT NULL DEFAULT 1,
-  unit_price_cents BIGINT UNSIGNED NOT NULL,
-  total_cents BIGINT UNSIGNED NOT NULL,
-  position INT UNSIGNED NOT NULL DEFAULT 0,
-  FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
-);
+-- invoice_line_items (unchanged)
+CREATE TABLE invoice_line_items (...);
 
--- payments (on-chain receipts)
+-- payments (on-chain receipts — invoice_id NULL = orphan)
 CREATE TABLE payments (
+  -- unchanged from MVP except payments link to invoices (which link to workspaces),
+  -- so payment ownership flows through invoice.workspace_id
+  ...
+);
+
+-- chain_cursors (listener bookmarks per chain)
+CREATE TABLE chain_cursors (...);
+
+-- api_tokens (Pro/Agency programmatic access, Argon2id hashed)
+CREATE TABLE api_tokens (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  invoice_id BIGINT UNSIGNED NULL,        -- NULL = unmatched payment received
-  chain_id INT UNSIGNED NOT NULL,
-  tx_hash VARCHAR(80) NOT NULL,
-  log_index INT UNSIGNED NOT NULL,
-  block_number BIGINT UNSIGNED NOT NULL,
-  block_timestamp DATETIME NOT NULL,
-  token_address VARCHAR(64) NOT NULL,
-  token_symbol VARCHAR(20) NOT NULL,
-  token_decimals TINYINT UNSIGNED NOT NULL,
-  amount_raw VARCHAR(100) NOT NULL,       -- store as string to preserve uint256
-  amount_usd_cents BIGINT UNSIGNED NULL,  -- computed at confirmation time
-  payer_address VARCHAR(64) NOT NULL,
-  recipient_address VARCHAR(64) NOT NULL,
-  confirmations INT UNSIGNED NOT NULL DEFAULT 0,
-  confirmed_at DATETIME NULL,
+  user_id BIGINT UNSIGNED NOT NULL,        -- who minted (audit)
+  workspace_id BIGINT UNSIGNED NOT NULL,   -- scope of access
+  name VARCHAR(80) NOT NULL,
+  token_prefix VARCHAR(16) NOT NULL,       -- "sk_pro_abc12345" — indexed for fast lookup
+  token_hash VARCHAR(255) NOT NULL,        -- Argon2id of full plaintext
+  scopes JSON NOT NULL,                    -- ["read","write"]
+  last_used_at DATETIME NULL,
+  expires_at DATETIME NULL,
+  revoked_at DATETIME NULL,
   created_at DATETIME NOT NULL,
-  UNIQUE KEY uniq_tx (chain_id, tx_hash, log_index),
-  INDEX idx_invoice (invoice_id),
-  INDEX idx_recipient (recipient_address),
-  FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE SET NULL
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+  INDEX idx_apit_workspace (workspace_id),
+  INDEX idx_apit_prefix (token_prefix),
+  INDEX idx_apit_revoked (revoked_at)
 );
 
--- chain_cursors (where the listener has processed up to)
-CREATE TABLE chain_cursors (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  chain_id INT UNSIGNED NOT NULL UNIQUE,
-  last_processed_block BIGINT UNSIGNED NOT NULL,
-  updated_at DATETIME NOT NULL
-);
-
--- webhooks (user-configurable outgoing notifications)
+-- webhooks (Pro/Agency outgoing event callbacks)
 CREATE TABLE webhooks (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  user_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NOT NULL,        -- who registered (audit)
+  workspace_id BIGINT UNSIGNED NOT NULL,   -- scope
   url VARCHAR(500) NOT NULL,
-  secret VARCHAR(64) NOT NULL,            -- HMAC signing key
-  events JSON NOT NULL,                   -- ["invoice.paid", "invoice.viewed"]
-  is_active BOOLEAN DEFAULT TRUE,
+  signing_secret VARCHAR(128) NOT NULL,    -- HMAC-SHA256 key
+  events JSON NOT NULL,                    -- ["invoice.sent","invoice.paid","invoice.voided","payment.received"]
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_success_at DATETIME NULL,
+  last_failure_at DATETIME NULL,
+  last_failure_reason VARCHAR(255) NULL,
   created_at DATETIME NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
 );
 
--- audit_log (for support / debugging)
-CREATE TABLE audit_log (
+-- webhook_deliveries (delivery log per attempt — for replay + debugging)
+CREATE TABLE webhook_deliveries (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  user_id BIGINT UNSIGNED NULL,
-  invoice_id BIGINT UNSIGNED NULL,
-  event VARCHAR(100) NOT NULL,
-  data JSON NULL,
-  ip VARCHAR(64) NULL,
-  user_agent VARCHAR(500) NULL,
+  webhook_id BIGINT UNSIGNED NOT NULL,
+  event VARCHAR(60) NOT NULL,
+  payload_json LONGTEXT NOT NULL,
+  attempt_count INT UNSIGNED NOT NULL DEFAULT 0,
+  last_status_code INT NULL,
+  last_response_body TEXT NULL,
+  last_error VARCHAR(255) NULL,
+  delivered_at DATETIME NULL,
   created_at DATETIME NOT NULL,
-  INDEX idx_user_event (user_id, event),
-  INDEX idx_invoice (invoice_id)
+  updated_at DATETIME NOT NULL,
+  FOREIGN KEY (webhook_id) REFERENCES webhooks(id) ON DELETE CASCADE
 );
+
+-- billing_intents (Pro/Agency subscription + fee-settlement payment requests)
+CREATE TABLE billing_intents (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  uuid CHAR(36) NOT NULL UNIQUE,           -- public-facing /billing/pay/{uuid}
+  user_id BIGINT UNSIGNED NOT NULL,        -- who clicked Upgrade (audit)
+  workspace_id BIGINT UNSIGNED NOT NULL,   -- whose plan extends
+  kind VARCHAR(40) NOT NULL,               -- 'pro_monthly' | 'pro_lifetime' | 'agency_monthly' | 'fee_settlement'
+  status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending | paid | expired
+  amount_cents BIGINT UNSIGNED NOT NULL,
+  currency CHAR(3) NOT NULL DEFAULT 'USD',
+  accepted_chains JSON NOT NULL,
+  accepted_tokens JSON NOT NULL,           -- always ["USDC"] in current build
+  recipient_address VARCHAR(64) NOT NULL,  -- PLATFORM_WALLET_ADDRESS snapshot
+  expected_payer_address VARCHAR(64) NULL, -- locks intent to workspace.payout_address
+  expires_at DATETIME NOT NULL,
+  paid_at DATETIME NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE,
+  INDEX idx_bi_workspace (workspace_id),
+  INDEX idx_bi_status (status)
+);
+
+-- fee_payments (on-chain receipts at the platform wallet, FK to billing_intents)
+CREATE TABLE fee_payments (...);
+
+-- audit_log (support / debugging trail — workspace_id-aware in Phase 3)
+CREATE TABLE audit_log (...);
 ```
 
 ### Money handling rules (CRITICAL)
@@ -1042,16 +1136,17 @@ export default {
 | Plan | Cost | Per-invoice fee | Includes |
 |---|---|---|---|
 | Free | $0 | 1.0% | Up to $1,000 invoiced/month, all 4 chains, USDC/USDT/DAI |
-| Pro | $19 USDC / month | 0.5% | Unlimited volume, custom branding, API access |
+| Pro | $19 USDC / 30 days | 0.5% | Unlimited volume, custom branding, API access, webhooks |
 | Pro · Lifetime | $299 USDC one-time | 0.5% | All of Pro, forever (no renewal) |
-| Agency | $49 USDC / month | 0.5% | Pro + multi-user (5 seats), priority support — **phase 2** |
+| Agency | $49 USDC / 30 days | 0.5% | Pro + multi-user (5 seats), email invite flow, shared invoices/payments/billing |
 
-**How fees are taken** (revised from the original Stripe plan):
+**How fees are taken** (Phase 2 model — workspace as the ownership unit):
 
-- **Per-invoice fees** (1% Free, 0.5% Pro) accumulate in `users.fees_owed_cents` whenever the listener confirms a freelancer's invoice. Funds still flow client → freelancer directly; we never touch the money on-chain.
-- **Settlement** is a separate USDC payment from the freelancer to a platform-controlled wallet (`PLATFORM_WALLET_ADDRESS` env var). The same listener daemon that watches freelancer payout wallets ALSO watches the platform wallet — on Transfer match, `BillingPaymentMatcher` clears `fees_owed_cents` or extends `plan_renews_at`.
-- **Subscriptions** (Pro monthly / Pro lifetime) use the same `BillingIntent` mechanism: freelancer clicks Upgrade → backend creates an intent → freelancer pays USDC → listener matches → user upgraded.
-- **No auto-debit.** Every renewal is a fresh USDC transfer the freelancer authorizes. Soft cancel (`plan_canceled_at`) keeps Pro until period ends, then drops to Free.
+- **Per-invoice fees** (1% Free, 0.5% Pro/Agency) accumulate in `workspaces.fees_owed_cents` whenever the listener confirms an invoice payment. Funds still flow client → workspace payout wallet directly; we never touch the money on-chain.
+- **Settlement** is a separate USDC payment from the workspace owner to a platform-controlled wallet (`PLATFORM_WALLET_ADDRESS` env var). The same listener daemon that watches workspace payout wallets ALSO watches the platform wallet — on Transfer match, `BillingPaymentMatcher` clears `workspaces.fees_owed_cents` or extends `workspaces.plan_renews_at`.
+- **Subscriptions** (Pro monthly, Pro lifetime, Agency monthly) use the same `BillingIntent` mechanism: owner clicks Upgrade → backend creates an intent → owner pays USDC → listener matches → workspace upgraded.
+- **No auto-debit.** Every renewal is a fresh USDC transfer the owner authorizes. Soft cancel (`workspaces.plan_canceled_at`) keeps Pro/Agency access until `plan_renews_at`, then drops to Free.
+- **Owner-only.** Members can create + send + void invoices but only the Owner role can change billing, payout, branding, API tokens, or webhooks.
 
 **Why not Stripe** (the original plan): charging in fiat for a crypto product is hypocritical; cards add regional friction (Stripe blocks many Ukrainian / Argentine / Nigerian cards — same blockers we hit with MetaMask Buy); the listener we already built does exactly what we need.
 
@@ -1059,10 +1154,13 @@ export default {
 
 Implementation files:
 - `src/Service/Billing/{PlatformWallet, BillingIntentFactory, SubscriptionManager, BillingPaymentMatcher}.php`
-- `src/Entity/{BillingIntent, FeePayment}.php` + `src/Enum/BillingIntent{Kind, Status}.php`
-- `src/Controller/Dashboard/BillingController.php` → `/app/billing`
-- `src/Controller/PublicArea/BillingCheckoutController.php` → `/billing/pay/{uuid}` + `/api/v1/public/billing/{uuid}`
-- Migration: `migrations/Version20260511180000.php`
+- `src/Service/Workspace/{WorkspaceContext, InvitationManager}.php`
+- `src/Entity/{Workspace, WorkspaceMember, WorkspaceInvitation, BillingIntent, FeePayment, ApiToken, Webhook, WebhookDelivery}.php`
+- `src/Enum/BillingIntent{Kind, Status}.php` (`Kind`: `pro_monthly` | `pro_lifetime` | `agency_monthly` | `fee_settlement`)
+- `src/Controller/Dashboard/{BillingController, TeamController, BrandingController, ApiTokensController, WebhooksController}.php`
+- `src/Controller/PublicArea/BillingCheckoutController.php` → `/billing/pay/{uuid}`
+- `src/Controller/Workspace/InvitationAcceptController.php` → `/workspaces/accept/{token}`
+- Migrations: `Version20260511180000` (billing), `Version20260511220000` (workspaces backfill), `Version20260511230000` (Phase 2 NOT NULL)
 
 ---
 
@@ -1115,52 +1213,61 @@ php bin/console app:chain:listen --testnet
 
 ## 15. Deployment to Hetzner
 
+Live production runs out of **`/www/wwwroot/settlepay.pro`** (aaPanel
+default vhost root) under user **`www`**. Deploys come in via GitHub
+Actions (`.github/workflows/ci.yml`) — push to `main`, the workflow
+SSHes in, pulls, runs `composer install`, `pnpm build`, migrations,
+clears cache, and `systemctl restart`s every listener + worker unit
+with one glob to avoid the stale-cache bug.
+
 ```
-/var/www/settle/
-├── current/         # symlink to a release directory
-├── releases/
-│   ├── 20260115_120000/
-│   └── ...
-└── shared/
-    ├── .env.local
-    ├── var/log/
-    └── public/uploads/
+/www/wwwroot/settlepay.pro/
+├── .env.local        # PLATFORM_WALLET_ADDRESS, RPC keys, DB creds
+├── bin/, src/, config/, public/, templates/, vendor/, ...
+├── public/uploads/branding/   # workspace logos
+└── var/log/, var/cache/
 ```
 
 ### Process supervisor
 
-systemd units:
+systemd units (live):
 
 ```ini
-# /etc/systemd/system/settle-listener.service
+# /etc/systemd/system/settle-listener.service  (mainnet)
 [Unit]
-Description=Settle blockchain listener
+Description=Settlepay mainnet blockchain listener
 After=network.target mariadb.service redis.service
 
 [Service]
 Type=simple
-User=settle
-WorkingDirectory=/var/www/settle/current
+User=www
+WorkingDirectory=/www/wwwroot/settlepay.pro
 ExecStart=/usr/bin/php bin/console app:chain:listen
 Restart=always
 RestartSec=5
-StandardOutput=append:/var/log/settle/listener.log
-StandardError=append:/var/log/settle/listener-error.log
+StandardOutput=append:/var/log/settlepay/listener.log
+StandardError=append:/var/log/settlepay/listener-error.log
 
 [Install]
 WantedBy=multi-user.target
 ```
 
 ```ini
+# /etc/systemd/system/settle-listener-testnet.service  (Sepolias)
+# Identical to above but ExecStart adds --testnet:
+ExecStart=/usr/bin/php bin/console app:chain:listen --testnet
+```
+
+```ini
 # /etc/systemd/system/settle-worker@.service  (templated)
 [Unit]
-Description=Settle messenger worker %i
+Description=Settlepay messenger worker %i
 After=network.target
 
 [Service]
 Type=simple
-User=settle
-WorkingDirectory=/var/www/settle/current
+User=www
+WorkingDirectory=/www/wwwroot/settlepay.pro
 ExecStart=/usr/bin/php bin/console messenger:consume async --time-limit=3600 --memory-limit=128M
 Restart=always
 RestartSec=5
@@ -1169,16 +1276,24 @@ RestartSec=5
 WantedBy=multi-user.target
 ```
 
-Enable: `systemctl enable settle-worker@1 settle-worker@2 settle-listener`
+Enable: `systemctl enable settle-worker@1 settle-worker@2 settle-listener settle-listener-testnet`
+
+**Restart on deploy** uses a glob to catch both listener units in one
+shot (memorialized in `memory/gotchas.md` after a stale-cache incident):
+
+```bash
+sudo systemctl restart 'settle-listener*.service'
+sudo systemctl restart 'settle-worker@*.service'
+```
 
 ### nginx config (excerpt)
 
 ```nginx
 server {
     listen 443 ssl http2;
-    server_name settle.app www.settle.app;
+    server_name settlepay.pro www.settlepay.pro;
 
-    root /var/www/settle/current/public;
+    root /www/wwwroot/settlepay.pro/public;
     index index.php;
 
     location / {

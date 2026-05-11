@@ -189,5 +189,6 @@ See [`.env.example`](../.env.example) for the up-to-date list with inline notes.
 | `BASE_RPC_URL` and similar | Connection to each blockchain. Public fallback works for tests; production needs higher rate limits. | Free tier at https://www.alchemy.com or https://www.quicknode.com (300M requests/month free). |
 | `COINGECKO_API_BASE` | Token price feed for USD conversion. | Free tier (no signup) at https://api.coingecko.com — already set. |
 | `SENTRY_DSN` | Error tracking. | Free tier at https://sentry.io (5k errors/month). Optional. |
-| `STRIPE_SECRET_KEY` | Billing freelancers monthly subscription fees (Phase 2). | https://dashboard.stripe.com → API keys. Optional for MVP. |
+| `PLATFORM_WALLET_ADDRESS` | The Settlepay-owned EVM wallet that receives Pro/Agency subscriptions + per-invoice fee settlements in USDC. Same listener watches it for incoming Transfers. | An EVM address you control (MetaMask / Coinbase Wallet). **Required** for billing. |
+| `BILLING_ALLOW_TESTNETS` | Dev-only flag (`1` to accept Sepolia testnets for billing intents). Production must stay unset so faucet USDC can't pay for real subscriptions. | Local `.env.local` only. Default empty. |
 | `VITE_WALLETCONNECT_PROJECT_ID` | Lets mobile wallet users (Trust, Rainbow, Phantom) scan a QR code to connect. Without it, only browser-extension wallets work. | Free at https://cloud.reown.com/sign-in (formerly walletconnect.com). |
