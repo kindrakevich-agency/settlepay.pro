@@ -1,0 +1,33 @@
+[Unit]
+Description=Settlepay blockchain listener — testnet (Base/OP/Arb Sepolia)
+Documentation=https://github.com/kindrakevich-agency/settlepay.pro
+After=network.target mariadb.service redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www
+Group=www
+WorkingDirectory=/www/wwwroot/settlepay.pro
+Environment=APP_ENV=prod
+
+# Sepolia testnets only. Runs alongside settle-listener.service (mainnet)
+# without conflict — chain_cursors are per-chain_id so each unit owns its
+# own cursor rows. Enable on the box with:
+#   systemctl enable --now settle-listener-testnet
+# Disable for production-only operation:
+#   systemctl disable --now settle-listener-testnet
+ExecStart=/www/server/php/83/bin/php bin/console app:chain:listen --testnet
+
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+StandardOutput=append:/var/log/settle/listener-testnet.log
+StandardError=append:/var/log/settle/listener-testnet-error.log
+
+MemoryLimit=256M
+
+[Install]
+WantedBy=multi-user.target

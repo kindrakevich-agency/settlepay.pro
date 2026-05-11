@@ -11,11 +11,11 @@ Group=www
 WorkingDirectory=/www/wwwroot/settlepay.pro
 Environment=APP_ENV=prod
 
-# --testnet for now (only testnet invoices exist). Swap to bare command
-# `app:chain:listen` when mainnet invoices land. To watch BOTH simultaneously
-# run two units: settle-listener.service (mainnet) and
-# settle-listener-testnet.service (--testnet).
-ExecStart=/www/server/php/83/bin/php bin/console app:chain:listen --testnet
+# Mainnet — watches Base, Polygon, Arbitrum, Optimism. For dev / dogfood
+# testing on sepolia testnets, enable settle-listener-testnet.service
+# alongside this one (they don't conflict — different chain_ids → different
+# chain_cursors rows in the DB).
+ExecStart=/www/server/php/83/bin/php bin/console app:chain:listen
 
 Restart=always
 RestartSec=5

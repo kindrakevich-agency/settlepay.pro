@@ -65,24 +65,24 @@ function buildWagmiConfig() {
     ];
 
     // Pin reliable RPCs. The default http() falls back to each chain's
-    // public endpoint, but `sepolia.base.org` and friends rate-limit
-    // hard during eth_call (the simulation viem runs before sending a
-    // contract tx). Tenderly + drpc + publicnode are paid services
-    // offering generous free tiers — verified up on 2026-05-09.
-    // Override per-environment via VITE_*_RPC_URL if you have an
-    // Alchemy/QuickNode key for production.
+    // "official" sequencer URL, but those rate-limit hard on eth_call
+    // (the simulation viem runs before sending a contract tx) and
+    // 503'd intermittently in May 2026. publicnode + drpc are
+    // aggregator-style routes that have held up consistently.
+    // Override per-environment via VITE_*_RPC_URL if you've got an
+    // Alchemy / QuickNode / Infura key for production.
     const env = import.meta.env;
     return createConfig({
         chains: [base, polygon, arbitrum, optimism, baseSepolia, optimismSepolia, arbitrumSepolia],
         connectors,
         transports: {
-            [base.id]:             http(env.VITE_BASE_RPC_URL              || 'https://base.llamarpc.com'),
-            [polygon.id]:          http(env.VITE_POLYGON_RPC_URL           || 'https://polygon.llamarpc.com'),
-            [arbitrum.id]:         http(env.VITE_ARBITRUM_RPC_URL          || 'https://arbitrum.llamarpc.com'),
-            [optimism.id]:         http(env.VITE_OPTIMISM_RPC_URL          || 'https://optimism.llamarpc.com'),
-            [baseSepolia.id]:      http(env.VITE_BASE_SEPOLIA_RPC_URL      || 'https://base-sepolia.gateway.tenderly.co'),
-            [optimismSepolia.id]:  http(env.VITE_OP_SEPOLIA_RPC_URL        || 'https://sepolia.optimism.io'),
-            [arbitrumSepolia.id]:  http(env.VITE_ARB_SEPOLIA_RPC_URL       || 'https://arbitrum-sepolia.gateway.tenderly.co'),
+            [base.id]:             http(env.VITE_BASE_RPC_URL              || 'https://base.publicnode.com'),
+            [polygon.id]:          http(env.VITE_POLYGON_RPC_URL           || 'https://polygon-bor.publicnode.com'),
+            [arbitrum.id]:         http(env.VITE_ARBITRUM_RPC_URL          || 'https://arbitrum-one.publicnode.com'),
+            [optimism.id]:         http(env.VITE_OPTIMISM_RPC_URL          || 'https://optimism.publicnode.com'),
+            [baseSepolia.id]:      http(env.VITE_BASE_SEPOLIA_RPC_URL      || 'https://base-sepolia.drpc.org'),
+            [optimismSepolia.id]:  http(env.VITE_OP_SEPOLIA_RPC_URL        || 'https://optimism-sepolia.drpc.org'),
+            [arbitrumSepolia.id]:  http(env.VITE_ARB_SEPOLIA_RPC_URL       || 'https://arbitrum-sepolia.drpc.org'),
         },
     });
 }
