@@ -70,14 +70,11 @@
          style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%), radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);"></div>
     <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80" aria-hidden="true"></div>
 
-    {# Wall-sconce spotlight — small lamp mounted on the upper-left wall of the
-       hero (just below the sticky topbar), angled toward the right so the beam
-       sweeps across and illuminates the hero content (headline + invoice card).
-       No cord — the lamp reads as a fixed sconce, not a pendant.
-
-       Sized small (40% smaller than the prior pendant). Rotated 70° clockwise
-       so the shade points down-and-right. Beam fans wide to the right. #}
-    <svg viewBox="0 0 900 600" aria-hidden="true" preserveAspectRatio="xMinYMin slice"
+    {# Top-center spotlight — small lamp positioned right at the top center
+       of the hero, immediately under the sticky topbar. Beam fans straight
+       down, symmetric, lighting the headline + invoice card. No cord
+       (sconce-style mounted flush against the underside of the menu bar). #}
+    <svg viewBox="0 0 900 600" aria-hidden="true" preserveAspectRatio="xMidYMin slice"
          class="pointer-events-none absolute left-0 top-0 w-full h-[600px] z-0 select-none">
         <defs>
             <radialGradient id="hero-lamp-bulb" cx="0" cy="0" r="26" gradientUnits="userSpaceOnUse">
@@ -85,7 +82,8 @@
                 <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.65"/>
                 <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
             </radialGradient>
-            <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="700" y2="500" gradientUnits="userSpaceOnUse">
+            {# Vertical beam gradient — peak at the bulb, fading down. #}
+            <linearGradient id="hero-lamp-beam" x1="0" y1="0" x2="0" y2="540" gradientUnits="userSpaceOnUse">
                 <stop offset="0%"   stop-color="#fde68a" stop-opacity="0.55"/>
                 <stop offset="35%"  stop-color="#fde68a" stop-opacity="0.30"/>
                 <stop offset="75%"  stop-color="#fde68a" stop-opacity="0.10"/>
@@ -96,35 +94,33 @@
             </filter>
         </defs>
 
-        {# Lamp group — origin at (130, 110), well below the sticky topbar.
-           Rotated 70° clockwise so the shade points right-and-down. All
-           sub-shapes are drawn around the local origin (0, 0) so the rotation
-           keeps the bulb in place. Scale 0.6 = 40% reduction from prior size. #}
-        <g transform="translate(130 110) rotate(70)">
-            {# Wide warm beam — apex at lamp origin, fans to the lower-right.
-               Pre-rotation the beam points "down"; after the 70° rotation
-               it shoots toward the right-and-down across the hero. #}
+        {# Lamp group — origin at (450, 0): horizontal center (50% of the
+           900-wide viewBox), top edge of the hero (flush under the topbar).
+           No rotation — symmetric downward cone. Scale 0.6 preserved
+           (40% smaller than the original). #}
+        <g transform="translate(450 0)">
+            {# Symmetric warm cone — apex at lamp origin, fans straight down. #}
             <path d="M 0 0
-                     L -40 600
-                     L 520 600 Z"
+                     L -380 540
+                     L 380 540 Z"
                   fill="url(#hero-lamp-beam)"
                   filter="url(#hero-lamp-blur)"/>
 
-            {# Shade — trapezoidal pendant body, 60% scale of the prior size #}
+            {# Shade — small trapezoidal pendant flush at the top edge #}
             <g transform="scale(0.6)">
-                <path d="M 0 -50
-                         L -28 -16
-                         L 28 -16 Z"
+                <path d="M 0 -8
+                         L -28 26
+                         L 28 26 Z"
                       fill="currentColor"
                       class="text-slate-800 dark:text-slate-900"/>
-                <path d="M -24 -18 L 24 -18"
+                <path d="M -24 24 L 24 24"
                       stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
                       class="text-slate-700 dark:text-slate-700"/>
             </g>
 
-            {# Bulb — radial glow at lamp origin #}
-            <circle cx="0" cy="0" r="26" fill="url(#hero-lamp-bulb)"/>
-            <circle cx="0" cy="0" r="3"  fill="#fff7ed"/>
+            {# Bulb #}
+            <circle cx="0" cy="18" r="26" fill="url(#hero-lamp-bulb)"/>
+            <circle cx="0" cy="18" r="3"  fill="#fff7ed"/>
         </g>
     </svg>
 
