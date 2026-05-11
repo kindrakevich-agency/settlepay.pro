@@ -8,13 +8,14 @@ sentry:
         # Capture every error in dev for visibility while building; in prod
         # 100% is fine at our scale (1 invoice ≈ a handful of requests).
         traces_sample_rate: 1.0
+        # Reference a service whose factory returns the actual callable.
+        # See sentry-symfony docs — this is the documented pattern.
+        before_send: 'sentry.callback.before_send'
 
-# Filter noisy / non-actionable events as a tagged event listener so we
-# get DI + can inject services later if needed. App\Service\Sentry\
-# BeforeSendFilter is wired via the kernel.event_listener tag in
-# config/services.yaml. (Sentry's options.before_send doesn't resolve
-# Symfony service refs cleanly across 5.x minor versions, so we wire
-# this side instead.)
+services:
+    sentry.callback.before_send:
+        class: 'App\Service\Sentry\BeforeSendFilter'
+        factory: ['@App\Service\Sentry\BeforeSendFilter', 'getCallable']
 
 # Wire Monolog so every $logger->error(...) lands in Sentry as well —
 # the listener daemon and the messenger workers already use the logger,
