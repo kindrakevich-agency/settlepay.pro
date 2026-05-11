@@ -70,50 +70,59 @@
          style="background-image: radial-gradient(at 18% 24%, rgba(45,212,191,0.22) 0px, transparent 50%), radial-gradient(at 82% 18%, rgba(13,148,136,0.18) 0px, transparent 50%), radial-gradient(at 60% 78%, rgba(94,234,212,0.12) 0px, transparent 50%);"></div>
     <div class="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white via-white/80 to-transparent dark:from-slate-950 dark:via-slate-950/80" aria-hidden="true"></div>
 
-    {# Hanging-lamp spotlight — dim industrial pendant lamp suspended from the topbar,
-       casting a soft warm beam down across the hero content. Visible in light mode
-       (warm honey beam against the white) and dark mode (warm beam against deep slate).
-       Behind the content (z-index implicit by source order). Pointer-events off so it
-       doesn't intercept clicks. #}
-    <svg viewBox="0 0 240 520" aria-hidden="true"
-         class="pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 w-48 sm:w-56 lg:w-64 h-auto z-0 select-none">
+    {# Hanging-lamp spotlight — industrial pendant suspended from the topbar
+       at the LEFT side of the hero, casting a wide warm beam that visibly
+       illuminates the hero content (headline + invoice card on the right).
+       Beam reaches ~90% across the hero and fades just before the bottom.
+       pointer-events off so it never intercepts clicks. #}
+    <svg viewBox="0 0 900 600" aria-hidden="true" preserveAspectRatio="xMinYMin slice"
+         class="pointer-events-none absolute left-0 top-0 w-full h-[600px] z-0 select-none">
         <defs>
-            <radialGradient id="hero-lamp-bulb" cx="120" cy="74" r="32" gradientUnits="userSpaceOnUse">
-                <stop offset="0%"   stop-color="#fef3c7" stop-opacity="0.95"/>
-                <stop offset="55%"  stop-color="#fcd34d" stop-opacity="0.45"/>
+            <radialGradient id="hero-lamp-bulb" cx="140" cy="84" r="44" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#fff7ed" stop-opacity="1"/>
+                <stop offset="40%"  stop-color="#fde68a" stop-opacity="0.65"/>
                 <stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/>
             </radialGradient>
-            <linearGradient id="hero-lamp-beam" x1="120" y1="80" x2="120" y2="520" gradientUnits="userSpaceOnUse">
-                <stop offset="0%"   stop-color="#fde68a" stop-opacity="0.35"/>
-                <stop offset="35%"  stop-color="#fde68a" stop-opacity="0.16"/>
+            {# Beam fans out from the bulb (140, 84) — left edge skews toward 0,
+               right edge skews diagonally across the hero to 90% of the viewport.
+               Higher opacity at the top, fading toward the bottom + edges. #}
+            <linearGradient id="hero-lamp-beam" x1="140" y1="84" x2="700" y2="600" gradientUnits="userSpaceOnUse">
+                <stop offset="0%"   stop-color="#fde68a" stop-opacity="0.55"/>
+                <stop offset="35%"  stop-color="#fde68a" stop-opacity="0.30"/>
+                <stop offset="75%"  stop-color="#fde68a" stop-opacity="0.10"/>
                 <stop offset="100%" stop-color="#fde68a" stop-opacity="0"/>
             </linearGradient>
-            <filter id="hero-lamp-blur" x="-50%" y="-10%" width="200%" height="120%">
-                <feGaussianBlur stdDeviation="6"/>
+            <filter id="hero-lamp-blur" x="-10%" y="-10%" width="120%" height="120%">
+                <feGaussianBlur stdDeviation="14"/>
             </filter>
         </defs>
 
-        {# Soft conical light beam — blurred for ambient feel, fans out toward the bottom #}
-        <path d="M 120 70 L 30 520 L 210 520 Z" fill="url(#hero-lamp-beam)" filter="url(#hero-lamp-blur)"/>
+        {# Wide conical beam — apex at the bulb on the left, spans diagonally
+           across the hero. The triangle vertices put the right edge at ~90%
+           of the viewBox width (810/900 ≈ 0.9). #}
+        <path d="M 140 80
+                 L 60  600
+                 L 810 600 Z"
+              fill="url(#hero-lamp-beam)"
+              filter="url(#hero-lamp-blur)"/>
 
-        {# Cord — fine line from top edge down to the shade #}
-        <line x1="120" y1="0" x2="120" y2="42" stroke="currentColor" stroke-width="1.4"
+        {# Cord from the top edge down to the shade #}
+        <line x1="140" y1="0" x2="140" y2="52" stroke="currentColor" stroke-width="1.6"
               class="text-slate-400 dark:text-slate-600"/>
 
-        {# Shade — industrial trapezoid pendant, dark slate, with a subtle inner rim #}
-        <path d="M 120 42
-                 L 98 70
-                 L 142 70
-                 Z"
+        {# Industrial trapezoid pendant shade #}
+        <path d="M 140 52
+                 L 112 84
+                 L 168 84 Z"
               fill="currentColor"
               class="text-slate-800 dark:text-slate-900"/>
-        <path d="M 100 68 L 140 68"
-              stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+        <path d="M 116 82 L 164 82"
+              stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
               class="text-slate-700 dark:text-slate-700"/>
 
-        {# Bulb glow — bright center fading into the beam #}
-        <circle cx="120" cy="74" r="32" fill="url(#hero-lamp-bulb)"/>
-        <circle cx="120" cy="74" r="4"  fill="#fff7ed"/>
+        {# Bulb — bright honey core with radial glow #}
+        <circle cx="140" cy="90" r="44" fill="url(#hero-lamp-bulb)"/>
+        <circle cx="140" cy="90" r="5"  fill="#fff7ed"/>
     </svg>
 
     <div class="relative mx-auto max-w-7xl px-6 pt-20 pb-24 lg:pt-28 lg:pb-32">
