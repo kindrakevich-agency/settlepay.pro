@@ -35,10 +35,16 @@ class BillingIntentRepository extends ServiceEntityRepository
      * The listener calls this for every incoming Transfer to the platform
      * wallet. Match by chain + amount within tolerance, status=pending.
      *
-     * If two intents on the same chain happen to have the exact same
-     * amount (e.g. two Pro-monthly upgrades from different users in the
-     * same window), we prefer the one whose expected_payer_address
-     * matches the on-chain `from`; otherwise the oldest pending intent.
+     * If two intents have the exact same amount (e.g. two Pro-monthly
+     * upgrades in the same window), we prefer the one whose
+     * expected_payer_address matches the on-chain `from`; otherwise the
+     * oldest pending intent.
+     *
+     * Implementation note: we deliberately don't filter accepted_chains
+     * in DQL — Doctrine's DQL parser doesn't ship JSON_CONTAINS as a
+     * known function (registering it requires a custom DQL function +
+     * config). Pending intents are few (<100 in practice), so loading
+     * the small set and chain-matching in PHP is both simpler and fast.
      */
     public function findMatchingForPayment(
         int $chainId,
@@ -48,21 +54,22 @@ class BillingIntentRepository extends ServiceEntityRepository
     ): ?BillingIntent {
         $qb = $this->createQueryBuilder('i')
             ->where('i.status = :pending')
-            ->andWhere('JSON_CONTAINS(i.acceptedChains, :chainJson) = 1')
             ->andWhere('i.expiresAt > :now')
             ->setParameter('pending', BillingIntentStatus::Pending->value)
-            ->setParameter('chainJson', (string) $chainId)
             ->setParameter('now', new \DateTimeImmutable())
             ->orderBy('i.createdAt', 'ASC');
 
         /** @var BillingIntent[] $candidates */
         $candidates = $qb->getQuery()->getResult();
 
-        $tolerance = (int) ceil(0); // recomputed per-candidate below
-
         $best = null;
         foreach ($candidates as $intent) {
-            // Within ±toleranceBps of expected amount
+            // Chain filter — PHP-side instead of JSON_CONTAINS DQL.
+            if (!in_array($chainId, $intent->getAcceptedChains(), true)) {
+                continue;
+            }
+
+            // Within ±toleranceBps of expected amount.
             $expected = $intent->getAmountCents();
             $diff     = abs($amountCents - $expected);
             $maxDiff  = (int) ceil(($expected * $toleranceBps) / 10000);
