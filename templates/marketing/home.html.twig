@@ -139,9 +139,11 @@
             <p class="mt-4 text-slate-600 dark:text-slate-400">{{ 'demo.sub'|trans }}</p>
         </div>
 
-        {# 16:9 responsive YouTube embed (privacy-enhanced nocookie host).
-           Lazy-loaded so the player JS doesn't compete with page-paint. #}
-        <div class="relative aspect-video rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-card bg-slate-50 dark:bg-slate-900">
+        {# Responsive YouTube embed (privacy-enhanced nocookie host).
+           The source video is 2098×1080 (1.94:1) — not the 16:9 of
+           aspect-video. Using aspect-video left black letterbox bars
+           top/bottom, so we match the source ratio exactly. #}
+        <div class="relative aspect-[2098/1080] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-card bg-slate-50 dark:bg-slate-900">
             <iframe
                 src="https://www.youtube-nocookie.com/embed/Xad2bgVAzKA?rel=0&modestbranding=1"
                 title="{{ 'demo.title'|trans }}"
