@@ -5,14 +5,16 @@ sentry:
     dsn: '%env(SENTRY_DSN)%'
     options:
         environment: '%kernel.environment%'
-        release: '%env(default::APP_VERSION)%'
         # Capture every error in dev for visibility while building; in prod
         # 100% is fine at our scale (1 invoice ≈ a handful of requests).
         traces_sample_rate: 1.0
-        # Drop noisy / non-actionable events before they leave the box.
-        # Static method reference — sentry config doesn't resolve Symfony
-        # service refs (no `@`), so this has to be a plain callable.
-        before_send: 'App\Service\Sentry\BeforeSendFilter::filter'
+
+# Filter noisy / non-actionable events as a tagged event listener so we
+# get DI + can inject services later if needed. App\Service\Sentry\
+# BeforeSendFilter is wired via the kernel.event_listener tag in
+# config/services.yaml. (Sentry's options.before_send doesn't resolve
+# Symfony service refs cleanly across 5.x minor versions, so we wire
+# this side instead.)
 
 # Wire Monolog so every $logger->error(...) lands in Sentry as well —
 # the listener daemon and the messenger workers already use the logger,
