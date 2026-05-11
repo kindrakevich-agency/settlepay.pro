@@ -356,6 +356,11 @@ invoice:
     accepts: 'Acepta pagos en'
     recipient_address: 'Paga a billetera'
     download_pdf: 'Descargar PDF'
+    edit_title: 'Editar factura'
+    edit: Editar
+    void: Anular
+    save_changes: 'Guardar cambios'
+    confirm_void: '¿Anular esta factura? La acción no se puede deshacer y el enlace público de pago dejará de funcionar.'
 
 pdf:
     invoice: Factura
@@ -399,6 +404,7 @@ errors:
     no_tokens: 'Elige al menos un token (USDC / USDT / DAI).'
     payout_address_unset: 'Configura tu billetera de cobro en Ajustes antes de enviar facturas.'
     invoice_already_sent: 'Esta factura ya fue enviada. Los borradores solo se envían una vez.'
+    cannot_void_after_paid: 'Las facturas pagadas no pueden anularse. Si necesitas un reembolso, gestiónalo directamente con el cliente.'
     wallet_invalid_format: 'La dirección debe ser 0x seguido de 40 caracteres hex.'
     invalid_chain: 'Elige una red soportada.'
     invalid_token: 'Elige USDC, USDT o DAI.'
@@ -426,6 +432,8 @@ flash:
     invoice_created_draft: 'Factura %number% creada como borrador.'
     invoice_sent_emailed:  'Factura %number% enviada a %email%.'
     invoice_sent_no_email: 'Factura %number% marcada como enviada. Copia el enlace de pago para compartirlo.'
+    invoice_updated:       'Factura %number% actualizada.'
+    invoice_voided:        'Factura %number% anulada.'
 
 settings:
     subtitle: 'Edita tu perfil de negocio, dónde llegan tus stablecoins y tu contraseña.'

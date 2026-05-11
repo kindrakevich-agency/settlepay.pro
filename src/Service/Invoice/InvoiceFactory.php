@@ -88,4 +88,58 @@ final class InvoiceFactory
         $this->invoices->save($invoice);
         return $invoice;
     }
+
+    /**
+     * Apply the same DTO shape as create(), but in-place on an existing
+     * Invoice. Only call this on drafts — the controller is responsible
+     * for the status check; here we just rebuild the line items + fields.
+     *
+     * @param array $data See create() docblock.
+     */
+    public function update(Invoice $invoice, array $data): Invoice
+    {
+        $invoice
+            ->setCurrency($data['currency'] ?? $invoice->getCurrency())
+            ->setClientName(trim((string) $data['client_name']))
+            ->setClientEmail(!empty($data['client_email']) ? trim((string) $data['client_email']) : null)
+            ->setClientAddress(!empty($data['client_address']) ? trim((string) $data['client_address']) : null)
+            ->setDescription(!empty($data['description']) ? trim((string) $data['description']) : null)
+            ->setNotes(!empty($data['notes']) ? trim((string) $data['notes']) : null)
+            ->setAcceptedChains($data['accepted_chains'] ?? $invoice->getAcceptedChains())
+            ->setAcceptedTokens($data['accepted_tokens'] ?? $invoice->getAcceptedTokens())
+            ->touch();
+
+        if (!empty($data['due_date'])) {
+            $invoice->setDueDate(new \DateTimeImmutable((string) $data['due_date']));
+        } else {
+            $invoice->setDueDate(null);
+        }
+
+        // Replace all line items. orphanRemoval on the Collection deletes
+        // the orphaned rows. We rebuild totals from scratch.
+        foreach ($invoice->getLineItems()->toArray() as $existing) {
+            $invoice->removeLineItem($existing);
+        }
+
+        $totalCents = 0;
+        $position = 0;
+        foreach ($data['line_items'] ?? [] as $li) {
+            $qty       = (string) ($li['quantity'] ?? '1.00');
+            $unitCents = (int) $li['unit_price_cents'];
+            $lineTotal = (int) round((float) bcmul($qty, (string) $unitCents, 6));
+
+            $item = (new InvoiceLineItem())
+                ->setDescription(trim((string) $li['description']))
+                ->setQuantity($qty)
+                ->setUnitPriceCents($unitCents)
+                ->setTotalCents($lineTotal)
+                ->setPosition($position++);
+            $invoice->addLineItem($item);
+            $totalCents += $lineTotal;
+        }
+        $invoice->setAmountCents($totalCents);
+
+        $this->invoices->save($invoice);
+        return $invoice;
+    }
 }

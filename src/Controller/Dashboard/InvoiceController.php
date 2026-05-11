@@ -172,6 +172,134 @@ class InvoiceController extends AbstractController
         ]);
     }
 
+    #[Route('/{uuid}/edit', name: 'dashboard_invoice_edit',
+        requirements: ['uuid' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'],
+        methods: ['GET', 'POST'])]
+    public function edit(string $uuid, Request $request): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $invoice = $this->invoices->findByUuid($uuid);
+        if (!$invoice || $invoice->getUser() !== $user) {
+            throw $this->createNotFoundException('Invoice not found.');
+        }
+        if ($invoice->getStatus() !== InvoiceStatus::Draft) {
+            $this->addFlash('warning', 'errors.invoice_already_sent');
+            return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
+        }
+
+        $errors = [];
+        // Pre-fill the form with existing values on first GET.
+        $form = [
+            'client_name'     => $invoice->getClientName(),
+            'client_email'    => $invoice->getClientEmail() ?? '',
+            'description'     => $invoice->getDescription() ?? '',
+            'due_date'        => $invoice->getDueDate()?->format('Y-m-d') ?? '',
+            'currency'        => $invoice->getCurrency(),
+            'accepted_chains' => $invoice->getAcceptedChains(),
+            'accepted_tokens' => $invoice->getAcceptedTokens(),
+            'line_items'      => array_map(fn($li) => [
+                'description' => $li->getDescription(),
+                'quantity'    => $li->getQuantity(),
+                'unit_price'  => number_format($li->getUnitPriceCents() / 100, 2, '.', ''),
+            ], $invoice->getLineItems()->toArray()),
+        ];
+        if (empty($form['line_items'])) {
+            $form['line_items'] = [['description' => '', 'quantity' => '1', 'unit_price' => '']];
+        }
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('invoice-edit', (string) $request->request->get('_csrf_token'))) {
+                $errors[] = 'errors.csrf_invalid';
+            }
+
+            $form['client_name']     = trim((string) $request->request->get('client_name', ''));
+            $form['client_email']    = trim((string) $request->request->get('client_email', ''));
+            $form['description']     = trim((string) $request->request->get('description', ''));
+            $form['due_date']        = (string) $request->request->get('due_date', '');
+            $form['currency']        = strtoupper((string) $request->request->get('currency', 'USD'));
+            $form['accepted_chains'] = array_map('intval', (array) $request->request->all('accepted_chains'));
+            $form['accepted_tokens'] = array_map('strtoupper', (array) $request->request->all('accepted_tokens'));
+
+            $rawItems = (array) $request->request->all('line_items');
+            $form['line_items'] = [];
+            $cleanItems = [];
+            foreach ($rawItems as $li) {
+                $desc  = trim((string) ($li['description'] ?? ''));
+                $qty   = (string) ($li['quantity'] ?? '1');
+                $price = trim((string) ($li['unit_price'] ?? ''));
+                $form['line_items'][] = ['description' => $desc, 'quantity' => $qty, 'unit_price' => $price];
+                if ($desc === '' && $price === '') continue;
+                if ($desc === '') $errors[] = 'errors.line_item_desc_required';
+                if (!is_numeric($price) || (float) $price < 0) $errors[] = 'errors.line_item_price_invalid';
+                if (!is_numeric($qty)   || (float) $qty   <= 0) $errors[] = 'errors.line_item_qty_invalid';
+                if (empty($errors)) {
+                    $cleanItems[] = [
+                        'description'      => $desc,
+                        'quantity'         => $qty,
+                        'unit_price_cents' => (int) round((float) $price * 100),
+                    ];
+                }
+            }
+            if (count($cleanItems) === 0) {
+                $errors[] = 'errors.no_line_items';
+            }
+            if ($form['client_name'] === '')  $errors[] = 'errors.client_name_required';
+            if ($form['client_email'] !== '' && !filter_var($form['client_email'], FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'errors.invalid_email';
+            }
+            if (empty($form['accepted_chains'])) $errors[] = 'errors.no_chains';
+            if (empty($form['accepted_tokens'])) $errors[] = 'errors.no_tokens';
+
+            if (empty($errors)) {
+                $this->factory->update($invoice, [
+                    'client_name'     => $form['client_name'],
+                    'client_email'    => $form['client_email'] ?: null,
+                    'description'     => $form['description'] ?: null,
+                    'currency'        => $form['currency'],
+                    'due_date'        => $form['due_date'] ?: null,
+                    'accepted_chains' => $form['accepted_chains'],
+                    'accepted_tokens' => $form['accepted_tokens'],
+                    'line_items'      => $cleanItems,
+                ]);
+                $this->addFlash('success', $this->translator->trans('flash.invoice_updated', ['%number%' => $invoice->getNumber()]));
+                return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $invoice->getUuid()]);
+            }
+        }
+
+        return $this->render('dashboard/invoices/new.html.twig', [
+            'form'             => $form,
+            'errors'           => $errors,
+            'available_chains' => $this->chains->getMainnets() + $this->chains->getTestnets(),
+            'edit_invoice'     => $invoice,
+        ]);
+    }
+
+    #[Route('/{uuid}/void', name: 'dashboard_invoice_void',
+        requirements: ['uuid' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'],
+        methods: ['POST'])]
+    public function void(string $uuid, Request $request): RedirectResponse
+    {
+        $invoice = $this->invoices->findByUuid($uuid);
+        if (!$invoice || $invoice->getUser() !== $this->getUser()) {
+            throw $this->createNotFoundException('Invoice not found.');
+        }
+        if (!$this->isCsrfTokenValid('invoice-void', (string) $request->request->get('_csrf_token'))) {
+            $this->addFlash('error', 'errors.csrf_invalid');
+            return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
+        }
+        // Void allowed only on drafts + sent + viewed. Paid / overdue / already-void invoices can't be voided.
+        if (!in_array($invoice->getStatus(), [InvoiceStatus::Draft, InvoiceStatus::Sent, InvoiceStatus::Viewed], true)) {
+            $this->addFlash('warning', 'errors.cannot_void_after_paid');
+            return $this->redirectToRoute('dashboard_invoice_show', ['_locale' => $request->getLocale(), 'uuid' => $uuid]);
+        }
+
+        $invoice->setStatus(InvoiceStatus::Void)->touch();
+        $this->em->flush();
+        $this->addFlash('success', $this->translator->trans('flash.invoice_voided', ['%number%' => $invoice->getNumber()]));
+        return $this->redirectToRoute('dashboard_invoices', ['_locale' => $request->getLocale()]);
+    }
+
     #[Route('/{uuid}/pdf', name: 'dashboard_invoice_pdf',
         requirements: ['uuid' => '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'],
         methods: ['GET'])]

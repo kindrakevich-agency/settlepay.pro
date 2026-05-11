@@ -358,6 +358,11 @@ invoice:
     accepts: 'Accepts payment in'
     recipient_address: 'Pays to wallet'
     download_pdf: 'Download PDF'
+    edit_title: 'Edit invoice'
+    edit: Edit
+    void: Void
+    save_changes: 'Save changes'
+    confirm_void: "Void this invoice? It can't be undone, and the public payment link will stop working."
 
 pdf:
     invoice: Invoice
@@ -401,6 +406,7 @@ errors:
     no_tokens: 'Pick at least one token (USDC / USDT / DAI).'
     payout_address_unset: 'Set your payout wallet address in Settings before sending invoices.'
     invoice_already_sent: 'This invoice has already been sent. Drafts can only be sent once.'
+    cannot_void_after_paid: "Paid invoices can't be voided. If a refund is needed, settle it off-platform."
     wallet_invalid_format: 'Wallet address must be 0x followed by 40 hex characters.'
     invalid_chain: 'Pick a supported network.'
     invalid_token: 'Pick USDC, USDT, or DAI.'
@@ -428,6 +434,8 @@ flash:
     invoice_created_draft: 'Invoice %number% created as draft.'
     invoice_sent_emailed:  'Invoice %number% sent to %email%.'
     invoice_sent_no_email: 'Invoice %number% marked as sent. Copy the payment link below to share it.'
+    invoice_updated:       'Invoice %number% updated.'
+    invoice_voided:        'Invoice %number% voided.'
 
 settings:
     subtitle: 'Edit your business profile, where stablecoins land, and your password.'

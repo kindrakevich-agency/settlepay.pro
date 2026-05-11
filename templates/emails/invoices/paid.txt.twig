@@ -1,0 +1,19 @@
+Payment received
+
+Hi {{ invoice.clientName }},
+
+Thanks — your payment of ${{ amount_decimal }} {{ invoice.currency }} for invoice {{ invoice.number }} has been confirmed on-chain.
+
+Paid: {{ paid_at_text }} UTC
+Amount: ${{ amount_decimal }} {{ invoice.currency }}
+
+The PDF receipt is attached to this email. Save it for your records.
+
+{% if tx_url %}On-chain transaction:
+{{ tx_url }}{% endif %}
+
+Questions? Reply directly to this email — replies go to {{ invoice.user.email }}.
+
+—
+Receipt for an invoice paid via settlepay.pro.
+{{ "now"|date("Y") }} settlepay.pro

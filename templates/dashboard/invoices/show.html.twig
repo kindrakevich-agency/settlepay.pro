@@ -41,20 +41,53 @@
 
     {# Action bar — varies by status #}
     {% if is_draft %}
-        <form method="POST" action="{{ path('dashboard_invoice_send', {_locale: locale, uuid: invoice.uuid}) }}"
-              class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-200 dark:border-brand-700/50 bg-brand-50/60 dark:bg-brand-500/10 p-4">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-send') }}">
-            <div class="text-sm">
-                <p class="font-medium text-brand-700 dark:text-brand-400">{{ 'invoice.draft_ready_title'|trans }}</p>
-                <p class="text-brand-700/80 dark:text-brand-400/80 text-xs mt-0.5">
-                    {% if invoice.clientEmail %}{{ 'invoice.draft_ready_with_email'|trans({'%email%': invoice.clientEmail}) }}{% else %}{{ 'invoice.draft_ready_no_email'|trans }}{% endif %}
-                </p>
+        <div class="mb-6 rounded-2xl border border-brand-200 dark:border-brand-700/50 bg-brand-50/60 dark:bg-brand-500/10 p-4 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="text-sm min-w-0">
+                    <p class="font-medium text-brand-700 dark:text-brand-400">{{ 'invoice.draft_ready_title'|trans }}</p>
+                    <p class="text-brand-700/80 dark:text-brand-400/80 text-xs mt-0.5">
+                        {% if invoice.clientEmail %}{{ 'invoice.draft_ready_with_email'|trans({'%email%': invoice.clientEmail}) }}{% else %}{{ 'invoice.draft_ready_no_email'|trans }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <a href="{{ path('dashboard_invoice_edit', {_locale: locale, uuid: invoice.uuid}) }}"
+                       class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
+                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        {{ 'invoice.edit'|trans }}
+                    </a>
+                    <form method="POST" action="{{ path('dashboard_invoice_void', {_locale: locale, uuid: invoice.uuid}) }}"
+                          onsubmit="return confirm('{{ 'invoice.confirm_void'|trans|escape('js') }}')">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-void') }}">
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-700 dark:hover:text-danger-500 hover:border-danger-200 dark:hover:border-danger-500/30 transition">
+                            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+                            {{ 'invoice.void'|trans }}
+                        </button>
+                    </form>
+                    <form method="POST" action="{{ path('dashboard_invoice_send', {_locale: locale, uuid: invoice.uuid}) }}">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-send') }}">
+                        <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 text-sm font-medium transition">{{ 'invoice.send'|trans }}</button>
+                    </form>
+                </div>
             </div>
-            <button type="submit" class="rounded-xl bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 text-sm font-medium transition">{{ 'invoice.send'|trans }}</button>
-        </form>
+        </div>
     {% else %}
         <div class="mb-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-            <div class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">{{ 'invoice.share_link'|trans }}</div>
+            <div class="flex items-center justify-between gap-3 mb-2">
+                <div class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'invoice.share_link'|trans }}</div>
+                {# Void allowed only on sent / viewed (not on paid / overdue). #}
+                {% if status in ['sent', 'viewed'] %}
+                    <form method="POST" action="{{ path('dashboard_invoice_void', {_locale: locale, uuid: invoice.uuid}) }}"
+                          onsubmit="return confirm('{{ 'invoice.confirm_void'|trans|escape('js') }}')">
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('invoice-void') }}">
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-800 px-2.5 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-danger-50 dark:hover:bg-danger-500/10 hover:text-danger-700 dark:hover:text-danger-500 hover:border-danger-200 dark:hover:border-danger-500/30 transition">
+                            <svg class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93l14.14 14.14"/></svg>
+                            {{ 'invoice.void'|trans }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
             <div class="flex items-center gap-2">
                 <code class="flex-1 font-mono text-xs text-slate-700 dark:text-slate-300 break-all bg-slate-50 dark:bg-slate-950/60 rounded-lg px-3 py-2">{{ pay_url }}</code>
                 <button type="button" onclick="navigator.clipboard.writeText('{{ pay_url }}'); this.textContent='✓ Copied'"

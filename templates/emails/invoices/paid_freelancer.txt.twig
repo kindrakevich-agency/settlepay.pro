@@ -1,0 +1,20 @@
+You got paid
+
+{{ invoice.clientName }} just paid invoice {{ invoice.number }}.
+Payment confirmed on-chain.
+
+Received: {{ paid_at_text }} UTC
+Amount: ${{ amount_decimal }} {{ invoice.currency }}
+From: {{ invoice.clientName }}{% if invoice.clientEmail %} <{{ invoice.clientEmail }}>{% endif %}
+
+Funds went directly to your payout wallet {{ invoice.recipientAddress|slice(0, 6) }}…{{ invoice.recipientAddress|slice(-4) }}.
+Settlepay never touched the money.
+
+{% if tx_url %}On-chain proof:
+{{ tx_url }}{% endif %}
+
+A copy of the PDF receipt is attached. The client received the same receipt with this confirmation.
+
+—
+Payment notification from settlepay.pro.
+{{ "now"|date("Y") }} settlepay.pro

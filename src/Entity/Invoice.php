@@ -160,6 +160,14 @@ class Invoice
         return $this;
     }
 
+    public function removeLineItem(InvoiceLineItem $item): self
+    {
+        if ($this->lineItems->removeElement($item)) {
+            // orphanRemoval on the relation will delete the row at flush.
+        }
+        return $this;
+    }
+
     /** True if this invoice can still receive a payment via the public page. */
     public function isPayable(): bool { return $this->status->isPayable(); }
 

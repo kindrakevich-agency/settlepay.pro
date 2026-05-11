@@ -1,0 +1,33 @@
+{% extends 'emails/_layout.html.twig' %}
+
+{% block subject %}You got paid: {{ invoice.number }} — ${{ amount_decimal }} {{ invoice.currency }}{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 12px;font-size:22px;font-weight:600;letter-spacing:-0.015em;color:#0f172a;">You got paid 🎉</h1>
+
+<p style="margin:0 0 20px;font-size:15px;line-height:1.6;color:#475569;">{{ invoice.clientName }} just paid invoice <strong style="color:#0f172a">{{ invoice.number }}</strong>. The payment is confirmed on-chain.</p>
+
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 24px;border-radius:14px;background:#ecfdf5;border:1px solid #a7f3d0;">
+    <tr><td style="padding:18px 20px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+                <td style="font-size:12px;font-weight:600;color:#047857;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:6px;">Received</td>
+                <td align="right" style="font-size:12px;color:#047857;font-family:'JetBrains Mono',monospace;">{{ paid_at_text }} UTC</td>
+            </tr>
+            <tr><td colspan="2" style="font-size:28px;font-weight:600;color:#064e3b;font-variant-numeric:tabular-nums;letter-spacing:-0.5px;padding:4px 0 8px;">${{ amount_decimal }} {{ invoice.currency }}</td></tr>
+            <tr><td colspan="2" style="font-size:13px;color:#475569;">From {{ invoice.clientName }}{% if invoice.clientEmail %} &lt;{{ invoice.clientEmail }}&gt;{% endif %}</td></tr>
+        </table>
+    </td></tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#64748b;">Funds went directly to your payout wallet <strong style="font-family:'JetBrains Mono',monospace;color:#0f172a;font-weight:500;">{{ invoice.recipientAddress|slice(0, 6) }}…{{ invoice.recipientAddress|slice(-4) }}</strong>. Settlepay never touched the money.</p>
+
+{% if tx_url %}
+    <p style="margin:16px 0 8px;font-size:13px;line-height:1.6;color:#64748b;">On-chain proof:</p>
+    <p style="margin:0;word-break:break-all;font-family:'JetBrains Mono',monospace;font-size:12px;color:#0d9488;"><a href="{{ tx_url }}" style="color:#0d9488;text-decoration:none;">{{ tx_url }}</a></p>
+{% endif %}
+
+<p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#64748b;">A copy of the PDF receipt is attached, and the client received the same receipt with this confirmation.</p>
+{% endblock %}
+
+{% block footer_text %}Payment notification from settlepay.pro &mdash; you are this email's recipient because the invoice was created on your account.{% endblock %}

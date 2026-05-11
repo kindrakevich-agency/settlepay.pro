@@ -356,6 +356,11 @@ invoice:
     accepts: 'Приймає оплату в'
     recipient_address: 'На гаманець'
     download_pdf: 'Завантажити PDF'
+    edit_title: 'Редагування інвойсу'
+    edit: Редагувати
+    void: Скасувати
+    save_changes: 'Зберегти зміни'
+    confirm_void: 'Скасувати цей інвойс? Це не можна буде відмінити, а посилання на оплату перестане працювати.'
 
 pdf:
     invoice: Інвойс
@@ -399,6 +404,7 @@ errors:
     no_tokens: 'Обери хоча б один токен (USDC / USDT / DAI).'
     payout_address_unset: 'Спочатку встанови адресу гаманця-отримувача в Налаштуваннях.'
     invoice_already_sent: 'Цей інвойс уже надіслано. Чернетки можна надсилати лише один раз.'
+    cannot_void_after_paid: 'Оплачений інвойс скасувати не можна. Якщо потрібне повернення, домовся з клієнтом окремо.'
     wallet_invalid_format: 'Адреса гаманця має бути 0x і 40 hex-символів.'
     invalid_chain: 'Обери підтримувану мережу.'
     invalid_token: 'Обери USDC, USDT або DAI.'
@@ -426,6 +432,8 @@ flash:
     invoice_created_draft: 'Інвойс %number% створено як чернетку.'
     invoice_sent_emailed:  'Інвойс %number% надіслано на %email%.'
     invoice_sent_no_email: 'Інвойс %number% позначено надісланим. Скопіюй посилання нижче, щоб поділитися.'
+    invoice_updated:       'Інвойс %number% оновлено.'
+    invoice_voided:        'Інвойс %number% скасовано.'
 
 settings:
     subtitle: 'Тут редагуєш бренд, гаманець-отримувач і пароль.'

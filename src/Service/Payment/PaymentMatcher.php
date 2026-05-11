@@ -7,6 +7,7 @@ use App\Entity\Payment;
 use App\Enum\InvoiceStatus;
 use App\Repository\InvoiceRepository;
 use App\Repository\PaymentRepository;
+use App\Service\Invoice\InvoiceMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -31,6 +32,7 @@ final class PaymentMatcher
         private readonly PaymentRepository $payments,
         private readonly EntityManagerInterface $em,
         private readonly LoggerInterface $logger,
+        private readonly InvoiceMailer $mailer,
     ) {}
 
     /**
@@ -96,6 +98,21 @@ final class PaymentMatcher
 
         $this->payments->save($payment, flush: false);
         $this->em->flush();
+
+        // Now that the row is persisted, fire receipt + notification emails.
+        // Email failure is non-fatal — already logged inside the mailer.
+        // Only sends on a successful match (orphans get no emails).
+        if ($matched !== null) {
+            try {
+                $this->mailer->sendPaidNotifications($matched, $payment);
+            } catch (\Throwable $e) {
+                $this->logger->error('Paid-notification dispatch failed', [
+                    'invoice_uuid' => $matched->getUuid(),
+                    'error'        => $e->getMessage(),
+                ]);
+            }
+        }
+
         return $payment;
     }
 

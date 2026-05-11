@@ -14,6 +14,7 @@ import '../styles/app.css';
 
 /// <reference types="vite/client" />
 
+import * as Sentry from '@sentry/browser';
 import { http, createConfig } from '@wagmi/core';
 import { connect, getAccount, getChainId, switchChain, writeContract, watchAccount, waitForTransactionReceipt } from '@wagmi/core';
 import { injected, walletConnect } from '@wagmi/connectors';
@@ -22,6 +23,34 @@ import {
     baseSepolia, optimismSepolia, arbitrumSepolia,
 } from 'viem/chains';
 import { parseUnits, type Address, type Hex } from 'viem';
+
+// ─── 0. Sentry init ────────────────────────────────────────────────
+//
+// Browser-side errors land in a SEPARATE Sentry project from the PHP
+// backend (different runtimes, different DSNs). When VITE_SENTRY_DSN_JS
+// is empty the SDK is a no-op. Set it in .env.local for prod.
+//
+// We filter the most common non-actionable client errors before they
+// ship so the "errors/month" quota stays focused on real bugs:
+//   - User rejected wallet prompt
+//   - Wallet not installed (provider not injected)
+//   - Network switch denied / rejected
+const sentryDsn = import.meta.env.VITE_SENTRY_DSN_JS;
+if (sentryDsn) {
+    Sentry.init({
+        dsn: sentryDsn,
+        environment: import.meta.env.MODE,
+        tracesSampleRate: 0.1, // 10% — checkout traffic is the highest-volume page
+        beforeSend(event, hint) {
+            const msg = String((hint?.originalException as Error | undefined)?.message ?? '');
+            // MetaMask cancellations + wallet-not-installed are user state, not bugs.
+            if (msg.includes('User rejected') || msg.includes('user rejected')) return null;
+            if (msg.includes('No provider injected')) return null;
+            if (msg.includes('switchEthereumChain') && msg.toLowerCase().includes('reject')) return null;
+            return event;
+        },
+    });
+}
 
 // ─── 1. Read the JSON island the Twig template emits ──────────────
 

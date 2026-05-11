@@ -3,6 +3,8 @@
 namespace App\Service\Invoice;
 
 use App\Entity\Invoice;
+use App\Entity\Payment;
+use App\Service\Blockchain\ChainRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
@@ -20,6 +22,7 @@ final class InvoiceMailer
         private readonly UrlGeneratorInterface $urls,
         private readonly LoggerInterface $logger,
         private readonly InvoicePdfRenderer $pdf,
+        private readonly ChainRegistry $chains,
         private readonly string $mailerFromAddress,
         private readonly string $mailerFromName,
     ) {}
@@ -92,6 +95,99 @@ final class InvoiceMailer
             return false;
         }
         return true;
+    }
+
+    /**
+     * Sends "payment received — here's your receipt" to the client AND a
+     * "you got paid" notification to the freelancer. Both carry the PDF
+     * receipt as an attachment. Called from PaymentMatcher after the
+     * status flip to Paid.
+     */
+    public function sendPaidNotifications(Invoice $invoice, Payment $payment): void
+    {
+        $paidAt        = $invoice->getPaidAt() ?? new \DateTimeImmutable();
+        $amountDecimal = number_format($invoice->getAmountCents() / 100, 2, '.', ',');
+        $paidAtText    = $paidAt->format('Y-m-d H:i');
+        $txUrl         = $this->buildTxUrl($payment->getChainId(), $payment->getTxHash());
+
+        // Render the PDF once, attach to both emails. PDF failure must NOT
+        // block notifications — the receipt is also available in the
+        // dashboard. Log + carry on.
+        $pdfBytes = null;
+        try {
+            $pdfBytes = $this->pdf->render($invoice, $invoice->getUser()->getDefaultLocale());
+        } catch (\Throwable $e) {
+            $this->logger->warning('Paid-email PDF render failed', [
+                'invoice_uuid' => $invoice->getUuid(),
+                'error'        => $e->getMessage(),
+            ]);
+        }
+
+        $ctx = [
+            'invoice'        => $invoice,
+            'payment'        => $payment,
+            'amount_decimal' => $amountDecimal,
+            'paid_at_text'   => $paidAtText,
+            'tx_url'         => $txUrl,
+        ];
+
+        // 1) Client receipt — only if we have an email on file.
+        if ($invoice->getClientEmail()) {
+            $clientEmail = (new TemplatedEmail())
+                ->from(new Address($this->mailerFromAddress, $invoice->getUser()->getBusinessName() ?: $this->mailerFromName))
+                ->to($invoice->getClientEmail())
+                ->replyTo(new Address($invoice->getUser()->getEmail(), $invoice->getUser()->getBusinessName() ?: ''))
+                ->subject(sprintf('Receipt for %s from %s', $invoice->getNumber(), $invoice->getUser()->getBusinessName() ?: 'Settlepay'))
+                ->htmlTemplate('emails/invoices/paid.html.twig')
+                ->textTemplate('emails/invoices/paid.txt.twig')
+                ->context($ctx);
+
+            if ($pdfBytes !== null) {
+                $clientEmail->attach($pdfBytes, $this->pdf->filenameFor($invoice), 'application/pdf');
+            }
+            try { $this->mailer->send($clientEmail); }
+            catch (\Throwable $e) {
+                $this->logger->error('Paid receipt email to client failed', [
+                    'invoice_uuid' => $invoice->getUuid(),
+                    'to_masked'    => $this->maskEmail($invoice->getClientEmail()),
+                    'error'        => $e->getMessage(),
+                ]);
+            }
+        }
+
+        // 2) Freelancer notification — always sent.
+        $freelancerEmail = (new TemplatedEmail())
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
+            ->to($invoice->getUser()->getEmail())
+            ->subject(sprintf('You got paid: %s — $%s %s', $invoice->getNumber(), $amountDecimal, $invoice->getCurrency()))
+            ->htmlTemplate('emails/invoices/paid_freelancer.html.twig')
+            ->textTemplate('emails/invoices/paid_freelancer.txt.twig')
+            ->context($ctx);
+
+        if ($pdfBytes !== null) {
+            $freelancerEmail->attach($pdfBytes, $this->pdf->filenameFor($invoice), 'application/pdf');
+        }
+        try { $this->mailer->send($freelancerEmail); }
+        catch (\Throwable $e) {
+            $this->logger->error('Paid notification email to freelancer failed', [
+                'invoice_uuid' => $invoice->getUuid(),
+                'error'        => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Build a block-explorer URL for the tx hash on the matching chain.
+     * Returns null if the chain isn't in the registry (defensive — would
+     * only happen if a chain was removed between payment and email send).
+     */
+    private function buildTxUrl(int $chainId, string $txHash): ?string
+    {
+        $cfg = $this->chains->getChainById($chainId);
+        if (!$cfg || empty($cfg['explorer'])) {
+            return null;
+        }
+        return rtrim($cfg['explorer'], '/') . '/tx/' . $txHash;
     }
 
     private function maskEmail(string $email): string
