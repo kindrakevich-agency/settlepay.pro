@@ -28,10 +28,11 @@ Settle is a SaaS platform that lets freelancers send professional invoices and g
 13. [Security model](#security-model)
 14. [Sending email (Resend setup)](#sending-email-resend-setup)
 15. [Google sign-in (optional)](#google-sign-in-optional)
-16. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
-17. [Deployment](#deployment)
-18. [Roadmap](#roadmap)
-19. [License](#license)
+16. [Admin dashboard](#admin-dashboard)
+17. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
+18. [Deployment](#deployment)
+19. [Roadmap](#roadmap)
+20. [License](#license)
 
 ---
 
@@ -519,6 +520,41 @@ The Client ID is **public-by-design** — it ships in the production JS bundle (
 | `auth.google_invalid` with "JWT signature invalid" | Google rotated keys mid-request — JWKS cache miss + new key | The verifier auto-busts the cache + retries once. If it still fails, the user's session token may have been tampered with. |
 | `auth.google_invalid` with "JWT aud does not match" | Wrong `GOOGLE_CLIENT_ID` in `.env.local` (e.g., dev client ID on production) | Confirm the client ID matches the one you intend to use; one per environment is fine. |
 | User can sign in but lands on a 500 | Workspace provisioning failed | Should not happen — same path as the regular registration flow (fixed in `c2a7eed`). Check Sentry. |
+
+---
+
+## Admin dashboard
+
+Tiny read-only ops view at `/{locale}/app/admin` for the platform owner — gated by a comma-separated email allowlist (`ADMIN_EMAILS` env var) rather than a DB roles column. Non-admins get **404, not 403**, so the routes don't leak.
+
+### What's there
+
+| Route | Shows |
+|---|---|
+| `/app/admin` | Counters (total users, users via Google vs Email, verified, last-7-day signups), workspaces grouped by plan, invoices grouped by status, fee revenue total, gross invoice-paid total, 10 most recent signups. |
+| `/app/admin/users` | Full user list — id, email, display name, auth method (Google/Email badge), verified status, workspace memberships, joined date, last login. |
+| `/app/admin/workspaces` | Owner email, plan + renews date, seat usage (members / seat_limit), invoices (paid / total), fees owed, created date. |
+| `/app/admin/payments` | Fee payments (subscription + fee settlement) and recent invoice settlements, each with a clickable tx-hash link to the correct block explorer per chain (Etherscan / Basescan / Polygonscan / Arbiscan / OP Etherscan + their Sepolia equivalents). |
+
+### Enable
+
+Edit `.env.local` (or set as an env var on the server):
+
+```env
+ADMIN_EMAILS=boss@settlepay.pro,ops@settlepay.pro
+```
+
+Comma-separated, case-insensitive, no spaces required. Then `bin/console cache:clear`. The **Admin** entry appears in the dashboard sidebar for matching users only (driven by Twig's `is_admin()` function from `App\Twig\AdminExtension`).
+
+To revoke admin access: remove the email from `ADMIN_EMAILS`, `cache:clear`. No DB change.
+
+### Why an email allowlist instead of a roles column
+
+- No migration, no UI to grant/revoke, no role-management plumbing
+- Edit `.env.local` + `cache:clear` to add or remove admins instantly
+- Solo founder + tiny team scale; will revisit at 10+ ops people
+
+The reads are intentionally raw DBAL (no DQL) — they're cross-table aggregates with `GROUP BY` and subqueries that don't benefit from entity hydration, and the page is read-only. Code: `src/Controller/Dashboard/AdminController.php` + `src/Security/AdminChecker.php`.
 
 ---
 
