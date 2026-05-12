@@ -3,7 +3,10 @@
 namespace App\Controller\Auth;
 
 use App\Entity\User;
+use App\Entity\Workspace;
+use App\Entity\WorkspaceMember;
 use App\Repository\UserRepository;
+use App\Repository\WorkspaceInvitationRepository;
 use App\Service\Auth\AuthMailer;
 use App\Service\Auth\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,6 +25,7 @@ class RegistrationController extends AbstractController
         private readonly UserPasswordHasherInterface $hasher,
         private readonly TokenGenerator $tokens,
         private readonly AuthMailer $mailer,
+        private readonly WorkspaceInvitationRepository $invitations,
     ) {}
 
     #[Route(
@@ -85,6 +89,10 @@ class RegistrationController extends AbstractController
                 $this->em->persist($user);
                 $this->em->flush();
 
+                $this->provisionWorkspace($user);
+                $this->autoAcceptInvitations($user);
+                $this->em->flush();
+
                 try {
                     $this->mailer->sendVerificationEmail($user, $plain);
                 } catch (\Throwable $e) {
@@ -111,6 +119,39 @@ class RegistrationController extends AbstractController
     public function checkEmail(): Response
     {
         return $this->render('auth/check_email.html.twig');
+    }
+
+    private function provisionWorkspace(User $user): void
+    {
+        $local = strstr($user->getEmail(), '@', true) ?: $user->getEmail();
+        $workspace = (new Workspace())
+            ->setName($local . "'s workspace")
+            ->setOwner($user)
+            ->setPayoutAddress($user->getPayoutAddress())
+            ->setPayoutChainId($user->getPayoutChainId())
+            ->setPayoutToken($user->getPayoutToken())
+            ->setDefaultLocale($user->getDefaultLocale());
+
+        $member = (new WorkspaceMember())
+            ->setWorkspace($workspace)
+            ->setUser($user)
+            ->setRole(WorkspaceMember::ROLE_OWNER);
+
+        $this->em->persist($workspace);
+        $this->em->persist($member);
+    }
+
+    private function autoAcceptInvitations(User $user): void
+    {
+        foreach ($this->invitations->findPendingByEmail($user->getEmail()) as $inv) {
+            $workspace = $inv->getWorkspace();
+            $member = (new WorkspaceMember())
+                ->setWorkspace($workspace)
+                ->setUser($user)
+                ->setRole($inv->getRole());
+            $inv->markAccepted();
+            $this->em->persist($member);
+        }
     }
 
     #[Route(

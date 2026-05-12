@@ -36,4 +36,19 @@ class WorkspaceInvitationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return WorkspaceInvitation[] */
+    public function findPendingByEmail(string $email): array
+    {
+        return $this->createQueryBuilder('i')
+            ->where('i.email = :email')
+            ->andWhere('i.acceptedAt IS NULL')
+            ->andWhere('i.revokedAt IS NULL')
+            ->andWhere('i.expiresAt > :now')
+            ->setParameter('email', strtolower($email))
+            ->setParameter('now', new \DateTimeImmutable())
+            ->orderBy('i.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
