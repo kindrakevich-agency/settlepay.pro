@@ -56,7 +56,7 @@ security:
         - { path: ^/api/v1/auth, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/public, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/health, roles: PUBLIC_ACCESS }
-        - { path: ^/(en|uk|es)?/?(pricing|docs|privacy|terms|pay|agency)(/.*)?$, roles: PUBLIC_ACCESS }
+        - { path: ^/(en|uk|es)?/?(pricing|docs|privacy|terms|pay|agency|about)(/.*)?$, roles: PUBLIC_ACCESS }
         - { path: ^/(en|uk|es)/workspaces/accept(/.*)?$, roles: PUBLIC_ACCESS }
         - { path: ^/(en|uk|es)?/?$, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: ROLE_USER }

@@ -28,6 +28,7 @@ nav:
     docs: Docs
     pricing: Pricing
     agency: Agency
+    about: About
     product: Product
     language: Language
     toggle_menu: Open menu
@@ -155,6 +156,90 @@ components_section:
     toast_info_body: Check your inbox at vitalii@settlepay.pro.
     empty_title: No invoices yet
     empty_sub: "Send your first invoice in under a minute. It's free up to $1,000/month."
+
+about:
+    seo:
+        title: "About Settlepay — why we exist and how it works"
+        description: "Settlepay is a non-custodial invoicing tool that lets freelancers get paid in stablecoins on cheap L2 networks. Built for people whose banks block them, freeze them, or charge 5% to receive a SWIFT wire."
+
+    hero:
+        eyebrow: About
+        title: "Banks are not built for international freelancers."
+        sub: "Settlepay is what we wish existed when we started invoicing clients across borders. Send a payment link. Get paid in USDC. Skip the bank entirely. No card processor, no SWIFT, no frozen accounts."
+        cta_primary: "Start free — under a minute"
+        cta_secondary: "See how it works"
+
+    problem:
+        eyebrow: "The problem"
+        title: "Cross-border invoicing is broken for most of the world."
+        sub: "Most freelance-payments tools assume you live in the US or EU. If you don't, every step is friction."
+        p1_title: "SWIFT is slow and expensive"
+        p1_body: "International wires take 3–7 business days. Sender pays $25–$50, recipient pays $10–$30 more on receipt, plus a 1–3% FX spread on top. A $500 invoice often arrives as $440 a week later."
+        p2_title: "Cards block half the world"
+        p2_body: "Stripe, PayPal, and Wise don't operate in Ukraine, Nigeria, Argentina, Pakistan, Vietnam, and dozens of other places where serious freelancers live. The countries with the most freelance talent are the ones most locked out of the payment rails."
+        p3_title: "Banks freeze accounts without notice"
+        p3_body: "A wire from a new client triggers a fraud review. The account gets locked. You spend two weeks on hold proving your invoice is real, while your rent is due. Happens routinely to freelancers in emerging markets."
+        p4_title: "Fees eat 5–8% of every invoice"
+        p4_body: "Add wire fees + FX spread + card processor + the loss converting back to your local currency, and the typical international freelancer loses 5–8% of every dollar before it lands in their pocket."
+
+    solution:
+        eyebrow: "Our solution"
+        title: "Stablecoins on cheap L2 networks."
+        body: "A stablecoin is a token pegged 1:1 to the dollar. USDC is issued by Circle, fully reserve-backed, redeemable for actual USD. We don't issue tokens — we use the ones already trusted by millions of users. Payments settle in seconds on Base, Polygon, Arbitrum, and Optimism — Layer 2 networks where a transaction costs about a cent."
+        bullet1: "Funds move directly from your client's wallet to yours. Settlepay never touches the money."
+        bullet2: "A typical payment costs $0.01–0.05 in network fees vs $40+ for a SWIFT wire."
+        bullet3: "Payments arrive in 5–30 seconds, fully final, regardless of country."
+        bullet4: "USDC is dollar-stable — what your client sends is what you receive, no FX surprises."
+
+    how:
+        eyebrow: "How it works"
+        title: "From invoice to paid in six steps."
+        sub: "The whole flow is designed so neither you nor your client needs to think about blockchain mechanics."
+        step1_title: "You connect a payout wallet"
+        step1_body: "Paste your EVM wallet address once in Settings. The same address works across all four supported networks. If you don't have a wallet yet, install MetaMask or Coinbase Wallet — both are free and take five minutes."
+        step2_title: "You create an invoice"
+        step2_body: "Add the amount, your client's email, line items, due date. Settlepay generates a clean public payment link like settlepay.pro/pay/inv_abc123 and emails it to your client."
+        step3_title: "Your client opens the link"
+        step3_body: "Server-rendered checkout page showing your business name, the amount in USD, and the accepted networks. No account required. No KYC."
+        step4_title: "Your client connects their wallet"
+        step4_body: "MetaMask, Coinbase Wallet, Rabby, WalletConnect — any major wallet works. They pick a network with the lowest gas in their wallet, then click Pay."
+        step5_title: "Our listener watches the chain"
+        step5_body: "A daemon on our server polls all four networks every few seconds, looking for a Transfer event to your payout wallet matching your invoice. It validates the token contract against an allowlist (USDC, USDT, DAI only) and waits for enough confirmations to rule out reorgs."
+        step6_title: "Both sides get a receipt"
+        step6_body: "Invoice flips to Paid within 30 seconds of confirmation. Your client gets a PDF receipt by email. You see the payment in your dashboard. The funds are already in your wallet — Settlepay never holds them."
+
+    why:
+        eyebrow: "Why not Stripe"
+        title: "We're not anti-bank. We're pro-freelancer."
+        sub: "Stripe is excellent if you're a US business invoicing US clients. For everyone else, it's a permission system someone else controls."
+        p1_title: "Stripe doesn't work where most freelancers live"
+        p1_body: "Roughly half the countries with significant freelance populations can't access Stripe at all — Ukraine, Russia, Iran, Pakistan, Vietnam, parts of LatAm and Africa. The same countries that birthed the original boom of remote work."
+        p2_title: "We charge less because we do less"
+        p2_body: "Stripe charges 2.9% + $0.30 because they take custody, run fraud detection, fight chargebacks, and bridge to global card networks. We do none of that — we're a thin matching layer on top of public infrastructure. Our fee can stay at 0.5–1%."
+        p3_title: "No chargebacks, ever"
+        p3_body: "A stablecoin transfer is final the moment it confirms. You'll never wake up to a reversed payment 90 days later because your client claimed fraud. Trade-off: disputes happen out-of-band, like with cash."
+        p4_title: "Your money is in your wallet, not ours"
+        p4_body: "When a Stripe payout takes 7 business days to land in your bank, your money is sitting in Stripe's bank. With Settlepay, the moment the transaction confirms, the USDC is in a wallet only you control. We literally cannot freeze, delay, or claw it back."
+
+    custody:
+        title: "We never hold your money."
+        body: "Settlepay is software, not a money transmitter. Every payment flows directly from your client's wallet to yours on a public blockchain — we have no custody, no signing key, no ability to freeze funds. Our job is to match the on-chain Transfer event to your invoice and send confirmation emails."
+        detail: "This is the single most important architectural decision in the product. It's what keeps us out of money-transmitter regulation and what lets us promise that nothing we do — or that anyone could do to us — can stop you from getting paid."
+
+    who:
+        eyebrow: "Who it's for"
+        title: "Three groups we built this for."
+        p1_title: "Solo freelancers in emerging markets"
+        p1_body: "Designers in Buenos Aires, developers in Kyiv, writers in Manila, illustrators in Lagos. People doing world-class work for international clients while their local banking infrastructure treats every incoming wire like a money-laundering case."
+        p2_title: "Web3-native creators"
+        p2_body: "Designers, developers, and content creators who already get paid in crypto but cobble together payment links from Coinbase Commerce, ad-hoc wallet addresses, and Telegram messages. Settlepay gives them a clean, professional, invoice-shaped wrapper."
+        p3_title: "Small agencies billing across borders"
+        p3_body: "A studio of 3–10 people in one country invoicing clients in five. Shared workspace, shared invoices, custom branding, single consolidated billing — without each member needing to bridge USDC into their own local bank account."
+
+    cta:
+        title: "Ready to get paid like it's the 21st century?"
+        sub: "Free up to $1,000 invoiced per month. No card required. Onboarding takes under a minute — paste a wallet address, send your first invoice."
+        button: "Create an account"
 
 pricing:
     eyebrow: Pricing
@@ -310,6 +395,7 @@ footer:
     links:
         pricing: Pricing
         agency: Agency
+        about: About
         docs: Docs
         status: Status
         privacy: Privacy

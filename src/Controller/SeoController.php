@@ -78,6 +78,7 @@ class SeoController extends AbstractController
             ['route' => 'marketing_home',    'priority' => '1.0', 'changefreq' => 'weekly'],
             ['route' => 'marketing_pricing', 'priority' => '0.8', 'changefreq' => 'monthly'],
             ['route' => 'marketing_agency',  'priority' => '0.8', 'changefreq' => 'monthly'],
+            ['route' => 'marketing_about',   'priority' => '0.7', 'changefreq' => 'monthly'],
             ['route' => 'marketing_docs',    'priority' => '0.6', 'changefreq' => 'monthly'],
             ['route' => 'marketing_privacy', 'priority' => '0.3', 'changefreq' => 'yearly'],
             ['route' => 'marketing_terms',   'priority' => '0.3', 'changefreq' => 'yearly'],

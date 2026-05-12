@@ -28,6 +28,7 @@ nav:
     docs: Documentación
     pricing: Precios
     agency: Agency
+    about: Acerca
     product: Producto
     language: Idioma
     toggle_menu: Abrir menú
@@ -155,6 +156,90 @@ components_section:
     toast_info_body: 'Revisa tu bandeja en vitalii@settlepay.pro.'
     empty_title: Aún no hay facturas
     empty_sub: 'Envía tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes.'
+
+about:
+    seo:
+        title: 'Acerca de Settlepay — por qué existimos y cómo funciona'
+        description: 'Settlepay es una herramienta de facturación sin custodia que permite a los freelancers cobrar en stablecoins sobre redes L2 baratas. Pensada para quienes son bloqueados, congelados o cobrados al 5% por sus bancos al recibir una transferencia SWIFT.'
+
+    hero:
+        eyebrow: Acerca
+        title: 'Los bancos no están hechos para freelancers internacionales.'
+        sub: 'Settlepay es lo que ojalá hubiese existido cuando nosotros empezamos a facturar a clientes en el extranjero. Envía un enlace de pago. Cobra en USDC. Sáltate el banco entero. Sin procesador de tarjetas, sin SWIFT, sin cuentas congeladas.'
+        cta_primary: 'Empezar gratis — en menos de un minuto'
+        cta_secondary: 'Ver cómo funciona'
+
+    problem:
+        eyebrow: 'El problema'
+        title: 'La facturación transfronteriza está rota para la mayor parte del mundo.'
+        sub: 'La mayoría de herramientas de pagos para freelancers asume que vives en EE. UU. o la UE. Si no, cada paso es fricción.'
+        p1_title: 'SWIFT es lento y caro'
+        p1_body: 'Las transferencias internacionales tardan de 3 a 7 días hábiles. El emisor paga $25–$50, el receptor pierde otros $10–$30 al recibir, más un margen cambiario del 1–3%. Una factura de $500 suele llegar como $440 una semana después.'
+        p2_title: 'Las tarjetas bloquean a medio mundo'
+        p2_body: 'Stripe, PayPal y Wise no operan en Ucrania, Nigeria, Argentina, Pakistán, Vietnam y decenas de otros lugares donde hay freelancers serios. Los países con más talento freelance son los más excluidos de los rieles de pago.'
+        p3_title: 'Los bancos congelan cuentas sin avisar'
+        p3_body: 'Una transferencia de un cliente nuevo dispara una revisión por fraude. Te bloquean la cuenta. Pasas dos semanas en espera demostrando que la factura es real, mientras el alquiler vence. Le ocurre rutinariamente a freelancers en mercados emergentes.'
+        p4_title: 'Las comisiones se comen el 5–8% de cada factura'
+        p4_body: 'Suma comisiones de transferencia + margen cambiario + procesador de tarjeta + la pérdida al convertir a la moneda local, y el freelancer internacional típico pierde el 5–8% de cada dólar antes de que le llegue al bolsillo.'
+
+    solution:
+        eyebrow: 'Nuestra solución'
+        title: 'Stablecoins en redes L2 baratas.'
+        body: 'Una stablecoin es un token vinculado 1:1 al dólar. USDC lo emite Circle, está respaldado por reservas completas y es canjeable por dólares reales. Nosotros no emitimos tokens — usamos los que ya millones de personas confían. Los pagos se liquidan en segundos en Base, Polygon, Arbitrum y Optimism — redes Layer 2 donde una transacción cuesta alrededor de un centavo.'
+        bullet1: 'Los fondos van directamente del wallet de tu cliente al tuyo. Settlepay nunca toca el dinero.'
+        bullet2: 'Un pago típico cuesta $0,01–0,05 en comisiones de red, frente a $40+ por una transferencia SWIFT.'
+        bullet3: 'Los pagos llegan en 5–30 segundos, de forma definitiva, independientemente del país.'
+        bullet4: 'USDC está vinculado al dólar — lo que tu cliente envía es lo que recibes, sin sorpresas cambiarias.'
+
+    how:
+        eyebrow: 'Cómo funciona'
+        title: 'De la factura al cobro en seis pasos.'
+        sub: 'Todo el flujo está diseñado para que ni tú ni tu cliente tengan que pensar en blockchain.'
+        step1_title: 'Conectas una billetera de cobro'
+        step1_body: 'Pega tu dirección EVM una vez en Ajustes. La misma dirección funciona en las cuatro redes. Si aún no tienes wallet, instala MetaMask o Coinbase Wallet — ambas gratis y se configuran en cinco minutos.'
+        step2_title: 'Creas una factura'
+        step2_body: 'Añade el importe, el email del cliente, las partidas, la fecha de vencimiento. Settlepay genera un enlace público limpio tipo settlepay.pro/pay/inv_abc123 y se lo envía por correo a tu cliente.'
+        step3_title: 'Tu cliente abre el enlace'
+        step3_body: 'Página de checkout con el nombre de tu negocio, el importe en USD y las redes aceptadas. No necesita cuenta. No necesita KYC.'
+        step4_title: 'Tu cliente conecta su wallet'
+        step4_body: 'MetaMask, Coinbase Wallet, Rabby, WalletConnect — cualquier wallet importante sirve. Elige la red con menor gas en su balance y pulsa Pagar.'
+        step5_title: 'Nuestro escuchador observa la cadena'
+        step5_body: 'Un demonio en nuestro servidor consulta las cuatro redes cada pocos segundos buscando un evento Transfer a tu dirección que coincida con tu factura. Valida el contrato del token contra una lista (USDC, USDT, DAI) y espera las confirmaciones suficientes para descartar una reorganización.'
+        step6_title: 'Ambas partes reciben un recibo'
+        step6_body: 'La factura pasa a Pagada en los 30 segundos posteriores a la confirmación. Tu cliente recibe un PDF por correo. Tú ves el pago en tu panel. Los fondos ya están en tu wallet — Settlepay nunca los retiene.'
+
+    why:
+        eyebrow: 'Por qué no Stripe'
+        title: 'No estamos contra los bancos. Estamos a favor de los freelancers.'
+        sub: 'Stripe es excelente si eres un negocio estadounidense facturando a clientes estadounidenses. Para el resto, es un sistema de permisos que controla otra persona.'
+        p1_title: 'Stripe no funciona donde vive la mayoría de freelancers'
+        p1_body: 'Aproximadamente la mitad de los países con poblaciones freelance significativas no pueden acceder a Stripe — Ucrania, Rusia, Irán, Pakistán, Vietnam, partes de Latinoamérica y África. Los mismos países que dieron pie al primer boom del trabajo remoto.'
+        p2_title: 'Cobramos menos porque hacemos menos'
+        p2_body: 'Stripe cobra 2,9% + $0,30 porque toma custodia, ejecuta detección de fraude, pelea contracargos y conecta con las redes globales de tarjetas. Nosotros no hacemos nada de eso — somos una capa fina de emparejamiento sobre infraestructura pública. Por eso nuestra tarifa se queda en 0,5–1%.'
+        p3_title: 'Cero contracargos, nunca'
+        p3_body: 'Una transferencia de stablecoin es definitiva en cuanto se confirma. Nunca te despertarás con un pago revertido 90 días después porque el cliente alegó fraude. La contrapartida: las disputas se resuelven fuera del sistema, como con el efectivo.'
+        p4_title: 'Tu dinero está en tu wallet, no en la nuestra'
+        p4_body: 'Cuando un payout de Stripe tarda 7 días hábiles en llegar a tu banco, tu dinero está en el banco de Stripe. Con Settlepay, en el instante en que se confirma la transacción, el USDC ya está en una wallet que solo tú controlas. Literalmente no podemos congelarlo, retrasarlo ni revertirlo.'
+
+    custody:
+        title: 'Nunca tocamos tu dinero.'
+        body: 'Settlepay es software, no un transmisor de dinero. Cada pago fluye directamente desde la wallet de tu cliente hasta la tuya en una blockchain pública — no tenemos custodia, no tenemos clave de firma, no podemos congelar fondos. Nuestro trabajo es emparejar el evento Transfer on-chain con tu factura y enviar los correos de confirmación.'
+        detail: 'Es la decisión arquitectónica más importante del producto. Es lo que nos mantiene fuera de la regulación de transmisión de dinero y lo que nos permite prometer que nada que hagamos — o que nos pueda pasar — impide que cobres.'
+
+    who:
+        eyebrow: 'Para quién es'
+        title: 'Tres grupos para los que lo construimos.'
+        p1_title: 'Freelancers en mercados emergentes'
+        p1_body: 'Diseñadores en Buenos Aires, programadores en Kiev, redactores en Manila, ilustradores en Lagos. Personas haciendo trabajo de clase mundial para clientes internacionales mientras su infraestructura bancaria local trata cada transferencia entrante como un caso de lavado.'
+        p2_title: 'Creadores nativos de Web3'
+        p2_body: 'Diseñadores, programadores y creadores de contenido que ya cobran en cripto pero juntan los pagos a partir de enlaces de Coinbase Commerce, direcciones de wallet sueltas y mensajes de Telegram. Settlepay les da un envoltorio limpio y profesional con forma de factura.'
+        p3_title: 'Agencias pequeñas que facturan al extranjero'
+        p3_body: 'Un estudio de 3–10 personas en un país facturando a clientes en cinco. Workspace compartido, facturas compartidas, branding propio, una sola suscripción consolidada — sin que cada miembro tenga que pasar el USDC por su banco local.'
+
+    cta:
+        title: '¿Listo para cobrar como en el siglo XXI?'
+        sub: 'Gratis hasta $1.000 facturados al mes. Sin tarjeta. La incorporación toma menos de un minuto — pega una dirección de wallet y envía tu primera factura.'
+        button: 'Crear una cuenta'
 
 pricing:
     eyebrow: Precios
@@ -308,6 +393,7 @@ footer:
     links:
         pricing: Precios
         agency: Agency
+        about: Acerca
         docs: Documentación
         status: Estado
         privacy: Privacidad
