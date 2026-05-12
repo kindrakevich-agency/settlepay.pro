@@ -1,0 +1,54 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% block dashboard_title %}Admin · Workspaces{% endblock %}
+
+{% block dashboard_content %}
+    <header class="mb-6">
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Workspaces</h1>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ workspaces|length }} total — most recent first.</p>
+    </header>
+
+    {% include 'dashboard/admin/_nav.html.twig' %}
+
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs uppercase text-slate-500 text-left bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                        <th class="py-2.5 px-3">#</th>
+                        <th class="py-2.5 px-3">Name</th>
+                        <th class="py-2.5 px-3">Plan</th>
+                        <th class="py-2.5 px-3">Renews</th>
+                        <th class="py-2.5 px-3">Owner</th>
+                        <th class="py-2.5 px-3">Seats</th>
+                        <th class="py-2.5 px-3">Invoices</th>
+                        <th class="py-2.5 px-3">Fees owed</th>
+                        <th class="py-2.5 px-3">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for w in workspaces %}
+                        {% set planClass = {
+                            agency: 'bg-info-50 dark:bg-info-500/10 text-info-600',
+                            pro:    'bg-success-50 dark:bg-success-500/10 text-success-600',
+                            free:   'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        } %}
+                        <tr>
+                            <td class="py-2 px-3 text-slate-500 font-mono">{{ w.id }}</td>
+                            <td class="py-2 px-3 font-medium">{{ w.name }}</td>
+                            <td class="py-2 px-3">
+                                <span class="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 {{ planClass[w.plan] ?? planClass.free }}">{{ w.plan|capitalize }}</span>
+                            </td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ w.plan_renews_at ? w.plan_renews_at|date('Y-m-d') : '—' }}</td>
+                            <td class="py-2 px-3 text-slate-600 dark:text-slate-400">{{ w.owner_email }}</td>
+                            <td class="py-2 px-3 tabular-nums">{{ w.members }}/{{ w.seat_limit }}</td>
+                            <td class="py-2 px-3 tabular-nums">{{ w.invoices_paid }}/{{ w.invoices }}</td>
+                            <td class="py-2 px-3 tabular-nums">${{ (w.fees_owed_cents / 100)|number_format(2, '.', ',') }}</td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ w.created_at|date('Y-m-d') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

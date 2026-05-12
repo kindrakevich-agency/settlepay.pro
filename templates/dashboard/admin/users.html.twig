@@ -1,0 +1,60 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% block dashboard_title %}Admin · Users{% endblock %}
+
+{% block dashboard_content %}
+    <header class="mb-6">
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Users</h1>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">{{ users|length }} total — most recent first.</p>
+    </header>
+
+    {% include 'dashboard/admin/_nav.html.twig' %}
+
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs uppercase text-slate-500 text-left bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                        <th class="py-2.5 px-3">#</th>
+                        <th class="py-2.5 px-3">Email</th>
+                        <th class="py-2.5 px-3">Display name</th>
+                        <th class="py-2.5 px-3">Auth</th>
+                        <th class="py-2.5 px-3">Verified</th>
+                        <th class="py-2.5 px-3">Workspaces</th>
+                        <th class="py-2.5 px-3">Joined</th>
+                        <th class="py-2.5 px-3">Last login</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for u in users %}
+                        <tr>
+                            <td class="py-2 px-3 text-slate-500 font-mono">{{ u.id }}</td>
+                            <td class="py-2 px-3 font-medium">{{ u.email }}</td>
+                            <td class="py-2 px-3 text-slate-600 dark:text-slate-400">{{ u.display_name ?: '—' }}</td>
+                            <td class="py-2 px-3">
+                                {% if u.google_sub %}
+                                    <span class="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 bg-info-50 dark:bg-info-500/10 text-info-600">Google</span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Email</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-2 px-3">
+                                {% if u.email_verified_at %}
+                                    <span class="text-success-600">✓</span>
+                                {% else %}
+                                    <span class="text-warning-600">pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-2 px-3 text-slate-600 dark:text-slate-400">
+                                <span class="tabular-nums">{{ u.workspace_count }}</span>
+                                {% if u.workspaces %}<span class="text-xs text-slate-500 ml-1">· {{ u.workspaces }}</span>{% endif %}
+                            </td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ u.created_at|date('Y-m-d H:i') }}</td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ u.last_login_at ? u.last_login_at|date('Y-m-d H:i') : '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

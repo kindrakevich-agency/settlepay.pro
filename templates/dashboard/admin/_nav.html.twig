@@ -1,0 +1,19 @@
+{% set locale = app.request.locale|default('en') %}
+{% set tabs = [
+    {route: 'dashboard_admin',            label: 'Overview'},
+    {route: 'dashboard_admin_users',      label: 'Users'},
+    {route: 'dashboard_admin_workspaces', label: 'Workspaces'},
+    {route: 'dashboard_admin_payments',   label: 'Payments'}
+] %}
+<nav class="mb-6 border-b border-slate-200 dark:border-slate-800 flex gap-1 -mx-1 overflow-x-auto">
+    {% for t in tabs %}
+        {% set active = current_route == t.route %}
+        <a href="{{ path(t.route, {_locale: locale}) }}"
+           class="px-3 py-2 text-sm font-medium border-b-2 -mb-px transition whitespace-nowrap
+                  {{ active
+                      ? 'border-brand-600 text-slate-900 dark:text-slate-50'
+                      : 'border-transparent text-slate-500 hover:text-slate-900 dark:hover:text-slate-100' }}">
+            {{ t.label }}
+        </a>
+    {% endfor %}
+</nav>

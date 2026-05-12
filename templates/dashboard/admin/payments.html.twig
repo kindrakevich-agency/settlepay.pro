@@ -1,0 +1,105 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% block dashboard_title %}Admin · Payments{% endblock %}
+
+{% block dashboard_content %}
+    {% set explorers = {
+        1: 'https://etherscan.io/tx/',
+        8453: 'https://basescan.org/tx/',
+        137: 'https://polygonscan.com/tx/',
+        42161: 'https://arbiscan.io/tx/',
+        10: 'https://optimistic.etherscan.io/tx/',
+        84532: 'https://sepolia.basescan.org/tx/',
+        11155420: 'https://sepolia-optimism.etherscan.io/tx/',
+        421614: 'https://sepolia.arbiscan.io/tx/'
+    } %}
+    {% set chainNames = {
+        1: 'Ethereum', 8453: 'Base', 137: 'Polygon', 42161: 'Arbitrum', 10: 'Optimism',
+        84532: 'Base Sepolia', 11155420: 'OP Sepolia', 421614: 'Arb Sepolia'
+    } %}
+
+    <header class="mb-6">
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Payments</h1>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Fee revenue + recent invoice settlements. Tx hashes link to block explorers.</p>
+    </header>
+
+    {% include 'dashboard/admin/_nav.html.twig' %}
+
+    <h2 class="font-semibold mb-3">Fee payments (subscription + fee settlement)</h2>
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden mb-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs uppercase text-slate-500 text-left bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                        <th class="py-2.5 px-3">#</th>
+                        <th class="py-2.5 px-3">Workspace</th>
+                        <th class="py-2.5 px-3">Kind</th>
+                        <th class="py-2.5 px-3">Amount</th>
+                        <th class="py-2.5 px-3">Chain</th>
+                        <th class="py-2.5 px-3">Tx</th>
+                        <th class="py-2.5 px-3">Payer</th>
+                        <th class="py-2.5 px-3">When</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for p in fee_payments %}
+                        <tr>
+                            <td class="py-2 px-3 text-slate-500 font-mono">{{ p.id }}</td>
+                            <td class="py-2 px-3 font-medium">{{ p.workspace_name }}</td>
+                            <td class="py-2 px-3 text-slate-600 dark:text-slate-400">{{ p.kind }}</td>
+                            <td class="py-2 px-3 tabular-nums">${{ (p.amount_usd_cents / 100)|number_format(2, '.', ',') }}</td>
+                            <td class="py-2 px-3 text-slate-500">{{ chainNames[p.chain_id] ?? p.chain_id }}</td>
+                            <td class="py-2 px-3 font-mono text-xs">
+                                <a class="text-brand-600 hover:underline" target="_blank" rel="noopener" href="{{ explorers[p.chain_id] ?? '#' }}{{ p.tx_hash }}">
+                                    {{ p.tx_hash|slice(0, 10) }}…
+                                </a>
+                            </td>
+                            <td class="py-2 px-3 font-mono text-xs text-slate-500">{{ p.payer_address|slice(0, 10) }}…</td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ p.created_at|date('Y-m-d H:i') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="8" class="py-4 px-3 text-center text-slate-500">No fee payments yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2 class="font-semibold mb-3">Invoice payments (client → freelancer)</h2>
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs uppercase text-slate-500 text-left bg-slate-50 dark:bg-slate-800/50">
+                    <tr>
+                        <th class="py-2.5 px-3">#</th>
+                        <th class="py-2.5 px-3">Invoice</th>
+                        <th class="py-2.5 px-3">Workspace</th>
+                        <th class="py-2.5 px-3">Amount</th>
+                        <th class="py-2.5 px-3">Chain</th>
+                        <th class="py-2.5 px-3">Tx</th>
+                        <th class="py-2.5 px-3">When</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for p in invoice_payments %}
+                        <tr>
+                            <td class="py-2 px-3 text-slate-500 font-mono">{{ p.id }}</td>
+                            <td class="py-2 px-3 font-medium">{{ p.invoice_number ?: '—' }}</td>
+                            <td class="py-2 px-3 text-slate-600 dark:text-slate-400">{{ p.workspace_name ?: '(orphan)' }}</td>
+                            <td class="py-2 px-3 tabular-nums">${{ (p.amount_usd_cents / 100)|number_format(2, '.', ',') }}</td>
+                            <td class="py-2 px-3 text-slate-500">{{ chainNames[p.chain_id] ?? p.chain_id }}</td>
+                            <td class="py-2 px-3 font-mono text-xs">
+                                <a class="text-brand-600 hover:underline" target="_blank" rel="noopener" href="{{ explorers[p.chain_id] ?? '#' }}{{ p.tx_hash }}">
+                                    {{ p.tx_hash|slice(0, 10) }}…
+                                </a>
+                            </td>
+                            <td class="py-2 px-3 text-slate-500 whitespace-nowrap">{{ p.confirmed_at|date('Y-m-d H:i') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="7" class="py-4 px-3 text-center text-slate-500">No invoice payments yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

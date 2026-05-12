@@ -1,0 +1,100 @@
+{% extends 'dashboard/_layout.html.twig' %}
+
+{% block dashboard_title %}Admin · Overview{% endblock %}
+
+{% block dashboard_content %}
+    <header class="mb-6">
+        <h1 class="font-display text-2xl sm:text-3xl font-semibold tracking-tight">Admin</h1>
+        <p class="mt-1.5 text-sm text-slate-500 dark:text-slate-400">Read-only ops view — driven by ADMIN_EMAILS env.</p>
+    </header>
+
+    {% include 'dashboard/admin/_nav.html.twig' %}
+
+    {# Top counters #}
+    <div class="grid sm:grid-cols-4 gap-4 mb-6">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total users</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums">{{ users }}</div>
+            <p class="mt-1 text-xs text-slate-500">{{ users_google }} via Google · {{ users_verified }} verified</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Last 7 days</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums">{{ users_last_7d }}</div>
+            <p class="mt-1 text-xs text-slate-500">new signups</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Fee revenue</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums">
+                ${{ (fee_payments.total_cents / 100)|number_format(2, '.', ',') }}
+            </div>
+            <p class="mt-1 text-xs text-slate-500">across {{ fee_payments.payments }} payments</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Invoices paid (gross)</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums">
+                ${{ (invoice_paid_cents / 100)|number_format(2, '.', ',') }}
+            </div>
+            <p class="mt-1 text-xs text-slate-500">client → freelancer total</p>
+        </div>
+    </div>
+
+    {# Workspaces by plan + invoices by status #}
+    <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <h2 class="font-semibold mb-3">Workspaces by plan</h2>
+            <ul class="space-y-1.5 text-sm">
+                {% for row in workspaces_by_plan %}
+                    <li class="flex justify-between"><span>{{ row.plan|capitalize }}</span><span class="font-mono tabular-nums text-slate-500">{{ row.n }}</span></li>
+                {% else %}
+                    <li class="text-slate-500">no workspaces yet</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <h2 class="font-semibold mb-3">Invoices by status</h2>
+            <ul class="space-y-1.5 text-sm">
+                {% for row in invoices_by_status %}
+                    <li class="flex justify-between"><span>{{ row.status|capitalize }}</span><span class="font-mono tabular-nums text-slate-500">{{ row.n }}</span></li>
+                {% else %}
+                    <li class="text-slate-500">no invoices yet</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    {# Recent signups #}
+    <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="font-semibold">Recent signups</h2>
+            <a href="{{ path('dashboard_admin_users', {_locale: app.request.locale|default('en')}) }}"
+               class="text-sm text-brand-600 hover:text-brand-700">See all →</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="text-xs uppercase text-slate-500 text-left">
+                    <tr><th class="py-2 pr-3">#</th><th class="py-2 pr-3">Email</th><th class="py-2 pr-3">Via</th><th class="py-2 pr-3">WS</th><th class="py-2 pr-3">Joined</th><th class="py-2 pr-3">Last login</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    {% for u in recent_users %}
+                        <tr>
+                            <td class="py-2 pr-3 text-slate-500 font-mono">{{ u.id }}</td>
+                            <td class="py-2 pr-3 font-medium">{{ u.email }}</td>
+                            <td class="py-2 pr-3">
+                                {% if u.via_google %}
+                                    <span class="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 bg-info-50 dark:bg-info-500/10 text-info-600">Google</span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 text-xs rounded-full px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Email</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-2 pr-3 tabular-nums">{{ u.workspace_count }}</td>
+                            <td class="py-2 pr-3 text-slate-500">{{ u.created_at|date('Y-m-d H:i') }}</td>
+                            <td class="py-2 pr-3 text-slate-500">{{ u.last_login_at ? u.last_login_at|date('Y-m-d H:i') : '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="py-4 text-center text-slate-500">No signups yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
