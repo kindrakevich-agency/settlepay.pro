@@ -1,0 +1,36 @@
+{#
+    Google Identity Services button + posts the returned credential to /auth/google.
+
+    Renders nothing when GOOGLE_AUTH_ENABLED=0 or GOOGLE_CLIENT_ID is empty
+    (kill-switch).
+
+    The button itself is rendered by Google's GIS script — we just configure
+    it via the data-* attributes on the div. The credential POSTs to
+    /auth/google with both a CSRF body field and matching cookie (double-
+    submit pattern, recommended by Google's docs).
+#}
+{% if google_auth_enabled() %}
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <div id="g_id_onload"
+         data-client_id="{{ google_client_id() }}"
+         data-login_uri="{{ url('auth_google') }}"
+         data-ux_mode="redirect"
+         data-auto_select="false"
+         data-itp_support="true"></div>
+
+    <div class="g_id_signin flex justify-center"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="continue_with"
+         data-size="large"
+         data-logo_alignment="left"
+         data-width="320"></div>
+
+    <div class="my-5 flex items-center gap-3 text-xs text-slate-400 uppercase tracking-wider">
+        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+        <span>{{ 'auth.or'|trans }}</span>
+        <div class="h-px flex-1 bg-slate-200 dark:bg-slate-700"></div>
+    </div>
+{% endif %}

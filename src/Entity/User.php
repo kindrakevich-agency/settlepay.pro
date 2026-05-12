@@ -39,6 +39,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'email_verification_expires_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeInterface $emailVerificationExpiresAt = null;
 
+    /** Stable Google user id (the `sub` claim). Set on first GIS sign-in; never changes. */
+    #[ORM\Column(name: 'google_sub', length: 64, nullable: true, unique: true)]
+    private ?string $googleSub = null;
+
     #[ORM\Column(name: 'password_reset_token', length: 64, nullable: true)]
     private ?string $passwordResetToken = null;
 
@@ -147,6 +151,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmailVerificationToken(?string $t): self { $this->emailVerificationToken = $t; return $this; }
     public function getEmailVerificationExpiresAt(): ?\DateTimeInterface { return $this->emailVerificationExpiresAt; }
     public function setEmailVerificationExpiresAt(?\DateTimeInterface $d): self { $this->emailVerificationExpiresAt = $d; return $this; }
+    public function getGoogleSub(): ?string                   { return $this->googleSub; }
+    public function setGoogleSub(?string $s): self            { $this->googleSub = $s; return $this; }
 
     public function getPasswordResetToken(): ?string { return $this->passwordResetToken; }
     public function setPasswordResetToken(?string $t): self { $this->passwordResetToken = $t; return $this; }

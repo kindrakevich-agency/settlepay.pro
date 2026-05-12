@@ -17,6 +17,8 @@
         </div>
     {% endif %}
 
+    {% include 'auth/_google_button.html.twig' %}
+
     <form method="POST" novalidate class="space-y-4">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('register') }}">
 

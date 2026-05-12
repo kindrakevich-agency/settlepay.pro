@@ -499,6 +499,7 @@ auth:
     password: Contraseña
     password_confirm: Confirma la contraseña
     password_hint: 'Mínimo 12 caracteres. Mejor una frase fácil de recordar.'
+    or: o
     register:
         title: Crea tu cuenta
         sub: 'Manda tu primera factura en menos de un minuto. Gratis hasta $1.000 al mes.'

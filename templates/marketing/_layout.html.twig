@@ -8,4 +8,17 @@
 {% block marketing_content %}{% endblock %}
 
 {% include 'marketing/_footer.html.twig' %}
+
+{# Google One Tap — auto-prompts visitors already signed in to Google.
+   Renders nothing for logged-in Settlepay users or when the feature is off. #}
+{% if app.user is null and google_auth_enabled() %}
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <div id="g_id_onload"
+         data-client_id="{{ google_client_id() }}"
+         data-login_uri="{{ url('auth_google') }}"
+         data-ux_mode="redirect"
+         data-cancel_on_tap_outside="false"
+         data-itp_support="true"
+         data-prompt_parent_id="g_id_onload"></div>
+{% endif %}
 {% endblock %}

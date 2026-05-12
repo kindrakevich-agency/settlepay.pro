@@ -501,6 +501,7 @@ auth:
     password: Password
     password_confirm: Confirm password
     password_hint: 'At least 12 characters. Use a passphrase you can remember.'
+    or: or
     register:
         title: Create your account
         sub: 'Send your first invoice in under a minute. Free up to $1,000 invoiced/month.'

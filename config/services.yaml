@@ -12,6 +12,8 @@ services:
             $appEnv: '%kernel.environment%'
             $mailerFromAddress: '%env(MAILER_FROM_ADDRESS)%'
             $mailerFromName: '%env(MAILER_FROM_NAME)%'
+            $googleClientId: '%env(string:GOOGLE_CLIENT_ID)%'
+            $googleAuthEnabled: '%env(bool:GOOGLE_AUTH_ENABLED)%'
 
     App\:
         resource: '../src/'
