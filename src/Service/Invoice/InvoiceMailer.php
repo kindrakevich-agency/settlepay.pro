@@ -159,7 +159,7 @@ final class InvoiceMailer
         $freelancerEmail = (new TemplatedEmail())
             ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($invoice->getUser()->getEmail())
-            ->subject(sprintf('You got paid: %s — $%s %s', $invoice->getNumber(), $amountDecimal, $invoice->getCurrency()))
+            ->subject(sprintf('Payment received — %s (%s %s)', $invoice->getNumber(), $amountDecimal, $invoice->getCurrency()))
             ->htmlTemplate('emails/invoices/paid_freelancer.html.twig')
             ->textTemplate('emails/invoices/paid_freelancer.txt.twig')
             ->context($ctx);

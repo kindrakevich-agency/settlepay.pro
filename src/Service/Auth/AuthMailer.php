@@ -39,8 +39,9 @@ final class AuthMailer
         $email = (new TemplatedEmail())
             ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($user->getEmail())
-            ->subject('Confirm your Settlepay email')
+            ->subject('Confirm your settlepay.pro email')
             ->htmlTemplate('emails/auth/verify_email.html.twig')
+            ->textTemplate('emails/auth/verify_email.txt.twig')
             ->context(['url' => $url, 'user' => $user]);
 
         $this->mailer->send($email);
@@ -58,8 +59,9 @@ final class AuthMailer
         $email = (new TemplatedEmail())
             ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($user->getEmail())
-            ->subject('Reset your Settlepay password')
+            ->subject('Reset your settlepay.pro password')
             ->htmlTemplate('emails/auth/reset_password.html.twig')
+            ->textTemplate('emails/auth/reset_password.txt.twig')
             ->context(['url' => $url, 'user' => $user]);
 
         $this->mailer->send($email);
