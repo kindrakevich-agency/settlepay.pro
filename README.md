@@ -27,10 +27,11 @@ Settle is a SaaS platform that lets freelancers send professional invoices and g
 12. [Design system](#design-system)
 13. [Security model](#security-model)
 14. [Sending email (Resend setup)](#sending-email-resend-setup)
-15. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
-16. [Deployment](#deployment)
-17. [Roadmap](#roadmap)
-18. [License](#license)
+15. [Google sign-in (optional)](#google-sign-in-optional)
+16. [Running the chain listener (daemon)](#running-the-chain-listener-daemon)
+17. [Deployment](#deployment)
+18. [Roadmap](#roadmap)
+19. [License](#license)
 
 ---
 
@@ -454,6 +455,70 @@ To preview against a real inbox during dev, drop a Resend "test" mode key into `
 | `403 Forbidden` from Resend | API key wrong scope or revoked | Generate a fresh key, scope = "Sending access" |
 | Email received but in spam | DKIM/SPF not propagated yet, or first-touch from a cold domain | Wait 1 hour, mark as not-spam once. Subsequent emails will inbox |
 | `domain not verified` | DNS records missing or wrong | Run `dig +short TXT resend._domainkey.settlepay.pro` and compare against Resend dashboard |
+
+---
+
+## Google sign-in (optional)
+
+Optional "Continue with Google" button alongside the email/password flow. Uses **Google Identity Services (GIS)** with the **ID-token flow** (`ux_mode=redirect`) — no client secret in the browser, no OAuth-redirect-back-to-callback dance. Google posts a signed JWT to `/auth/google`, the backend verifies the signature against Google's JWKS, then logs the user in.
+
+Disabled by default. Flip `GOOGLE_AUTH_ENABLED=1` in `.env.local` to turn it on.
+
+### What you get when enabled
+
+- **"Continue with Google" button** above email/password on `/login`, `/register`, and the workspace-invitation accept page.
+- **Google One Tap** auto-prompt on the marketing home for logged-out visitors who are already signed into Google in another browser tab.
+- **Auto-provisioning** — first sign-in creates the user (with `email_verified_at=now`, since Google verified the email), a personal `Workspace`, and an owner `WorkspaceMember` row. Same code path as the email-registration `provisionWorkspace()` helper.
+- **Auto-accept pending invites** — if a teammate was invited by email and signs up via Google with the same address, they're added to the inviting workspace immediately.
+- **Auto-link by email** — existing email/password account picks up `google_sub` on first Google sign-in. One human = one account.
+- **Kill switch** — set `GOOGLE_AUTH_ENABLED=0`, `cache:clear`, and the button hides everywhere + `/auth/google` returns 404. Useful if Google rotates keys or suspends your project.
+
+### One-time setup (Google Cloud Console)
+
+1. **Create a project** at <https://console.cloud.google.com/>: top-left dropdown → New Project → name it whatever you want.
+2. **Configure the OAuth consent screen**:
+   - User type: **External**
+   - App name, support email, app home URL, authorized domains (`settlepay.pro`), developer contact.
+   - Scopes: tick `openid`, `email`, `profile`.
+   - **Publish app** (Audience tab) so it leaves "Testing" status and any Google user can sign in.
+3. **Create the OAuth 2.0 Client ID**: Credentials → Create Credentials → OAuth client ID.
+   - Application type: **Web application**
+   - **Authorized JavaScript origins**:
+     - `https://settlepay.pro`
+     - `https://www.settlepay.pro`
+     - `http://localhost:8080` *(dev only)*
+   - **Authorized redirect URIs** (required because we use `ux_mode=redirect`):
+     - `https://settlepay.pro/auth/google`
+     - `https://www.settlepay.pro/auth/google`
+     - `http://localhost:8080/auth/google` *(dev only)*
+4. **Copy the Client ID** — looks like `123456789012-xxxxxxxxxx.apps.googleusercontent.com`. The Client Secret is NOT used (ID-token flow doesn't need it).
+
+### `.env.local` config
+
+```env
+GOOGLE_AUTH_ENABLED=1
+GOOGLE_CLIENT_ID=123456789012-xxxxxxxxxx.apps.googleusercontent.com
+```
+
+The Client ID is **public-by-design** — it ships in the production JS bundle (Google needs it client-side to initialize the GIS library). The real security boundary is the **Authorized JavaScript origins** allowlist you configured in step 3 — only browsers loading the page from those origins can use the Client ID. Same model as a Stripe publishable key. Do NOT commit `GOOGLE_CLIENT_ID` to the repo; keep it in `.env.local` and GitHub Actions Secrets only.
+
+### How it's wired
+
+- `src/Controller/Auth/GoogleAuthController.php` — `POST /auth/google`. Validates the double-submit CSRF (Google sets a `g_csrf_token` cookie + posts the same value in the body). On success, verifies the JWT, finds-or-creates the user, provisions workspace + auto-accepts invites, then `Security::login($user, firewallName: 'main')`.
+- `src/Service/Auth/GoogleTokenVerifier.php` — native JWT-against-JWKS verifier (~60 lines, no external library). Caches Google's JWKS for 1 hour, busts the cache + retries once on `kid` rotation. Validates `iss`, `aud`, `exp`, `iat`, and `email_verified` claims.
+- `templates/auth/_google_button.html.twig` — official GIS button widget + "or" divider, conditionally rendered via `{% if google_auth_enabled() %}` (Twig function from `App\Twig\GoogleAuthExtension`).
+- `users.google_sub VARCHAR(64) UNIQUE` — stable Google user id, stamped on first sign-in. We use this (not the email) for re-authentication to protect against email-change attacks.
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---|---|---|
+| `Error 400: redirect_uri_mismatch` | The `/auth/google` URL is missing from **Authorized redirect URIs** in your OAuth client | Add `https://<your-domain>/auth/google` (and `https://www.<your-domain>/auth/google`) in Google Cloud Console → Credentials → your client. Wait ~30s for propagation. |
+| Button doesn't appear on `/login` | `GOOGLE_AUTH_ENABLED=0` or `GOOGLE_CLIENT_ID` is empty | Set both in `.env.local`, then `bin/console cache:clear` + reload PHP-FPM. |
+| `auth.csrf_mismatch` JSON error | Some browser extension or proxy stripped the `g_csrf_token` cookie | Try again in an incognito window without extensions; cookie is `SameSite=Lax`, set first-party by Google for our domain. |
+| `auth.google_invalid` with "JWT signature invalid" | Google rotated keys mid-request — JWKS cache miss + new key | The verifier auto-busts the cache + retries once. If it still fails, the user's session token may have been tampered with. |
+| `auth.google_invalid` with "JWT aud does not match" | Wrong `GOOGLE_CLIENT_ID` in `.env.local` (e.g., dev client ID on production) | Confirm the client ID matches the one you intend to use; one per environment is fine. |
+| User can sign in but lands on a 500 | Workspace provisioning failed | Should not happen — same path as the regular registration flow (fixed in `c2a7eed`). Check Sentry. |
 
 ---
 
