@@ -93,6 +93,36 @@ class BillingIntentRepository extends ServiceEntityRepository
     }
 
     /**
+     * Distinct chain IDs referenced by any pending non-expired billing
+     * intent OR any intent created in the last 24h (late-payer grace).
+     * The listener uses this to skip polling chains that have no active
+     * billing activity.
+     *
+     * @return int[]
+     */
+    public function getActiveChainIds(): array
+    {
+        $now    = new \DateTimeImmutable();
+        $window = $now->modify('-24 hours');
+        $rows = $this->createQueryBuilder('i')
+            ->select('i.acceptedChains')
+            ->where('(i.status = :pending AND i.expiresAt > :now) OR i.createdAt > :window')
+            ->setParameter('pending', BillingIntentStatus::Pending->value)
+            ->setParameter('now', $now)
+            ->setParameter('window', $window)
+            ->getQuery()
+            ->getResult();
+
+        $chains = [];
+        foreach ($rows as $r) {
+            foreach (($r['acceptedChains'] ?? []) as $c) {
+                $chains[(int) $c] = true;
+            }
+        }
+        return array_keys($chains);
+    }
+
+    /**
      * Should the listener be watching the platform wallet right now?
      *
      * Two conditions:

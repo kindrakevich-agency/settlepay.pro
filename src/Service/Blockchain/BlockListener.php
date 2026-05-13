@@ -57,6 +57,14 @@ final class BlockListener
         }
         $chainId = (int) $chainCfg['chain_id'];
 
+        // Cheap early-exit: skip the chain entirely (no eth_blockNumber,
+        // no eth_getLogs) when nobody is accepting payment on it AND no
+        // billing intent has touched it recently. Two DB reads in front
+        // of two RPC calls every 5 seconds is a great trade.
+        if (!$this->hasWatchTargetsForChain($chainId)) {
+            return 0;
+        }
+
         // Where are we?
         $cursor = $this->cursors->getOrCreate($chainId, startBlock: 0);
         $rpcUrl = $this->resolveRpcUrl($chainCfg);
@@ -98,7 +106,7 @@ final class BlockListener
         // pending-intent check is one cheap DB count vs every eth_getLogs
         // costing ~75-260 Alchemy CUs.
         $platformAddr = $this->platformWallet->getAddress();
-        if ($platformAddr !== null && $this->billingIntents->shouldWatchPlatformWallet()) {
+        if ($platformAddr !== null && !empty($this->activeIntentChainIds())) {
             $recipients[] = $platformAddr;
             $recipients = array_values(array_unique($recipients));
         }
@@ -199,6 +207,60 @@ final class BlockListener
             ]);
         }
         return $processed;
+    }
+
+    /**
+     * Cached per-instance check: does anything on this chain need watching?
+     * Called from tick() per chain; the in-memory cache means the DB
+     * queries fire at most once per process iteration even when we walk
+     * 4+ chains.
+     */
+    private function hasWatchTargetsForChain(int $chainId): bool
+    {
+        return in_array($chainId, $this->openChainIds(), true)
+            || in_array($chainId, $this->activeIntentChainIds(), true);
+    }
+
+    /** @var int[]|null */
+    private ?array $openChainIdsCache = null;
+    private ?int   $openChainIdsCacheAt = null;
+
+    /** @var int[]|null */
+    private ?array $intentChainIdsCache = null;
+    private ?int   $intentChainIdsCacheAt = null;
+
+    /** Cache for 60s — fresh enough for new invoices to be picked up promptly. */
+    private const WATCH_CACHE_TTL = 60;
+
+    /** @return int[] */
+    private function openChainIds(): array
+    {
+        if ($this->openChainIdsCache !== null && (time() - $this->openChainIdsCacheAt) < self::WATCH_CACHE_TTL) {
+            return $this->openChainIdsCache;
+        }
+        $this->openChainIdsCache = $this->invoices->getOpenChainIds();
+        $this->openChainIdsCacheAt = time();
+        return $this->openChainIdsCache;
+    }
+
+    /** @return int[] */
+    private function activeIntentChainIds(): array
+    {
+        if ($this->intentChainIdsCache !== null && (time() - $this->intentChainIdsCacheAt) < self::WATCH_CACHE_TTL) {
+            return $this->intentChainIdsCache;
+        }
+        $this->intentChainIdsCache = $this->billingIntents->getActiveChainIds();
+        $this->intentChainIdsCacheAt = time();
+        return $this->intentChainIdsCache;
+    }
+
+    /**
+     * Public read so the long-running command can pick an adaptive sleep
+     * cadence: fast tick when work to do, slow tick when idle.
+     */
+    public function hasAnyWatchTargets(): bool
+    {
+        return !empty($this->openChainIds()) || !empty($this->activeIntentChainIds());
     }
 
     private function resolveRpcUrl(array $chainCfg): string

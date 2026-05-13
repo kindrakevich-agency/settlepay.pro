@@ -52,10 +52,7 @@
                     {# dompdf will load the file relative to its chroot (= public/) — keep the path no leading slash. #}
                     <img src="{{ merchant.brandLogoPath }}" alt="{{ merchant.businessName }}" style="height: 22pt; vertical-align: middle;">
                 {% else %}
-                    <span class="brand-mark"></span>
-                    <span style="font-size: 14pt; font-weight: 600; vertical-align: middle;">
-                        <span style="color: #0f172a;">settle</span><span style="color: {{ _brand }};">pay</span>
-                    </span>
+                    <img src="email-logo.png" alt="Settlepay" style="height: 22pt; vertical-align: middle;">
                 {% endif %}
             </td>
             <td class="right">

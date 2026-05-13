@@ -41,6 +41,9 @@ class ChainListenCommand extends Command
         'arbitrum_sepolia' => 5,
     ];
 
+    /** Sleep cadence when there's nothing to watch — saves RPC compute on idle prod. */
+    private const IDLE_SLEEP_SECONDS = 30;
+
     public function __construct(
         private readonly BlockListener $listener,
         private readonly ChainRegistry $chains,
@@ -108,8 +111,13 @@ class ChainListenCommand extends Command
             }
             if ($once) break;
 
-            // Sleep for the shortest cadence among the chains we're watching.
-            $sleep = min(array_map(static fn(string $k): int => self::SLEEP_SECONDS[$k] ?? 10, $chainsToWatch));
+            // Adaptive sleep: fast tick when something to watch, slow tick
+            // when fully idle (no open invoices + no recent billing intents).
+            // Drops the per-tick eth_blockNumber baseline from 5s → 30s when
+            // there's literally no work to do.
+            $sleep = $this->listener->hasAnyWatchTargets()
+                ? min(array_map(static fn(string $k): int => self::SLEEP_SECONDS[$k] ?? 10, $chainsToWatch))
+                : self::IDLE_SLEEP_SECONDS;
             for ($i = 0; $i < $sleep && !$shouldStop && time() < $deadline; $i++) {
                 sleep(1);
             }

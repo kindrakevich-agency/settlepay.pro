@@ -44,6 +44,35 @@ class InvoiceRepository extends ServiceEntityRepository
     }
 
     /**
+     * Distinct chain IDs referenced by any currently-open invoice (the
+     * union of every accepted_chains JSON array). The listener uses this
+     * to skip polling chains nobody is actually watching for.
+     *
+     * Done in PHP instead of DQL because Doctrine doesn't ship a portable
+     * JSON_CONTAINS, and open-invoice cardinality stays low (<100 in
+     * practice).
+     *
+     * @return int[]
+     */
+    public function getOpenChainIds(): array
+    {
+        $rows = $this->createQueryBuilder('i')
+            ->select('i.acceptedChains')
+            ->where('i.status IN (:open)')
+            ->setParameter('open', ['sent', 'viewed', 'partially_paid', 'overdue'])
+            ->getQuery()
+            ->getResult();
+
+        $chains = [];
+        foreach ($rows as $r) {
+            foreach (($r['acceptedChains'] ?? []) as $c) {
+                $chains[(int) $c] = true;
+            }
+        }
+        return array_keys($chains);
+    }
+
+    /**
      * @return Invoice[]
      */
     public function findOpenByRecipient(string $address): array
