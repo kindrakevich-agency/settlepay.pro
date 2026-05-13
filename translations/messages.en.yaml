@@ -459,6 +459,8 @@ invoice:
     void: Void
     save_changes: 'Save changes'
     confirm_void: "Void this invoice? It can't be undone, and the public payment link will stop working."
+    confirm_void_title: "Void this invoice?"
+    void_confirm_button: "Yes, void invoice"
 
 pdf:
     invoice: Invoice

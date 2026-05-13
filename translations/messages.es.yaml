@@ -457,6 +457,8 @@ invoice:
     void: Anular
     save_changes: 'Guardar cambios'
     confirm_void: '¿Anular esta factura? La acción no se puede deshacer y el enlace público de pago dejará de funcionar.'
+    confirm_void_title: '¿Anular esta factura?'
+    void_confirm_button: 'Sí, anular factura'
 
 pdf:
     invoice: Factura
