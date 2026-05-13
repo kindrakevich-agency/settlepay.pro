@@ -11,7 +11,7 @@
     {% include 'dashboard/admin/_nav.html.twig' %}
 
     {# Top counters #}
-    <div class="grid sm:grid-cols-4 gap-4 mb-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Total users</span>
             <div class="mt-2 font-display text-3xl font-semibold tabular-nums">{{ users }}</div>
@@ -21,6 +21,11 @@
             <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Last 7 days</span>
             <div class="mt-2 font-display text-3xl font-semibold tabular-nums">{{ users_last_7d }}</div>
             <p class="mt-1 text-xs text-slate-500">new signups</p>
+        </div>
+        <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+            <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Open invoices</span>
+            <div class="mt-2 font-display text-3xl font-semibold tabular-nums">{{ open_invoices }}</div>
+            <p class="mt-1 text-xs text-slate-500">{{ open_invoices > 0 ? 'listener polling' : 'listener idle' }}</p>
         </div>
         <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
             <span class="text-xs font-medium text-slate-500 uppercase tracking-wide">Fee revenue</span>

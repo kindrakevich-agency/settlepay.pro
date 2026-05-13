@@ -7,6 +7,7 @@ use App\Entity\Workspace;
 use App\Entity\WorkspaceMember;
 use App\Repository\UserRepository;
 use App\Repository\WorkspaceInvitationRepository;
+use App\Service\Admin\AdminNotifier;
 use App\Service\Auth\GoogleTokenVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -47,6 +48,7 @@ class GoogleAuthController extends AbstractController
         private readonly WorkspaceInvitationRepository $invitations,
         private readonly Security $security,
         private readonly LoggerInterface $logger,
+        private readonly AdminNotifier $adminNotifier,
         private readonly bool $googleAuthEnabled,
     ) {}
 
@@ -83,10 +85,12 @@ class GoogleAuthController extends AbstractController
         $user = $this->users->findOneBy(['googleSub' => $sub])
             ?? $this->users->findOneBy(['email' => $email]);
 
+        $isNewUser = false;
         if (!$user) {
             $user = $this->createUserFromClaims($email, $sub, $claims, $request);
             $this->provisionWorkspace($user);
             $this->autoAcceptInvitations($user);
+            $isNewUser = true;
         } else {
             // Auto-link by email: stamp the google_sub on first Google sign-in
             // for a pre-existing email/password user.
@@ -105,6 +109,10 @@ class GoogleAuthController extends AbstractController
         }
         $user->setLastLoginAt(new \DateTimeImmutable());
         $this->em->flush();
+
+        if ($isNewUser) {
+            $this->adminNotifier->notifyNewSignup($user, 'google');
+        }
 
         // Authenticate against the 'main' firewall — same as form_login.
         $this->security->login($user, firewallName: 'main');

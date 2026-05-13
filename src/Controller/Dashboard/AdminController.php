@@ -43,6 +43,10 @@ class AdminController extends AbstractController
             'SELECT status, COUNT(*) AS n FROM invoices GROUP BY status ORDER BY n DESC'
         );
 
+        $openInvoices = (int) $this->db->fetchOne(
+            "SELECT COUNT(*) FROM invoices WHERE status IN ('draft','sent','viewed','overdue','partially_paid')"
+        );
+
         $revenue = $this->db->fetchAssociative(
             'SELECT COUNT(*) AS payments, COALESCE(SUM(amount_usd_cents), 0) AS total_cents FROM fee_payments'
         );
@@ -64,6 +68,7 @@ class AdminController extends AbstractController
             'users_google'      => $usersGoogle,
             'users_verified'    => $usersVerified,
             'users_last_7d'     => $usersLast7d,
+            'open_invoices'     => $openInvoices,
             'workspaces_by_plan'=> $workspacesByPlan,
             'invoices_by_status'=> $invoicesByStatus,
             'fee_payments'      => $revenue,

@@ -1,0 +1,13 @@
+New signup on Settlepay
+
+Email:    {{ user.email }}
+{% if user.displayName %}Name:     {{ user.displayName }}
+{% endif %}Method:   {{ via|capitalize }}
+Locale:   {{ user.defaultLocale|default('en')|upper }}
+When:     {{ signed_up_at|date('Y-m-d H:i:s T') }}
+User ID:  {{ user.id }}
+
+Open admin → https://settlepay.pro/en/app/admin/users
+
+—
+You receive this because you are in ADMIN_EMAILS on the Settlepay server.

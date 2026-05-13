@@ -7,6 +7,7 @@ use App\Entity\Workspace;
 use App\Entity\WorkspaceMember;
 use App\Repository\UserRepository;
 use App\Repository\WorkspaceInvitationRepository;
+use App\Service\Admin\AdminNotifier;
 use App\Service\Auth\AuthMailer;
 use App\Service\Auth\TokenGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,6 +27,7 @@ class RegistrationController extends AbstractController
         private readonly TokenGenerator $tokens,
         private readonly AuthMailer $mailer,
         private readonly WorkspaceInvitationRepository $invitations,
+        private readonly AdminNotifier $adminNotifier,
     ) {}
 
     #[Route(
@@ -99,6 +101,8 @@ class RegistrationController extends AbstractController
                     // Mail failure shouldn't block account creation — user can
                     // request a resend from /verify-email.
                 }
+
+                $this->adminNotifier->notifyNewSignup($user, 'email');
 
                 return $this->redirectToRoute('auth_check_email', ['_locale' => $request->getLocale()]);
             }
