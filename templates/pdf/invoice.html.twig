@@ -7,9 +7,11 @@
     <meta charset="UTF-8">
     <title>{{ invoice.number }}</title>
     <style>
-        @page { margin: 28mm 22mm 22mm 22mm; }
+        @page { margin: 14mm 22mm 22mm 22mm; }
         body  { font-family: 'DejaVu Sans', sans-serif; font-size: 10pt; color: #0f172a; line-height: 1.45; }
         h1    { font-size: 22pt; font-weight: 600; margin: 0 0 4pt 0; color: #0f172a; letter-spacing: -0.5pt; }
+        .header-bar h1 { font-size: 14pt; margin: 0; }
+        .header-bar td { vertical-align: middle !important; }
         h2    { font-size: 11pt; font-weight: 600; margin: 0 0 6pt 0; text-transform: uppercase; letter-spacing: 1pt; color: #64748b; }
         .muted { color: #64748b; }
         .mono  { font-family: 'DejaVu Sans Mono', monospace; font-size: 9pt; }
@@ -50,9 +52,9 @@
             <td>
                 {% if merchant.brandLogoPath %}
                     {# dompdf will load the file relative to its chroot (= public/) — keep the path no leading slash. #}
-                    <img src="{{ merchant.brandLogoPath }}" alt="{{ merchant.businessName }}" style="height: 22pt; vertical-align: middle;">
+                    <img src="{{ merchant.brandLogoPath }}" alt="{{ merchant.businessName }}" style="height: 18pt; vertical-align: middle;">
                 {% else %}
-                    <img src="email-logo.png" alt="Settlepay" style="height: 22pt; vertical-align: middle;">
+                    <img src="email-logo.png" alt="Settlepay" style="height: 18pt; vertical-align: middle;">
                 {% endif %}
             </td>
             <td class="right">
