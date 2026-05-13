@@ -92,6 +92,35 @@ class BillingIntentRepository extends ServiceEntityRepository
         return $best;
     }
 
+    /**
+     * Should the listener be watching the platform wallet right now?
+     *
+     * Two conditions:
+     *   - Active checkout: at least one pending non-expired intent.
+     *   - Late-payer grace window: at least one intent CREATED in the
+     *     last 24h, regardless of status. Catches users who started
+     *     checkout, let the 1h pending TTL expire, and paid anyway.
+     *
+     * If neither is true, the listener can safely skip the platform
+     * wallet from its eth_getLogs filter — saves a big chunk of Alchemy
+     * compute on idle prod (the alternative is polling the wallet 24/7
+     * just in case).
+     */
+    public function shouldWatchPlatformWallet(): bool
+    {
+        $now    = new \DateTimeImmutable();
+        $window = $now->modify('-24 hours');
+        $count  = (int) $this->createQueryBuilder('i')
+            ->select('COUNT(i.id)')
+            ->where('(i.status = :pending AND i.expiresAt > :now) OR i.createdAt > :window')
+            ->setParameter('pending', BillingIntentStatus::Pending->value)
+            ->setParameter('now', $now)
+            ->setParameter('window', $window)
+            ->getQuery()
+            ->getSingleScalarResult();
+        return $count > 0;
+    }
+
     /** Bulk-expire pending intents past their TTL — called by app:billing:check-renewals (Phase 2). */
     public function expireStale(): int
     {

@@ -2,6 +2,7 @@
 
 namespace App\Service\Blockchain;
 
+use App\Repository\BillingIntentRepository;
 use App\Repository\ChainCursorRepository;
 use App\Repository\InvoiceRepository;
 use App\Service\Billing\BillingPaymentMatcher;
@@ -25,6 +26,7 @@ final class BlockListener
         private readonly ChainRegistry $chains,
         private readonly ChainCursorRepository $cursors,
         private readonly InvoiceRepository $invoices,
+        private readonly BillingIntentRepository $billingIntents,
         private readonly PaymentMatcher $matcher,
         private readonly BillingPaymentMatcher $billingMatcher,
         private readonly PlatformWallet $platformWallet,
@@ -89,10 +91,14 @@ final class BlockListener
         $contractAddresses = array_values(array_map(static fn(array $t): string => strtolower($t['address']), $tokens));
 
         $recipients = $this->invoices->getOpenRecipientAddresses();
-        // Also watch the platform wallet (billing payments — subscriptions,
-        // fee settlements). Same listener, two destinations.
+        // Also watch the platform wallet — but ONLY when there's a
+        // non-expired pending billing intent. Nobody's mid-checkout means
+        // nobody's about to send the platform a Transfer, so polling the
+        // wallet every tick would burn RPC compute for no reason. The
+        // pending-intent check is one cheap DB count vs every eth_getLogs
+        // costing ~75-260 Alchemy CUs.
         $platformAddr = $this->platformWallet->getAddress();
-        if ($platformAddr !== null) {
+        if ($platformAddr !== null && $this->billingIntents->shouldWatchPlatformWallet()) {
             $recipients[] = $platformAddr;
             $recipients = array_values(array_unique($recipients));
         }
